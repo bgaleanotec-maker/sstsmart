@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Nueva Dependencia - Admin SST{% endblock %}
+{% block page_title %}Nueva Dependencia{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Nombre *</label>
+                    <input type="text" name="nombre" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ej: Oficina Calle 15">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Categoría *</label>
+                    <select name="categoria_id" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">-- Selecciona categoría --</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.icono or '' }} {{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Descripción</label>
+                <textarea name="descripcion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Describe esta dependencia"></textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Dirección</label>
+                <input type="text" name="direccion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ej: Calle 15 #45-67, Bogotá">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Latitud</label>
+                    <input type="number" name="latitud" step="0.000001" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="4.7110">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Longitud</label>
+                    <input type="number" name="longitud" step="0.000001" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="-74.0721">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Roles Vinculados</label>
+                <div class="space-y-2">
+                    {% for rol in roles %}
+                    <label class="flex items-center">
+                        <input type="checkbox" name="roles" value="{{ rol.id }}" class="mr-2 w-4 h-4 rounded">
+                        <span class="text-sm">{{ rol.nombre }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <p class="text-gray-500 text-xs mt-2">Los roles seleccionados verán esta dependencia al reportar</p>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Crear Dependencia
+                </button>
+                <a href="{{ url_for('admin.listar_dependencias') }}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

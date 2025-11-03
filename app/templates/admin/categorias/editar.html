@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Editar Categoría - Admin SST{% endblock %}
+{% block page_title %}Editar Categoría{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-semibold mb-2">Nombre *</label>
+                <input type="text" name="nombre" value="{{ categoria.nombre }}" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Descripción</label>
+                <textarea name="descripcion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3">{{ categoria.descripcion or '' }}</textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Icono</label>
+                    <input type="text" name="icono" value="{{ categoria.icono or '' }}" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Color</label>
+                    <input type="color" name="color" value="{{ categoria.color }}" class="w-full h-10 border rounded">
+                </div>
+            </div>
+            
+            <div>
+                <label class="flex items-center">
+                    <input type="checkbox" name="activa" {% if categoria.activa %}checked{% endif %} class="mr-2 w-4 h-4 rounded">
+                    <span class="text-sm font-semibold">Activa</span>
+                </label>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Guardar Cambios
+                </button>
+                <a href="{{ url_for('admin.listar_categorias') }}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Metodologías - Admin SST{% endblock %}
+{% block page_title %}Metodologías de Investigación{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Metodologías de Investigación</h1>
+    <a href="{{ url_for('admin.crear_metodologia') }}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+        + Nueva Metodología
+    </a>
+</div>
+
+{% if metodologias %}
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-100 border-b">
+            <tr>
+                <th class="p-4 text-left font-semibold">Nombre</th>
+                <th class="p-4 text-left font-semibold">Descripción</th>
+                <th class="p-4 text-left font-semibold">Estado</th>
+                <th class="p-4 text-left font-semibold">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for met in metodologias %}
+            <tr class="border-t hover:bg-gray-50">
+                <td class="p-4 font-semibold">{{ met.nombre }}</td>
+                <td class="p-4 text-sm">{{ met.descripcion[:50] or 'N/A' }}</td>
+                <td class="p-4">
+                    {% if met.activa %}
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Activa</span>
+                    {% else %}
+                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td class="p-4 flex gap-2">
+                    <a href="#" class="text-blue-600 hover:underline text-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+    <p class="text-gray-600">No hay metodologías. <a href="{{ url_for('admin.crear_metodologia') }}" class="text-red-600 hover:underline font-semibold">Crear una ahora</a></p>
+</div>
+{% endif %}
+{% endblock %}

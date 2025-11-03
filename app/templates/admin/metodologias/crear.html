@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Nueva Metodología - Admin SST{% endblock %}
+{% block page_title %}Nueva Metodología de Investigación{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-semibold mb-2">Nombre *</label>
+                <input type="text" name="nombre" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ej: Espina de Pescado">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Descripción</label>
+                <textarea name="descripcion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" rows="3" placeholder="Describe esta metodología de investigación"></textarea>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded p-4">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Metodologías comunes:</strong> Espina de Pescado, 5 Porqués, Árbol de Causas, Diagrama de Ishikawa
+                </p>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Crear Metodología
+                </button>
+                <a href="{{ url_for('admin.listar_metodologias') }}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

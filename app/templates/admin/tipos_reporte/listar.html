@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Tipos de Reporte - Admin SST{% endblock %}
+{% block page_title %}Tipos de Reporte{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Tipos de Reporte</h1>
+    <a href="{{ url_for('admin.crear_tipo_reporte') }}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+        + Nuevo Tipo
+    </a>
+</div>
+
+{% if tipos %}
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-100 border-b">
+            <tr>
+                <th class="p-4 text-left font-semibold">Nombre</th>
+                <th class="p-4 text-left font-semibold">Descripción</th>
+                <th class="p-4 text-left font-semibold">Requiere Investigación</th>
+                <th class="p-4 text-left font-semibold">Estado</th>
+                <th class="p-4 text-left font-semibold">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipo in tipos %}
+            <tr class="border-t hover:bg-gray-50">
+                <td class="p-4 font-semibold">{{ tipo.nombre }}</td>
+                <td class="p-4 text-sm">{{ tipo.descripcion[:50] or 'N/A' }}</td>
+                <td class="p-4">
+                    {% if tipo.requiere_investigacion %}
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold">Sí</span>
+                    {% else %}
+                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded text-xs font-bold">No</span>
+                    {% endif %}
+                </td>
+                <td class="p-4">
+                    {% if tipo.activo %}
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Activo</span>
+                    {% else %}
+                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td class="p-4 flex gap-2">
+                    <a href="{{ url_for('admin.editar_tipo_reporte', id=tipo.id) }}" class="text-blue-600 hover:underline text-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
+    <p class="text-gray-600">No hay tipos de reporte. <a href="{{ url_for('admin.crear_tipo_reporte') }}" class="text-purple-600 hover:underline font-semibold">Crear uno ahora</a></p>
+</div>
+{% endif %}
+{% endblock %}

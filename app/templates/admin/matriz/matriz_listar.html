@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Riesgos 5x5 - Admin SST</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-900 text-white p-6 overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-8">
+                <i class="fas fa-shield-alt mr-2"></i> Admin SST
+            </h2>
+            <nav class="space-y-4">
+                <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <div class="text-sm font-bold text-blue-200 mt-6">MATRIZ DE RIESGOS</div>
+                <a href="{{ url_for('admin.listar_niveles_riesgo') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-layer-group mr-2"></i> Niveles de Riesgo
+                </a>
+                <a href="{{ url_for('admin.listar_matriz_riesgos') }}" class="block px-4 py-2 rounded bg-blue-700">
+                    <i class="fas fa-th mr-2"></i> Matriz 5x5
+                </a>
+                <a href="{{ url_for('admin.listar_gestores_responsables') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-user-tie mr-2"></i> Gestores Responsables
+                </a>
+                <a href="{{ url_for('admin.listar_reglas_escalonamiento') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-arrow-up mr-2"></i> Reglas de Escalonamiento
+                </a>
+            </nav>
+
+            <!-- Leyenda de Niveles -->
+            <div class="mt-8 pt-8 border-t border-blue-700">
+                <h3 class="font-bold text-sm text-blue-200 mb-4">NIVELES DE RIESGO</h3>
+                {% for nivel in niveles %}
+                <div class="flex items-center gap-2 mb-2 text-sm">
+                    <span class="w-4 h-4 rounded" style="background-color: {{ nivel.color }};"></span>
+                    <span>{{ nivel.nombre }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-auto">
+            <div class="max-w-7xl">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-th mr-2"></i> Matriz de Riesgos 5x5
+                    </h1>
+                    <p class="text-gray-600">
+                        Configure la matriz: Probabilidad (Filas) x Severidad (Columnas) = Nivel de Riesgo
+                    </p>
+                </div>
+
+                <!-- Info -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>
+                    <strong>Instrucciones:</strong> Haz clic en cada celda para asignar el nivel de riesgo y la regla de escalonamiento correspondiente.
+                </div>
+
+                <!-- Matriz -->
+                <div class="bg-white rounded-lg shadow p-8 overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border p-2 bg-gray-200 text-center text-sm font-bold" colspan="2">
+                                    P × S
+                                </th>
+                                <th class="border p-3 bg-gray-100 text-center font-bold text-sm">
+                                    <i class="fas fa-arrow-right mr-1"></i>
+                                    Severidad →
+                                </th>
+                                {% for s in [1, 2, 3, 4, 5] %}
+                                <th class="border p-3 bg-gray-200 text-center font-bold" style="width: 120px;">
+                                    <span class="text-sm">{{ ['Mínima', 'Baja', 'Media', 'Alta', 'Crítica'][s-1] }}</span>
+                                    <br>
+                                    <span class="text-xs text-gray-600">({{ s }})</span>
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in [5, 4, 3, 2, 1] %}
+                            <tr>
+                                <td class="border p-3 bg-gray-200 font-bold text-center" style="width: 80px;">
+                                    <span class="text-sm">{{ ['Remota', 'Baja', 'Media', 'Alta', 'Muy Alta'][5-p] }}</span>
+                                </td>
+                                <td class="border p-2 bg-gray-100 font-bold text-center">
+                                    <span class="text-xs">({{ p }})</span>
+                                </td>
+                                <td class="border p-2 bg-gray-50 text-center text-xs font-bold text-gray-600">
+                                    ↓ <br> P
+                                </td>
+                                {% for s in [1, 2, 3, 4, 5] %}
+                                <td class="border p-1" style="width: 120px;">
+                                    {% set celda = matriz[p][s] %}
+                                    {% set color = '#FFFFFF' %}
+                                    {% if celda and celda.nivel_riesgo_obj %}
+                                        {% set color = celda.nivel_riesgo_obj.color %}
+                                    {% endif %}
+                                    
+                                    <button 
+                                        class="w-full h-20 rounded text-center font-bold text-xs cursor-pointer hover:opacity-80 transition"
+                                        style="background-color: {{ color }}; border: 2px solid #ccc;"
+                                        onclick="abrirModalCelda({{ p }}, {{ s }})">
+                                        <div class="font-bold">{{ p * s }}</div>
+                                        {% if celda and celda.nivel_riesgo_obj %}
+                                            <div class="text-xs mt-1">{{ celda.nivel_riesgo_obj.nombre }}</div>
+                                        {% else %}
+                                            <div class="text-xs text-gray-500">Sin asignar</div>
+                                        {% endif %}
+                                    </button>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Referencia -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-bold text-blue-900 mb-2">
+                            <i class="fas fa-bars mr-2"></i> Escala de Probabilidad
+                        </h3>
+                        <ul class="text-sm text-blue-800 space-y-1">
+                            <li><strong>5 - Muy Alta:</strong> Sucede casi siempre</li>
+                            <li><strong>4 - Alta:</strong> Sucede frecuentemente</li>
+                            <li><strong>3 - Media:</strong> Sucede ocasionalmente</li>
+                            <li><strong>2 - Baja:</strong> Raramente sucede</li>
+                            <li><strong>1 - Remota:</strong> Casi nunca sucede</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h3 class="font-bold text-green-900 mb-2">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Escala de Severidad
+                        </h3>
+                        <ul class="text-sm text-green-800 space-y-1">
+                            <li><strong>5 - Crítica:</strong> Muerte o daño permanente</li>
+                            <li><strong>4 - Alta:</strong> Incapacidad temporal prolongada</li>
+                            <li><strong>3 - Media:</strong> Incapacidad temporal corta</li>
+                            <li><strong>2 - Baja:</strong> Lesión menor</li>
+                            <li><strong>1 - Mínima:</strong> Casi sin lesión</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar celda -->
+    <div id="modalCelda" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-2xl font-bold mb-4">
+                Configurar Celda: P=<span id="modalP"></span> × S=<span id="modalS"></span> = <span id="modalValor"></span>
+            </h2>
+
+            <div class="space-y-4">
+                <!-- Nivel de Riesgo -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Nivel de Riesgo</label>
+                    <select id="selectNivel" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Selecciona nivel --</option>
+                        {% for nivel in niveles %}
+                        <option value="{{ nivel.id }}" style="background-color: {{ nivel.color }};">
+                            {{ nivel.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Regla de Escalonamiento -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Regla de Escalonamiento</label>
+                    <select id="selectRegla" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Selecciona regla --</option>
+                        {% for regla in reglas %}
+                        <option value="{{ regla.id }}">{{ regla.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-4 pt-6 border-t">
+                    <button onclick="guardarCelda()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold">
+                        Guardar
+                    </button>
+                    <button onclick="cerrarModalCelda()" class="flex-1 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 font-semibold">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let celdaActual = { p: null, s: null };
+
+        function abrirModalCelda(p, s) {
+            celdaActual = { p, s };
+            document.getElementById('modalP').textContent = p;
+            document.getElementById('modalS').textContent = s;
+            document.getElementById('modalValor').textContent = p * s;
+            document.getElementById('modalCelda').classList.remove('hidden');
+        }
+
+        function cerrarModalCelda() {
+            document.getElementById('modalCelda').classList.add('hidden');
+        }
+
+        async function guardarCelda() {
+            const nivelId = document.getElementById('selectNivel').value;
+            const reglaId = document.getElementById('selectRegla').value;
+
+            try {
+                const response = await fetch('{{ url_for("admin.editar_celda_matriz") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        probabilidad: celdaActual.p,
+                        severidad: celdaActual.s,
+                        nivel_riesgo_id: nivelId || null,
+                        regla_id: reglaId || null
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Celda actualizada correctamente');
+                    location.reload();
+                } else {
+                    alert('Error al actualizar la celda');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar');
+            }
+
+            cerrarModalCelda();
+        }
+
+        // Cerrar modal al presionar Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') cerrarModalCelda();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Reporte SST</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-12 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-file-alt mr-2"></i> Nuevo Reporte SST
+                </h1>
+                <p class="text-gray-600">Reporta un incidente, acto inseguro o condición insegura</p>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 rounded {% if category == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                <!-- SECCIÓN 1: INFORMACIÓN DEL REPORTADOR -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-blue-600">
+                        <i class="fas fa-user mr-2"></i> 1. Información del Reportador
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Nombre Completo *</label>
+                            <input type="text" name="reportador_nombre" value="{{ current_user.nombre_completo }}" required 
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Cargo</label>
+                            <input type="text" name="reportador_cargo" placeholder="Ej: Operario, Supervisor, etc."
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN 2: TIPO DE REPORTE -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-purple-600">
+                        <i class="fas fa-list mr-2"></i> 2. Tipo de Reporte
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Tipo de Reporte *</label>
+                            <select name="tipo_reporte_id" required id="tipo_reporte" 
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">-- Selecciona tipo --</option>
+                                {% for tipo in tipos_reporte %}
+                                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Tipo de Evidencia *</label>
+                            <select name="tipo_evidencia_id" required id="tipo_evidencia"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">-- Selecciona evidencia --</option>
+                                {% for tipo in tipos_evidencia %}
+                                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN 3: UBICACIÓN -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-green-600">
+                        <i class="fas fa-map-marker-alt mr-2"></i> 3. Ubicación del Incidente
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Categoría de Área *</label>
+                            <select id="categoria_select" required
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">-- Selecciona categoría --</option>
+                                {% for cat in categorias %}
+                                    <option value="{{ cat.id }}">{{ cat.icono or '' }} {{ cat.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Dependencia/Ubicación *</label>
+                            <select name="ubicacion_id" id="ubicacion_select" required
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">-- Selecciona dependencia --</option>
+                                {% for dep in dependencias %}
+                                    <option value="{{ dep.id }}" data-categoria="{{ dep.categoria_id }}">
+                                        {{ dep.nombre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-semibold mb-2">Ubicación Específica</label>
+                        <input type="text" name="ubicacion_especifica" placeholder="Ej: Esquina suroeste, Puerta principal, Fila 3..."
+                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN 4: DETALLES DEL INCIDENTE -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-orange-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> 4. Detalles del Incidente
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Fecha y Hora del Incidente *</label>
+                        <input type="datetime-local" name="fecha_incidente" required
+                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Título del Reporte *</label>
+                        <input type="text" name="titulo" required placeholder="Ej: Piso mojado sin señalización"
+                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-semibold mb-2">Descripción Detallada *</label>
+                        <textarea name="descripcion" required rows="5" placeholder="Describe qué sucedió, cómo ocurrió, quién estuvo involucrado, etc."
+                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                    </div>
+                </div>
+                
+                <!-- SECCIÓN 5: EVIDENCIA (IMAGEN) -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-red-600">
+                        <i class="fas fa-camera mr-2"></i> 5. Evidencia (Imagen Opcional)
+                    </h2>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <input type="file" name="imagen" id="imagen" accept="image/*" class="hidden">
+                        <label for="imagen" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-700 font-semibold">Haz clic para cargar una imagen</p>
+                            <p class="text-gray-500 text-sm">o arrastra una imagen aquí</p>
+                        </label>
+                        <div id="preview" class="mt-4 hidden">
+                            <img id="preview-img" src="" alt="Preview" class="max-h-48 mx-auto rounded">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold flex items-center justify-center">
+                        <i class="fas fa-check mr-2"></i> Crear Reporte
+                    </button>
+                    <a href="{{ url_for('reportes.listar') }}" class="flex-1 bg-gray-300 text-gray-800 px-6 py-3 rounded hover:bg-gray-400 font-semibold flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('categoria_select').addEventListener('change', function(e) {
+            const categoriaId = e.target.value;
+            const ubicacionSelect = document.getElementById('ubicacion_select');
+            
+            if (!categoriaId) {
+                Array.from(ubicacionSelect.options).forEach(opt => {
+                    opt.style.display = opt.value ? 'block' : '';
+                });
+            } else {
+                Array.from(ubicacionSelect.options).forEach(opt => {
+                    if (!opt.value) {
+                        opt.style.display = 'block';
+                    } else {
+                        opt.style.display = opt.dataset.categoria == categoriaId ? 'block' : 'none';
+                    }
+                });
+            }
+        });
+        
+        document.getElementById('imagen').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('preview-img').src = event.target.result;
+                    document.getElementById('preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin SST{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="flex">
+        <!-- SIDEBAR -->
+        <div class="w-64 bg-blue-900 text-white min-h-screen p-6">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold">🔧 Admin SST</h1>
+                <p class="text-blue-200 text-sm">Configuración del Sistema</p>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-chart-line mr-2"></i> Dashboard
+                </a>
+                
+                <div class="pt-4 pb-2">
+                    <p class="text-blue-200 text-xs font-bold px-4">CONFIGURACIÓN</p>
+                </div>
+                
+                <a href="{{ url_for('admin.listar_categorias') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-folder mr-2"></i> Categorías
+                </a>
+                <a href="{{ url_for('admin.listar_dependencias') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-building mr-2"></i> Dependencias
+                </a>
+                <a href="{{ url_for('admin.listar_tipos_reporte') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-list mr-2"></i> Tipos de Reporte
+                </a>
+                <a href="{{ url_for('admin.listar_tipos_evidencia') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-eye mr-2"></i> Tipos de Evidencia
+                </a>
+                <a href="{{ url_for('admin.listar_metodologias') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-book mr-2"></i> Metodologías
+                </a>
+                
+                <div class="pt-4 pb-2">
+                    <p class="text-blue-200 text-xs font-bold px-4">OTRAS</p>
+                </div>
+                
+                <a href="{{ url_for('reportes.listar') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver a Reportes
+                </a>
+            </nav>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div class="flex-1">
+            <!-- NAVBAR TOP -->
+            <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">{% block page_title %}Admin{% endblock %}</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-600">{{ current_user.nombre_completo }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Salir
+                    </a>
+                </div>
+            </div>
+            
+            <!-- CONTENT -->
+            <div class="p-6">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 p-4 rounded 
+                                {% if category == 'success' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

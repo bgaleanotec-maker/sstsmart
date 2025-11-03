@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Nuevo Tipo Evidencia - Admin SST{% endblock %}
+{% block page_title %}Nuevo Tipo de Evidencia{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-lg shadow p-8">
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-semibold mb-2">Nombre *</label>
+                <input type="text" name="nombre" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ej: Acto Inseguro (RIESGO)">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Código</label>
+                <input type="text" name="codigo" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ej: ACTO_INSEGURO_RIESGO">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-2">Descripción</label>
+                <textarea name="descripcion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500" rows="3" placeholder="Describe este tipo de evidencia"></textarea>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Crear Tipo
+                </button>
+                <a href="{{ url_for('admin.listar_tipos_evidencia') }}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

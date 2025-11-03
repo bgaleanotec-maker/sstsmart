@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Regla de Escalonamiento - Admin SST</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-900 text-white p-6 overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-8">
+                <i class="fas fa-shield-alt mr-2"></i> Admin SST
+            </h2>
+            <nav class="space-y-4">
+                <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <div class="text-sm font-bold text-blue-200 mt-6">MATRIZ DE RIESGOS</div>
+                <a href="{{ url_for('admin.listar_reglas_escalonamiento') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-arrow-up mr-2"></i> Reglas
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-auto">
+            <div class="max-w-3xl">
+                <!-- Header -->
+                <a href="{{ url_for('admin.listar_reglas_escalonamiento') }}" class="text-blue-600 hover:underline mb-4 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver
+                </a>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-arrow-up mr-2"></i> Nueva Regla de Escalonamiento
+                </h1>
+                <p class="text-gray-600 mb-8">Define cómo se escalan automáticamente los reportes que no son respondidos</p>
+
+                <!-- Form -->
+                <form method="POST" class="space-y-6">
+                    <!-- Sección 1: Identificación -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-info-circle mr-2"></i> 1. Información General
+                        </h3>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Nombre de la Regla *</label>
+                            <input type="text" name="nombre" required placeholder="Ej: Escalonamiento Crítico, Escalonamiento Moderado"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-semibold mb-2">Descripción</label>
+                            <textarea name="descripcion" rows="3" placeholder="Describe para qué se usa esta regla..."
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Rango de Aplicación -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-chart-line mr-2"></i> 2. Aplica a Riesgos
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Valor Mínimo *</label>
+                                <input type="number" name="nivel_riesgo_minimo" value="1" required 
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">Ej: 1 (para Aceptable)</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Valor Máximo *</label>
+                                <input type="number" name="nivel_riesgo_maximo" value="25" required 
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">Ej: 25 (para Inaceptable)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Tiempos -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-clock mr-2"></i> 3. Tiempos
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Tiempo de Respuesta (minutos) *</label>
+                                <input type="number" name="tiempo_respuesta_minutos" value="30" required 
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">Tiempo máximo para primera respuesta</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Tiempo de Resolución (minutos) *</label>
+                                <input type="number" name="tiempo_resolucion_minutos" value="1440" required 
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">1440 = 1 día, 480 = 8 horas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 4: Pasos de Escalonamiento -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">
+                                <i class="fas fa-arrow-up mr-2"></i> 4. Pasos de Escalonamiento
+                            </h3>
+                            <button type="button" id="btnAgregarPaso" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                                <i class="fas fa-plus mr-2"></i> Agregar Paso
+                            </button>
+                        </div>
+
+                        <div id="pasos-container" class="space-y-4">
+                            <!-- Primer paso por defecto -->
+                            <div class="paso-escalonamiento border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-bold text-gray-900">Paso <span class="numero-paso">1</span></h4>
+                                    <button type="button" class="btn-eliminar-paso text-red-600 hover:text-red-800 text-sm" onclick="if(document.querySelectorAll('.paso-escalonamiento').length > 1) this.closest('.paso-escalonamiento').remove();">
+                                        <i class="fas fa-trash mr-1"></i> Eliminar
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-1">Descripción del Paso</label>
+                                        <input type="text" name="paso_1_descripcion" placeholder="Ej: Escalar a Gerente"
+                                            class="w-full px-3 py-2 border rounded text-sm">
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm font-semibold mb-1">Rol Destino</label>
+                                            <select name="paso_1_rol" class="w-full px-3 py-2 border rounded text-sm">
+                                                <option value="">-- Selecciona rol --</option>
+                                                {% for rol in roles %}
+                                                    <option value="{{ rol.nombre }}">{{ rol.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold mb-1">Delay (minutos)</label>
+                                            <input type="number" name="paso_1_minutos" value="30" min="1"
+                                                class="w-full px-3 py-2 border rounded text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="num_pasos" id="num_pasos" value="1">
+
+                        <p class="text-gray-600 text-sm mt-4">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Cada paso se ejecuta X minutos después del anterior si no hay respuesta
+                        </p>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-bold text-blue-900 mb-2">
+                            <i class="fas fa-info-circle mr-2"></i> Ejemplo
+                        </h4>
+                        <p class="text-sm text-blue-800 mb-2">
+                            <strong>Regla "Crítico":</strong> Para reportes de riesgo 17-25
+                        </p>
+                        <ul class="text-sm text-blue-800 space-y-1">
+                            <li>• Tiempo respuesta: 30 min (gestor debe responder en 30 min)</li>
+                            <li>• Paso 1: Si no responde en 30 min → Escalar a Gerente (+30 min delay)</li>
+                            <li>• Paso 2: Si sigue sin responder en 60 min → Escalar a Dirección</li>
+                            <li>• Tiempo resolución: 480 min (8 horas) para resolver completamente</li>
+                        </ul>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex gap-4 pt-6 border-t">
+                        <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold flex items-center justify-center">
+                            <i class="fas fa-check mr-2"></i> Crear Regla
+                        </button>
+                        <a href="{{ url_for('admin.listar_reglas_escalonamiento') }}" class="flex-1 bg-gray-300 text-gray-800 px-6 py-3 rounded hover:bg-gray-400 font-semibold flex items-center justify-center">
+                            <i class="fas fa-times mr-2"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let numPasos = 1;
+
+        document.getElementById('btnAgregarPaso').addEventListener('click', function() {
+            numPasos++;
+            const container = document.getElementById('pasos-container');
+            const nuevoPaso = document.createElement('div');
+            nuevoPaso.className = 'paso-escalonamiento border-2 border-dashed border-gray-300 rounded-lg p-4';
+            nuevoPaso.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-bold text-gray-900">Paso <span class="numero-paso">${numPasos}</span></h4>
+                    <button type="button" class="btn-eliminar-paso text-red-600 hover:text-red-800 text-sm">
+                        <i class="fas fa-trash mr-1"></i> Eliminar
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Descripción del Paso</label>
+                        <input type="text" name="paso_${numPasos}_descripcion" placeholder="Ej: Escalar a Dirección"
+                            class="w-full px-3 py-2 border rounded text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Rol Destino</label>
+                            <select name="paso_${numPasos}_rol" class="w-full px-3 py-2 border rounded text-sm">
+                                <option value="">-- Selecciona rol --</option>
+                                {% for rol in roles %}
+                                    <option value="{{ rol.nombre }}">{{ rol.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Delay (minutos)</label>
+                            <input type="number" name="paso_${numPasos}_minutos" value="30" min="1"
+                                class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            nuevoPaso.querySelector('.btn-eliminar-paso').addEventListener('click', function() {
+                if(document.querySelectorAll('.paso-escalonamiento').length > 1) {
+                    nuevoPaso.remove();
+                }
+            });
+
+            container.appendChild(nuevoPaso);
+            document.getElementById('num_pasos').value = numPasos;
+        });
+    </script>
+</body>
+</html>

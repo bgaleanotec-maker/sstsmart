@@ -1,0 +1,96 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin SST{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <!-- Categorías -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-600 text-sm">Categorías</p>
+                <p class="text-3xl font-bold text-blue-600">{{ stats.categorias }}</p>
+            </div>
+            <i class="fas fa-folder text-blue-300 text-2xl"></i>
+        </div>
+        <a href="{{ url_for('admin.listar_categorias') }}" class="text-blue-600 text-sm hover:underline mt-2 inline-block">
+            Ver más →
+        </a>
+    </div>
+    
+    <!-- Dependencias -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-600 text-sm">Dependencias</p>
+                <p class="text-3xl font-bold text-green-600">{{ stats.dependencias }}</p>
+            </div>
+            <i class="fas fa-building text-green-300 text-2xl"></i>
+        </div>
+        <a href="{{ url_for('admin.listar_dependencias') }}" class="text-green-600 text-sm hover:underline mt-2 inline-block">
+            Ver más →
+        </a>
+    </div>
+    
+    <!-- Tipos Reporte -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-600 text-sm">Tipos Reporte</p>
+                <p class="text-3xl font-bold text-purple-600">{{ stats.tipos_reporte }}</p>
+            </div>
+            <i class="fas fa-list text-purple-300 text-2xl"></i>
+        </div>
+        <a href="{{ url_for('admin.listar_tipos_reporte') }}" class="text-purple-600 text-sm hover:underline mt-2 inline-block">
+            Ver más →
+        </a>
+    </div>
+    
+    <!-- Tipos Evidencia -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-600 text-sm">Tipos Evidencia</p>
+                <p class="text-3xl font-bold text-orange-600">{{ stats.tipos_evidencia }}</p>
+            </div>
+            <i class="fas fa-eye text-orange-300 text-2xl"></i>
+        </div>
+        <a href="{{ url_for('admin.listar_tipos_evidencia') }}" class="text-orange-600 text-sm hover:underline mt-2 inline-block">
+            Ver más →
+        </a>
+    </div>
+    
+    <!-- Metodologías -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-600 text-sm">Metodologías</p>
+                <p class="text-3xl font-bold text-red-600">{{ stats.metodologias }}</p>
+            </div>
+            <i class="fas fa-book text-red-300 text-2xl"></i>
+        </div>
+        <a href="{{ url_for('admin.listar_metodologias') }}" class="text-red-600 text-sm hover:underline mt-2 inline-block">
+            Ver más →
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-bold mb-4">Acciones Rápidas</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="{{ url_for('admin.crear_categoria') }}" class="p-4 border rounded hover:bg-gray-50 transition">
+            <i class="fas fa-plus text-blue-600 text-xl mb-2"></i>
+            <p class="font-semibold">Nueva Categoría</p>
+        </a>
+        <a href="{{ url_for('admin.crear_dependencia') }}" class="p-4 border rounded hover:bg-gray-50 transition">
+            <i class="fas fa-plus text-green-600 text-xl mb-2"></i>
+            <p class="font-semibold">Nueva Dependencia</p>
+        </a>
+        <a href="{{ url_for('admin.crear_tipo_reporte') }}" class="p-4 border rounded hover:bg-gray-50 transition">
+            <i class="fas fa-plus text-purple-600 text-xl mb-2"></i>
+            <p class="font-semibold">Nuevo Tipo Reporte</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

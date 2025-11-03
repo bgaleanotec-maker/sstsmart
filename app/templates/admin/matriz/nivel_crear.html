@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nivel de Riesgo - Admin SST</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-900 text-white p-6">
+            <h2 class="text-2xl font-bold mb-8">
+                <i class="fas fa-shield-alt mr-2"></i> Admin SST
+            </h2>
+            <nav class="space-y-4">
+                <a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <div class="text-sm font-bold text-blue-200 mt-6">MATRIZ DE RIESGOS</div>
+                <a href="{{ url_for('admin.listar_niveles_riesgo') }}" class="block px-4 py-2 rounded bg-blue-700">
+                    <i class="fas fa-layer-group mr-2"></i> Niveles de Riesgo
+                </a>
+                <a href="{{ url_for('admin.listar_matriz_riesgos') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-th mr-2"></i> Matriz 5x5
+                </a>
+                <a href="{{ url_for('admin.listar_gestores_responsables') }}" class="block px-4 py-2 rounded hover:bg-blue-800">
+                    <i class="fas fa-user-tie mr-2"></i> Gestores Responsables
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-auto">
+            <div class="max-w-2xl mx-auto">
+                <!-- Header -->
+                <a href="{{ url_for('admin.listar_niveles_riesgo') }}" class="text-blue-600 hover:underline mb-4 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver
+                </a>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-plus mr-2"></i> Nuevo Nivel de Riesgo
+                </h1>
+                <p class="text-gray-600 mb-8">Crea un nuevo nivel de riesgo según normativa colombiana ICONTEC</p>
+
+                <!-- Form -->
+                <div class="bg-white rounded-lg shadow p-8">
+                    <form method="POST" class="space-y-6">
+                        <!-- Nombre -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Nombre *</label>
+                            <input type="text" name="nombre" required placeholder="Ej: Aceptable, Tolerable, Moderado, Inaceptable"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-gray-500 text-xs mt-1">Nombre descriptivo del nivel de riesgo</p>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Descripción</label>
+                            <textarea name="descripcion" rows="4" placeholder="Describe qué significa este nivel de riesgo..."
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+
+                        <!-- Rango de Valores -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Rango Mínimo *</label>
+                                <input type="number" name="rango_minimo" required placeholder="Ej: 1"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">Valor mínimo de la matriz (P x S)</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Rango Máximo *</label>
+                                <input type="number" name="rango_maximo" required placeholder="Ej: 4"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-gray-500 text-xs mt-1">Valor máximo de la matriz (P x S)</p>
+                            </div>
+                        </div>
+
+                        <!-- Color -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Color</label>
+                            <div class="flex items-center gap-4">
+                                <input type="color" name="color" value="#00FF00"
+                                    class="w-16 h-10 rounded cursor-pointer border">
+                                <p class="text-gray-500 text-sm">Selecciona el color para identificar este nivel visualmente</p>
+                            </div>
+                        </div>
+
+                        <!-- Requiere Acción -->
+                        <div class="flex items-center">
+                            <input type="checkbox" name="requiere_accion" id="requiere_accion" class="w-4 h-4">
+                            <label for="requiere_accion" class="ml-2 font-semibold">
+                                ¿Requiere acción correctiva o preventiva?
+                            </label>
+                            <p class="text-gray-500 text-sm ml-2">(Niveles inaceptables deben marcar Sí)</p>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-blue-900 mb-2">
+                                <i class="fas fa-info-circle mr-2"></i> Referencia ICONTEC
+                            </h4>
+                            <ul class="text-sm text-blue-800 space-y-1">
+                                <li>• <strong>Aceptable (1-4):</strong> Riesgo bajo, no requiere control inmediato</li>
+                                <li>• <strong>Tolerable (5-8):</strong> Riesgo moderado, se tolera con controles existentes</li>
+                                <li>• <strong>Moderado (9-16):</strong> Riesgo significativo, requiere acción</li>
+                                <li>• <strong>Inaceptable (17-25):</strong> Riesgo crítico, no se puede tolerar</li>
+                            </ul>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex gap-4 pt-6 border-t">
+                            <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold flex items-center justify-center">
+                                <i class="fas fa-check mr-2"></i> Crear Nivel
+                            </button>
+                            <a href="{{ url_for('admin.listar_niveles_riesgo') }}" class="flex-1 bg-gray-300 text-gray-800 px-6 py-3 rounded hover:bg-gray-400 font-semibold flex items-center justify-center">
+                                <i class="fas fa-times mr-2"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
