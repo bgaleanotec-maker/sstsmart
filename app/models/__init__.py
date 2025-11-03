@@ -25,6 +25,9 @@ from .matriz_riesgos import (
     TareaGestion
 )
 
+from .control import Control, SeguimientoControl, TipoControl, NivelControl, EstadoControl
+
+
 __all__ = [
     'Usuario', 'Empleado', 'RiesgoMatriz', 'Control', 
     'CondicionInsegura', 'Evento', 'ConfiguracionIA',
@@ -33,5 +36,6 @@ __all__ = [
     'TipoReporte', 'TipoEvidencia', 'MetodologiaInvestigacion',
     'NivelSeveridad', 'NivelProbabilidad', 'NivelRiesgo',
     'ReglasEscalonamiento', 'PasoEscalonamiento', 'MatrizRiesgos',
-    'GestorResponsabilidades', 'GestionReporte', 'TareaGestion'
+    'GestorResponsabilidades', 'GestionReporte', 'TareaGestion' , 
+    'Control', 'SeguimientoControl', 'TipoControl', 'NivelControl', 'EstadoControl'
 ]

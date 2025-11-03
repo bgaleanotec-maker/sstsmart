@@ -119,22 +119,22 @@
                             <div class="paso-escalonamiento border-2 border-dashed border-gray-300 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-3">
                                     <h4 class="font-bold text-gray-900">Paso <span class="numero-paso">1</span></h4>
-                                    <button type="button" class="btn-eliminar-paso text-red-600 hover:text-red-800 text-sm" onclick="if(document.querySelectorAll('.paso-escalonamiento').length > 1) this.closest('.paso-escalonamiento').remove();">
+                                    <button type="button" class="btn-eliminar-paso text-red-600 hover:text-red-800 text-sm">
                                         <i class="fas fa-trash mr-1"></i> Eliminar
                                     </button>
                                 </div>
 
                                 <div class="space-y-3">
                                     <div>
-                                        <label class="block text-sm font-semibold mb-1">Descripción del Paso</label>
-                                        <input type="text" name="paso_1_descripcion" placeholder="Ej: Escalar a Gerente"
+                                        <label class="block text-sm font-semibold mb-1">Descripción del Paso *</label>
+                                        <input type="text" name="paso_1_descripcion" placeholder="Ej: Escalar a Gerente" required
                                             class="w-full px-3 py-2 border rounded text-sm">
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm font-semibold mb-1">Rol Destino</label>
-                                            <select name="paso_1_rol" class="w-full px-3 py-2 border rounded text-sm">
+                                            <label class="block text-sm font-semibold mb-1">Rol Destino *</label>
+                                            <select name="paso_1_rol" required class="w-full px-3 py-2 border rounded text-sm">
                                                 <option value="">-- Selecciona rol --</option>
                                                 {% for rol in roles %}
                                                     <option value="{{ rol.nombre }}">{{ rol.nombre }}</option>
@@ -142,8 +142,8 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-semibold mb-1">Delay (minutos)</label>
-                                            <input type="number" name="paso_1_minutos" value="30" min="1"
+                                            <label class="block text-sm font-semibold mb-1">Delay (minutos) *</label>
+                                            <input type="number" name="paso_1_minutos" value="30" min="1" required
                                                 class="w-full px-3 py-2 border rounded text-sm">
                                         </div>
                                     </div>
@@ -151,6 +151,7 @@
                             </div>
                         </div>
 
+                        <!-- 👇 CAMPO OCULTO (IMPORTANTE) 👇 -->
                         <input type="hidden" name="num_pasos" id="num_pasos" value="1">
 
                         <p class="text-gray-600 text-sm mt-4">
@@ -192,7 +193,9 @@
     <script>
         let numPasos = 1;
 
-        document.getElementById('btnAgregarPaso').addEventListener('click', function() {
+        // ✅ AGREGAR PASO
+        document.getElementById('btnAgregarPaso').addEventListener('click', function(e) {
+            e.preventDefault();
             numPasos++;
             const container = document.getElementById('pasos-container');
             const nuevoPaso = document.createElement('div');
@@ -207,15 +210,15 @@
 
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-sm font-semibold mb-1">Descripción del Paso</label>
-                        <input type="text" name="paso_${numPasos}_descripcion" placeholder="Ej: Escalar a Dirección"
+                        <label class="block text-sm font-semibold mb-1">Descripción del Paso *</label>
+                        <input type="text" name="paso_${numPasos}_descripcion" placeholder="Ej: Escalar a Dirección" required
                             class="w-full px-3 py-2 border rounded text-sm">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-semibold mb-1">Rol Destino</label>
-                            <select name="paso_${numPasos}_rol" class="w-full px-3 py-2 border rounded text-sm">
+                            <label class="block text-sm font-semibold mb-1">Rol Destino *</label>
+                            <select name="paso_${numPasos}_rol" required class="w-full px-3 py-2 border rounded text-sm">
                                 <option value="">-- Selecciona rol --</option>
                                 {% for rol in roles %}
                                     <option value="{{ rol.nombre }}">{{ rol.nombre }}</option>
@@ -223,22 +226,53 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-1">Delay (minutos)</label>
-                            <input type="number" name="paso_${numPasos}_minutos" value="30" min="1"
+                            <label class="block text-sm font-semibold mb-1">Delay (minutos) *</label>
+                            <input type="number" name="paso_${numPasos}_minutos" value="30" min="1" required
                                 class="w-full px-3 py-2 border rounded text-sm">
                         </div>
                     </div>
                 </div>
             `;
-            
-            nuevoPaso.querySelector('.btn-eliminar-paso').addEventListener('click', function() {
-                if(document.querySelectorAll('.paso-escalonamiento').length > 1) {
-                    nuevoPaso.remove();
-                }
-            });
 
             container.appendChild(nuevoPaso);
             document.getElementById('num_pasos').value = numPasos;
+        });
+
+        // ✅ ELIMINAR PASO (Event listener global)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-eliminar-paso')) {
+                e.preventDefault();
+                const pasos = document.querySelectorAll('.paso-escalonamiento');
+                if (pasos.length > 1) {
+                    e.target.closest('.paso-escalonamiento').remove();
+                    document.getElementById('num_pasos').value = 
+                        document.querySelectorAll('.paso-escalonamiento').length;
+                } else {
+                    alert('Debe haber al menos un paso');
+                }
+            }
+        });
+
+        // ✅ VALIDAR ANTES DE ENVIAR
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pasos = document.querySelectorAll('.paso-escalonamiento');
+            let valido = true;
+            
+            pasos.forEach((paso, idx) => {
+                const desc = paso.querySelector('[name*="_descripcion"]');
+                const rol = paso.querySelector('[name*="_rol"]');
+                const minutos = paso.querySelector('[name*="_minutos"]');
+                
+                if (!desc.value.trim() || !rol.value || !minutos.value) {
+                    console.error(`Paso ${idx + 1} incompleto`);
+                    valido = false;
+                }
+            });
+            
+            if (!valido) {
+                e.preventDefault();
+                alert('Por favor completa todos los campos de cada paso');
+            }
         });
     </script>
 </body>
