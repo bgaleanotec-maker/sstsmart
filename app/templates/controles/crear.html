@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Control - SST Colombia{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+    <!-- Header -->
+    <div style="margin-bottom: 30px;">
+        <h1 style="margin: 0 0 10px 0; color: #333; font-size: 28px;">
+            ➕ Crear Nuevo Control
+        </h1>
+        <p style="margin: 0; color: #666; font-size: 13px;">
+            Decreto 1072/2015 - Resolución 0312/2019
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        <!-- Formulario Principal -->
+        <div>
+            <form method="POST" style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd;">
+                <!-- Riesgo Asociado -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Riesgo Asociado *
+                    </label>
+                    <select name="riesgo_id" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                        <option value="">-- Seleccionar Riesgo --</option>
+                        {% for riesgo in riesgos %}
+                            <option value="{{ riesgo.id }}">{{ riesgo.nombre_riesgo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Nombre -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Nombre del Control *
+                    </label>
+                    <input type="text" name="nombre" required placeholder="Ej: Implementar arnés de seguridad"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                </div>
+
+                <!-- Descripción -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Descripción Detallada
+                    </label>
+                    <textarea name="descripcion" rows="4" placeholder="Describe el control en detalle..."
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; font-family: inherit;"></textarea>
+                </div>
+
+                <!-- Tipo y Nivel en fila -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Tipo de Control *
+                        </label>
+                        <select name="tipo_control" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                            {% for tipo in tipos %}
+                                <option value="{{ tipo }}">{{ tipo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Nivel de Control *
+                        </label>
+                        <select name="nivel_control" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                            {% for nivel in niveles %}
+                                <option value="{{ nivel }}">{{ nivel }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Responsable -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Responsable de Implementación *
+                    </label>
+                    <select name="responsable_id" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                        <option value="">-- Seleccionar Usuario --</option>
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}">{{ usuario.nombre_completo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fecha Planeada y Presupuesto -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Fecha Planeada
+                        </label>
+                        <input type="datetime-local" name="fecha_planeada"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Presupuesto Estimado ($)
+                        </label>
+                        <input type="number" name="presupuesto_estimado" step="0.01" placeholder="0.00"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Seguimiento Periódico -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: #333; cursor: pointer;">
+                        <input type="checkbox" name="requiere_seguimiento" value="on" id="seguimiento" onchange="toggleFrecuencia()">
+                        ¿Requiere Seguimiento Periódico?
+                    </label>
+                    <div id="frecuencia-section" style="margin-top: 15px; display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Frecuencia de Seguimiento (días)
+                        </label>
+                        <input type="number" name="frecuencia_seguimiento" value="30" min="1"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Se revisará cada 30 días según Decreto 1072/2015
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                        ✅ Crear Control
+                    </button>
+                    <a href="{{ url_for('controles.listar_controles') }}" 
+                       style="flex: 1; padding: 12px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; text-align: center;">
+                        ❌ Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Panel Lateral - Información -->
+        <div>
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff; margin-bottom: 20px;">
+                <h4 style="margin-top: 0; color: #0056b3; margin-bottom: 15px;">📋 Tipos de Control</h4>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #0056b3;">🛡️ Preventivo</p>
+                    <small style="color: #333;">Evita que ocurra el riesgo</small>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #0056b3;">🔧 Correctivo</p>
+                    <small style="color: #333;">Corrige después de ocurrir</small>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #0056b3;">🔍 Detectivo</p>
+                    <small style="color: #333;">Detecta cuando ocurre</small>
+                </div>
+                <div>
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #0056b3;">📉 Mitigante</p>
+                    <small style="color: #333;">Reduce el impacto del riesgo</small>
+                </div>
+            </div>
+
+            <div style="background: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h4 style="margin-top: 0; color: #155724; margin-bottom: 15px;">🎯 Niveles de Control</h4>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #155724;">1️⃣ En la Fuente</p>
+                    <small style="color: #333;">Elimina el riesgo en su origen</small>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #155724;">2️⃣ En el Medio</p>
+                    <small style="color: #333;">Aísla o contiene el riesgo</small>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #155724;">3️⃣ En el Individuo</p>
+                    <small style="color: #333;">Protege al trabajador (EPP)</small>
+                </div>
+                <div>
+                    <p style="margin: 0 0 3px 0; font-weight: bold; color: #155724;">4️⃣ Administrativo</p>
+                    <small style="color: #333;">Procedimientos y capacitación</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFrecuencia() {
+        const checkbox = document.getElementById('seguimiento');
+        const section = document.getElementById('frecuencia-section');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+</script>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f5f5f5;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #007bff !important;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+    
+    button:hover, a:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}

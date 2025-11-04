@@ -1,6 +1,6 @@
 from .usuario import Usuario
 from .empleado import Empleado
-from .riesgo import RiesgoMatriz, Control
+from .riesgo import RiesgoMatriz  # ← QUITAMOS Control de aquí
 from .condicion_insegura import CondicionInsegura
 from .evento import Evento
 from .configuracion_ia import ConfiguracionIA
@@ -24,18 +24,17 @@ from .matriz_riesgos import (
     GestionReporte,
     TareaGestion
 )
-
 from .control import Control, SeguimientoControl, TipoControl, NivelControl, EstadoControl
 
 
 __all__ = [
-    'Usuario', 'Empleado', 'RiesgoMatriz', 'Control', 
+    'Usuario', 'Empleado', 'RiesgoMatriz',  # Sin Control aquí
     'CondicionInsegura', 'Evento', 'ConfiguracionIA',
     'ConsultaJuridica', 'DocumentoLegal',
     'CategoriaArea', 'Dependencia', 'RolSST',
     'TipoReporte', 'TipoEvidencia', 'MetodologiaInvestigacion',
     'NivelSeveridad', 'NivelProbabilidad', 'NivelRiesgo',
     'ReglasEscalonamiento', 'PasoEscalonamiento', 'MatrizRiesgos',
-    'GestorResponsabilidades', 'GestionReporte', 'TareaGestion' , 
-    'Control', 'SeguimientoControl', 'TipoControl', 'NivelControl', 'EstadoControl'
+    'GestorResponsabilidades', 'GestionReporte', 'TareaGestion',
+    'Control', 'SeguimientoControl', 'TipoControl', 'NivelControl', 'EstadoControl'  # Control solo aquí
 ]

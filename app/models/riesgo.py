@@ -1,3 +1,5 @@
+# app/models/riesgo.py - REEMPLAZA TODO CON ESTO:
+
 from app import db
 from datetime import datetime
 
@@ -13,7 +15,8 @@ class RiesgoMatriz(db.Model):
     activo = db.Column(db.Boolean, default=True)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
     
-    controles = db.relationship('Control', backref='riesgo', lazy='dynamic')
+    # La relación apunta a Control desde control.py
+    controles = db.relationship('Control', back_populates='riesgo', lazy='dynamic')
     
     def calcular_clasificacion(self):
         self.clasificacion = self.probabilidad * self.severidad
@@ -29,21 +32,3 @@ class RiesgoMatriz(db.Model):
     def __repr__(self):
         return f'<RiesgoMatriz {self.nombre_riesgo}>'
 
-class Control(db.Model):
-    __tablename__ = 'controles'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(150), nullable=False)
-    descripcion = db.Column(db.Text)
-    tipo = db.Column(db.String(20), nullable=False)
-    estado = db.Column(db.String(50), default='Activo')
-    riesgo_id = db.Column(db.Integer, db.ForeignKey('riesgo_matriz.id'))
-    responsable_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
-    fecha_implementacion = db.Column(db.DateTime)
-    efectividad = db.Column(db.Integer, default=0)
-    norma_aplicable = db.Column(db.String(100))
-    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    responsable = db.relationship('Usuario')
-    
-    def __repr__(self):
-        return f'<Control {self.nombre}>'

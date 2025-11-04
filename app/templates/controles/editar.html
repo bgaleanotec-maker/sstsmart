@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Control - SST Colombia{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+    <!-- Header -->
+    <div style="margin-bottom: 30px;">
+        <h1 style="margin: 0 0 10px 0; color: #333; font-size: 28px;">
+            ✏️ Editar Control
+        </h1>
+        <p style="margin: 0; color: #666; font-size: 13px;">
+            {{ control.codigo }} - {{ control.nombre }}
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        <!-- Formulario Principal -->
+        <div>
+            <form method="POST" style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd;">
+                <!-- Nombre -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Nombre del Control *
+                    </label>
+                    <input type="text" name="nombre" value="{{ control.nombre }}" required
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                </div>
+
+                <!-- Descripción -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Descripción
+                    </label>
+                    <textarea name="descripcion" rows="4" 
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; font-family: inherit;">{{ control.descripcion or '' }}</textarea>
+                </div>
+
+                <!-- Tipo y Nivel en fila -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Tipo de Control *
+                        </label>
+                        <select name="tipo_control" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                            {% for tipo in tipos %}
+                                <option value="{{ tipo }}" {% if tipo == control.tipo_control %}selected{% endif %}>
+                                    {{ tipo }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Nivel de Control *
+                        </label>
+                        <select name="nivel_control" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                            {% for nivel in niveles %}
+                                <option value="{{ nivel }}" {% if nivel == control.nivel_control %}selected{% endif %}>
+                                    {{ nivel }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Responsable -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                        Responsable de Implementación *
+                    </label>
+                    <select name="responsable_id" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}" {% if usuario.id == control.responsable_id %}selected{% endif %}>
+                                {{ usuario.nombre_completo }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fecha Planeada y Presupuesto -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Fecha Planeada
+                        </label>
+                        <input type="datetime-local" name="fecha_planeada" 
+                               value="{% if control.fecha_planeada %}{{ control.fecha_planeada.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Presupuesto Estimado ($)
+                        </label>
+                        <input type="number" name="presupuesto_estimado" step="0.01"
+                               value="{{ control.presupuesto_estimado or '' }}"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Seguimiento Periódico -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: #333; cursor: pointer;">
+                        <input type="checkbox" name="requiere_seguimiento" value="on" 
+                               {% if control.requiere_seguimiento_periodico %}checked{% endif %}
+                               id="seguimiento" onchange="toggleFrecuencia()">
+                        ¿Requiere Seguimiento Periódico?
+                    </label>
+                    <div id="frecuencia-section" style="margin-top: 15px; {% if not control.requiere_seguimiento_periodico %}display: none;{% endif %}">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                            Frecuencia de Seguimiento (días)
+                        </label>
+                        <input type="number" name="frecuencia_seguimiento" value="{{ control.frecuencia_seguimiento_dias or 30 }}" min="1"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                        💾 Guardar Cambios
+                    </button>
+                    <a href="{{ url_for('controles.listar_controles') }}" 
+                       style="flex: 1; padding: 12px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; text-align: center;">
+                        ❌ Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Panel Lateral - Estado del Control -->
+        <div>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #333; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">
+                    ⚙️ Estado del Control
+                </h3>
+
+                <!-- Código -->
+                <div style="margin-bottom: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; font-weight: bold;">CÓDIGO</p>
+                    <p style="margin: 0; background: #e7f3ff; padding: 8px; border-radius: 4px; color: #0056b3; font-weight: bold;">
+                        {{ control.codigo }}
+                    </p>
+                </div>
+
+                <!-- Estado Actual -->
+                <div style="margin-bottom: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; font-weight: bold;">ESTADO ACTUAL</p>
+                    {% set estado_color = {
+                        'Planificado': '#6c757d',
+                        'Asignado': '#17a2b8',
+                        'En Proceso': '#ffc107',
+                        'Implementado': '#007bff',
+                        'Verificado': '#28a745',
+                        'Efectivo': '#28a745',
+                        'Inefectivo': '#dc3545',
+                        'Requiere Ajuste': '#ffc107',
+                        'Cerrado': '#212529'
+                    } %}
+                    <p style="margin: 0; background: {{ estado_color.get(control.estado, '#6c757d') }}; color: white; padding: 8px; border-radius: 4px; font-weight: bold; text-align: center;">
+                        {{ control.estado }}
+                    </p>
+                </div>
+
+                <!-- Riesgo Asociado -->
+                <div style="margin-bottom: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; font-weight: bold;">RIESGO ASOCIADO</p>
+                    <p style="margin: 0; padding: 8px; background: #f8f9fa; border-radius: 4px; color: #333;">
+                        {% if control.riesgo %}
+                            {{ control.riesgo.nombre_riesgo }}
+                        {% else %}
+                            <span style="color: #999;">No asignado</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Efectividad -->
+                <div style="margin-bottom: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; font-weight: bold;">EFECTIVIDAD</p>
+                    {% if control.efectividad_porcentaje %}
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 100%; height: 30px; background: #f0f0f0; border-radius: 5px; overflow: hidden;">
+                                {% set color = '#28a745' if control.efectividad_porcentaje >= 80 else '#ffc107' if control.efectividad_porcentaje >= 50 else '#dc3545' %}
+                                <div style="width: {{ control.efectividad_porcentaje }}%; height: 100%; background: {{ color }}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    {{ control.efectividad_porcentaje }}%
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p style="margin: 0; padding: 8px; background: #f8f9fa; border-radius: 4px; color: #999;">
+                            Sin registrar
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Creado En -->
+                <div style="margin-bottom: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; font-weight: bold;">CREADO EN</p>
+                    <p style="margin: 0; padding: 8px; background: #f8f9fa; border-radius: 4px; color: #666; font-size: 13px;">
+                        {{ control.creado_en.strftime('%d/%m/%Y %H:%M') if control.creado_en else 'N/A' }}
+                    </p>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+
+                <!-- Acciones según estado -->
+                {% if control.estado not in ['Cerrado', 'Cancelado'] %}
+                    {% if control.estado == 'Asignado' or control.estado == 'En Proceso' or control.estado == 'Planificado' %}
+                        <form method="POST" action="{{ url_for('controles.marcar_implementado', id=control.id) }}" style="margin-bottom: 10px;">
+                            <button type="submit" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                ✅ Marcar Implementado
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if control.estado == 'Implementado' %}
+                        <form method="POST" action="{{ url_for('controles.verificar_control', id=control.id) }}" style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 10px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 13px;">Efectividad (%)</label>
+                                <input type="number" name="efectividad" value="100" min="0" max="100" required
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                            <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                📋 Verificar Control
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('controles.cerrar_control', id=control.id) }}" 
+                          onsubmit="return confirm('¿Cerrar este control? Esta acción no se puede deshacer.');">
+                        <button type="submit" style="width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                            🔒 Cerrar Control
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <!-- Info y Ayuda -->
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h4 style="margin-top: 0; color: #0056b3;">ℹ️ Información</h4>
+                <p style="margin: 10px 0; font-size: 13px; color: #333;">
+                    <strong>Tipo de Control:</strong><br>
+                    • Preventivo: Evita que ocurra el riesgo<br>
+                    • Correctivo: Corrige después de ocurrir<br>
+                    • Detectivo: Detecta cuando ocurre<br>
+                    • Mitigante: Reduce el impacto
+                </p>
+                <p style="margin: 10px 0; font-size: 13px; color: #333;">
+                    <strong>Niveles de Control:</strong><br>
+                    1. En la Fuente (elimina el riesgo)<br>
+                    2. En el Medio (aísla el riesgo)<br>
+                    3. En el Individuo (protege - EPP)<br>
+                    4. Administrativo (procedimientos)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFrecuencia() {
+        const checkbox = document.getElementById('seguimiento');
+        const section = document.getElementById('frecuencia-section');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+</script>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f5f5f5;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #007bff !important;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+    
+    button:hover, a:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}

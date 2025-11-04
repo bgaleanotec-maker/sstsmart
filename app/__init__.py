@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -43,13 +43,23 @@ def create_app(config='development'):
     
     with app.app_context():
         # ============ REGISTRAR BLUEPRINTS ============
-        from app.routes import auth_bp, dashboard_bp, reportes_bp, ia_bp, juridico_bp, admin_bp
+        from app.routes import auth_bp, dashboard_bp, reportes_bp, ia_bp, juridico_bp, admin_bp, controles_bp
+        
         app.register_blueprint(auth_bp)
         app.register_blueprint(dashboard_bp)
         app.register_blueprint(reportes_bp)
         app.register_blueprint(ia_bp)
         app.register_blueprint(juridico_bp)
         app.register_blueprint(admin_bp)
+        app.register_blueprint(controles_bp)  # ✅ AGREGAR ESTO
+        
+        # ============ RUTA RAÍZ ============
+        @app.route('/')
+        def index():
+            """Ruta raíz - redirige a dashboard si está autenticado, si no al login"""
+            if current_user.is_authenticated:
+                return redirect(url_for('dashboard.index'))
+            return redirect(url_for('auth.login'))
         
         # ============ CREAR TABLAS ============
         db.create_all()
