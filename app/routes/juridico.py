@@ -1,699 +1,466 @@
 # app/routes/juridico.py
 """
-RUTAS MÓDULO JURÍDICO - SST SMART
-==================================
-Incluye:
-- Gestión de abogados
-- Consultas jurídicas completo
-- Gestión documental versioned
-- Colaboración en tiempo real
-- Auditoría y cumplimiento
+Módulo Jurídico SST - Routes completas
+Gestión de consultas jurídicas y normativa SST Colombia
 """
-
-from flask import render_template, request, redirect, url_for, flash, jsonify, send_file
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app import db
-from app.models import (
-    ConsultaJuridica, DocumentoLegal, Abogado, ComentarioConsulta, 
-    ComentarioDocumento, AuditoriaConsulta, HistorialDocumento, 
-    TablaRetencion, Usuario, Empleado
-)
+from app.models import ConsultaJuridica, DocumentoLegal, Usuario, CondicionInsegura
 from app.services.notificaciones import NotificacionService
 from app.routes import juridico_bp
 from datetime import datetime, timedelta
-import os
-import hashlib
-from werkzeug.utils import secure_filename
+from functools import wraps
 
-# ==================== CONFIGURACIÓN ====================
+# ============ DECORADOR PARA AUTENTICACIÓN JURÍDICA ============
 
-UPLOAD_FOLDER = 'uploads/documentos_juridicos'
-ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc', 'xlsx', 'xls', 'txt'}
+def juridico_required(f):
+    """Requiere que el usuario sea Abogado, Responsable_SST o Admin"""
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if current_user.rol not in ['Admin', 'Responsable_SST', 'Abogado']:
+            flash('❌ No tienes permiso para acceder al módulo jurídico', 'error')
+            return redirect(url_for('dashboard.index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def abogado_required(f):
+    """Requiere que el usuario sea Abogado o Admin"""
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if current_user.rol not in ['Admin', 'Abogado']:
+            flash('⚖️ Solo abogados pueden resolver consultas', 'error')
+            return redirect(url_for('juridico.listar'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-# ==================== ABOGADOS ====================
-
-@juridico_bp.route('/abogados/pool', methods=['GET'])
-@login_required
-def listar_abogados():
-    """Lista el pool de abogados disponibles"""
-    page = request.args.get('page', 1, type=int)
-    especializacion = request.args.get('especialidad', None)
-    
-    query = Abogado.query.filter_by(activo=True)
-    
-    if especializacion:
-        # Buscar abogados con esa especialidad
-        query = query.filter(Abogado.especialidades.astext.contains(especializacion))
-    
-    abogados = query.paginate(page=page, per_page=10)
-    
-    return render_template('juridico/pool_abogados.html', abogados=abogados)
-
-
-@juridico_bp.route('/abogados/<int:abogado_id>/perfil', methods=['GET'])
-@login_required
-def perfil_abogado(abogado_id):
-    """Perfil detallado del abogado"""
-    abogado = Abogado.query.get_or_404(abogado_id)
-    
-    # Estadísticas
-    consultas_totales = abogado.consultas.count()
-    consultas_resueltas = abogado.consultas.filter_by(estado='Resuelta').count()
-    calificacion = db.session.query(db.func.avg(
-        db.column('puntuacion')
-    )).filter(db.column('abogado_id') == abogado_id).scalar() or 0
-    
-    contexto = {
-        'abogado': abogado,
-        'consultas_totales': consultas_totales,
-        'consultas_resueltas': consultas_resueltas,
-        'calificacion': calificacion,
-        'disponible': abogado.get_disponibilidad_hoy()
-    }
-    
-    return render_template('juridico/perfil_abogado.html', **contexto)
-
-
-@juridico_bp.route('/abogados/<int:abogado_id>/horario', methods=['GET', 'POST'])
-@login_required
-def configurar_horario_abogado(abogado_id):
-    """Configura horario de atención del abogado"""
-    abogado = Abogado.query.get_or_404(abogado_id)
-    
-    # Solo el abogado o admin pueden editar
-    if current_user.id != abogado.usuario_id and current_user.rol != 'Admin':
-        flash('No autorizado', 'error')
-        return redirect(url_for('juridico.listar_abogados'))
-    
-    if request.method == 'POST':
-        horario = {}
-        for dia in ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']:
-            inicio = request.form.get(f'{dia}_inicio')
-            fin = request.form.get(f'{dia}_fin')
-            if inicio and fin:
-                horario[dia] = [inicio, fin]
-        
-        abogado.horario_atencion = horario
-        abogado.horas_disponibles = int(request.form.get('horas_disponibles', 20))
-        
-        db.session.commit()
-        flash('Horario actualizado', 'success')
-        return redirect(url_for('juridico.perfil_abogado', abogado_id=abogado_id))
-    
-    return render_template('juridico/configurar_horario.html', abogado=abogado)
-
-
-# ==================== CONSULTAS JURÍDICAS ====================
+# ============ LISTAR CONSULTAS ============
 
 @juridico_bp.route('/')
-@login_required
-def listar_consultas():
-    """Lista consultas jurídicas con filtros avanzados"""
-    page = request.args.get('page', 1, type=int)
-    estado = request.args.get('estado', None)
-    prioridad = request.args.get('prioridad', None)
-    riesgo = request.args.get('riesgo', None)
-    abogado_id = request.args.get('abogado_id', None)
+@juridico_required
+def listar():
+    """Listar todas las consultas jurídicas con filtros"""
     
-    # Verificar permisos
-    if current_user.rol not in ['Admin', 'Responsable_SST', 'Abogado', 'Cliente']:
-        flash('No autorizado', 'error')
-        return redirect(url_for('dashboard.index'))
+    # Parámetros de filtro
+    filtro_estado = request.args.get('estado', 'Todas')
+    filtro_tipo = request.args.get('tipo', 'Todas')
+    filtro_prioridad = request.args.get('prioridad', 'Todas')
+    filtro_riesgo = request.args.get('riesgo', 'Todas')
+    pagina = request.args.get('pagina', 1, type=int)
     
+    # Query base
     query = ConsultaJuridica.query
     
-    # Filtro por rol
-    if current_user.rol == 'Abogado':
-        # Solo ve sus consultas
-        query = query.filter_by(abogado_asignado_id=current_user.abogado_profile.id)
-    elif current_user.rol == 'Cliente':
-        # Solo ve sus consultas
-        query = query.filter_by(empleado_afectado_id=current_user.id)
+    # Aplicar filtros
+    if filtro_estado != 'Todas':
+        query = query.filter_by(estado=filtro_estado)
+    if filtro_tipo != 'Todas':
+        query = query.filter_by(tipo_consulta=filtro_tipo)
+    if filtro_prioridad != 'Todas':
+        query = query.filter_by(prioridad=filtro_prioridad)
+    if filtro_riesgo != 'Todas':
+        query = query.filter_by(riesgo_legal=filtro_riesgo)
     
-    # Filtros
-    if estado:
-        query = query.filter_by(estado=estado)
-    if prioridad:
-        query = query.filter_by(prioridad=prioridad)
-    if riesgo:
-        query = query.filter_by(riesgo_legal=riesgo)
-    if abogado_id:
-        query = query.filter_by(abogado_asignado_id=abogado_id)
-    
-    consultas = query.order_by(ConsultaJuridica.fecha_creacion.desc()).paginate(page=page, per_page=15)
+    # Ordenar por fecha descendente
+    consultas = query.order_by(ConsultaJuridica.fecha_creacion.desc()).paginate(page=pagina, per_page=10)
     
     # Estadísticas
     stats = {
         'total': ConsultaJuridica.query.count(),
         'abiertas': ConsultaJuridica.query.filter_by(estado='Abierta').count(),
         'en_revision': ConsultaJuridica.query.filter_by(estado='En revisión').count(),
-        'con_concepto': ConsultaJuridica.query.filter_by(estado='En concepto').count(),
         'resueltas': ConsultaJuridica.query.filter_by(estado='Resuelta').count(),
-        'criticas': ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count(),
+        'cerradas': ConsultaJuridica.query.filter_by(estado='Cerrada').count(),
+        'riesgo_critico': ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count(),
     }
     
-    abogados = Abogado.query.filter_by(activo=True).all()
+    contexto = {
+        'consultas': consultas,
+        'stats': stats,
+        'filtro_estado': filtro_estado,
+        'filtro_tipo': filtro_tipo,
+        'filtro_prioridad': filtro_prioridad,
+        'filtro_riesgo': filtro_riesgo,
+        'estados': ['Abierta', 'En revisión', 'Resuelta', 'Cerrada'],
+        'tipos': ['Laboral', 'Penal', 'Civil', 'Administrativo', 'Cumplimiento Normativo'],
+        'prioridades': ['Baja', 'Normal', 'Alta', 'Crítica'],
+        'riesgos': ['Bajo', 'Medio', 'Alto', 'Crítico']
+    }
     
-    return render_template('juridico/listar.html', 
-                         consultas=consultas, 
-                         stats=stats, 
-                         abogados=abogados)
+    return render_template('juridico/listar.html', **contexto)
 
+# ============ CREAR CONSULTA ============
 
 @juridico_bp.route('/nueva', methods=['GET', 'POST'])
-@login_required
-def crear_consulta():
+@juridico_required
+def crear():
     """Crear nueva consulta jurídica"""
+    
     if request.method == 'POST':
         try:
             consulta = ConsultaJuridica(
                 titulo=request.form.get('titulo'),
                 descripcion=request.form.get('descripcion'),
                 tipo_consulta=request.form.get('tipo_consulta'),
+                condicion_insegura_id=request.form.get('condicion_insegura_id') or None,
+                empleado_afectado_id=request.form.get('empleado_afectado_id') or None,
+                responsable_creador_id=current_user.id,
                 prioridad=request.form.get('prioridad', 'Normal'),
                 riesgo_legal=request.form.get('riesgo_legal', 'Medio'),
-                nivel_confidencialidad=request.form.get('confidencialidad', 'Interno'),
-                horas_estimadas=float(request.form.get('horas_estimadas', 0)) or None,
-                responsable_creador_id=current_user.id
+                normativa_aplicable={
+                    'articulos': request.form.get('articulos_aplicables', ''),
+                    'decretos': request.form.get('decretos_aplicables', ''),
+                    'resoluciones': request.form.get('resoluciones_aplicables', '')
+                }
             )
-            
-            # Relaciones opcionales
-            if request.form.get('empleado_afectado_id'):
-                consulta.empleado_afectado_id = int(request.form.get('empleado_afectado_id'))
             
             consulta.generar_numero_consulta()
             
-            db.session.add(consulta)
-            db.session.flush()  # Para obtener el ID
+            # Enviar notificación a abogados
+            abogados = Usuario.query.filter_by(rol='Abogado').all()
+            for abogado in abogados:
+                NotificacionService.notificar(
+                    usuario_id=abogado.id,
+                    titulo=f"Nueva Consulta Jurídica: {consulta.numero_consulta}",
+                    mensaje=f"Prioridad: {consulta.prioridad} | Riesgo: {consulta.riesgo_legal}",
+                    tipo='juridico',
+                    referencia_id=consulta.id
+                )
             
-            # Registrar auditoría
-            auditoria = AuditoriaConsulta(
-                usuario_id=current_user.id,
-                consulta_id=consulta.id,
-                accion='crear_consulta',
-                detalles={'titulo': consulta.titulo}
-            )
-            db.session.add(auditoria)
+            db.session.add(consulta)
             db.session.commit()
             
-            flash(f'Consulta creada: {consulta.numero_consulta}', 'success')
-            return redirect(url_for('juridico.detalle_consulta', consulta_id=consulta.id))
-        
+            flash(f'✅ Consulta jurídica creada: {consulta.numero_consulta}', 'success')
+            return redirect(url_for('juridico.detalle', id=consulta.id))
+            
         except Exception as e:
             db.session.rollback()
-            flash(f'Error al crear consulta: {str(e)}', 'error')
+            flash(f'❌ Error al crear consulta: {str(e)}', 'error')
     
-    empleados = Empleado.query.all()
-    return render_template('juridico/crear.html', empleados=empleados)
+    # GET - Mostrar formulario
+    condiciones_inseguras = CondicionInsegura.query.filter_by(estado='Abierto').all()
+    empleados = Usuario.query.filter_by(rol='Empleado').all()
+    tipos_consulta = ['Laboral', 'Penal', 'Civil', 'Administrativo', 'Cumplimiento Normativo']
+    
+    contexto = {
+        'condiciones_inseguras': condiciones_inseguras,
+        'empleados': empleados,
+        'tipos_consulta': tipos_consulta,
+        'prioridades': ['Baja', 'Normal', 'Alta', 'Crítica'],
+        'riesgos': ['Bajo', 'Medio', 'Alto', 'Crítico']
+    }
+    
+    return render_template('juridico/crear.html', **contexto)
 
+# ============ DETALLE DE CONSULTA ============
 
-@juridico_bp.route('/<int:consulta_id>', methods=['GET'])
-@login_required
-def detalle_consulta(consulta_id):
-    """Detalle completo de consulta con todas sus interacciones"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
+@juridico_bp.route('/<int:id>', methods=['GET', 'POST'])
+@juridico_required
+def detalle(id):
+    """Ver detalle de consulta y permitir resolución"""
     
-    # Verificar permisos de lectura
-    puede_ver = (
-        current_user.rol in ['Admin', 'Responsable_SST'] or
-        (current_user.rol == 'Abogado' and consulta.abogado_asignado_id == current_user.abogado_profile.id) or
-        (current_user.rol == 'Cliente' and consulta.empleado_afectado_id == current_user.id)
-    )
+    consulta = ConsultaJuridica.query.get_or_404(id)
     
-    if not puede_ver:
-        flash('No tiene permiso para ver esta consulta', 'error')
-        return redirect(url_for('juridico.listar_consultas'))
+    # Verificar permisos
+    if current_user.rol == 'Responsable_SST' and consulta.responsable_creador_id != current_user.id:
+        if current_user.rol != 'Admin' and current_user.rol != 'Abogado':
+            flash('❌ No tienes permiso para ver esta consulta', 'error')
+            return redirect(url_for('juridico.listar'))
     
-    # Obtener datos relacionados
-    documentos = DocumentoLegal.query.filter_by(
-        consulta_id=consulta_id, 
-        es_version_anterior=False
-    ).all()
+    if request.method == 'POST':
+        accion = request.form.get('accion')
+        
+        if accion == 'asignar' and current_user.rol in ['Admin', 'Responsable_SST']:
+            abogado_id = request.form.get('abogado_id')
+            consulta.abogado_asignado_id = abogado_id
+            consulta.estado = 'En revisión'
+            consulta.fecha_asignacion = datetime.utcnow()
+            
+            abogado = Usuario.query.get(abogado_id)
+            NotificacionService.notificar(
+                usuario_id=abogado_id,
+                titulo=f"Consulta Asignada: {consulta.numero_consulta}",
+                mensaje=f"Tipo: {consulta.tipo_consulta} | Prioridad: {consulta.prioridad}",
+                tipo='juridico_asignacion',
+                referencia_id=consulta.id
+            )
+            flash(f'✅ Consulta asignada a {abogado.nombre_completo}', 'success')
+        
+        elif accion == 'resolver' and current_user.rol in ['Admin', 'Abogado']:
+            consulta.resolucion = request.form.get('resolucion')
+            consulta.recomendaciones = request.form.get('recomendaciones')
+            consulta.estado = 'Resuelta'
+            consulta.fecha_resolucion = datetime.utcnow()
+            
+            NotificacionService.notificar(
+                usuario_id=consulta.responsable_creador_id,
+                titulo=f"Consulta Resuelta: {consulta.numero_consulta}",
+                mensaje=f"La consulta jurídica ha sido resuelta por {current_user.nombre_completo}",
+                tipo='juridico_resolucion',
+                referencia_id=consulta.id
+            )
+            flash('✅ Consulta marcada como resuelta', 'success')
+        
+        elif accion == 'cerrar' and current_user.rol in ['Admin', 'Responsable_SST']:
+            consulta.estado = 'Cerrada'
+            consulta.fecha_cierre = datetime.utcnow()
+            flash('✅ Consulta cerrada', 'success')
+        
+        elif accion == 'reabrir' and current_user.rol in ['Admin', 'Responsable_SST']:
+            consulta.estado = 'Abierta'
+            flash('✅ Consulta reabierta', 'success')
+        
+        db.session.commit()
+        return redirect(url_for('juridico.detalle', id=consulta.id))
     
-    comentarios = ComentarioConsulta.query.filter_by(
-        consulta_id=consulta_id,
-        responde_a_id=None
-    ).order_by(ComentarioConsulta.fecha_creacion.desc()).all()
+    # Obtener abogados disponibles
+    abogados = Usuario.query.filter_by(rol='Abogado').all()
     
-    auditoria = AuditoriaConsulta.query.filter_by(consulta_id=consulta_id).order_by(
-        AuditoriaConsulta.fecha.desc()
-    ).all()
+    # Obtener documentos asociados
+    documentos = DocumentoLegal.query.filter_by(consulta_id=id).all()
     
-    abogados_disponibles = Abogado.query.filter_by(activo=True).all()
+    # Calcular SLA
+    sla_dias = 0
+    sla_excedido = False
+    if consulta.estado == 'Abierta':
+        horas_transcurridas = (datetime.utcnow() - consulta.fecha_creacion).total_seconds() / 3600
+        sla_dias = int(horas_transcurridas / 24)
+        # SLA según prioridad (en horas)
+        sla_map = {'Baja': 168, 'Normal': 72, 'Alta': 24, 'Crítica': 4}
+        sla_excedido = horas_transcurridas > sla_map.get(consulta.prioridad, 72)
     
     contexto = {
         'consulta': consulta,
+        'abogados': abogados,
         'documentos': documentos,
-        'comentarios': comentarios,
-        'auditoria': auditoria,
-        'abogados': abogados_disponibles
+        'sla_dias': sla_dias,
+        'sla_excedido': sla_excedido,
+        'puede_asignar': current_user.rol in ['Admin', 'Responsable_SST'],
+        'puede_resolver': current_user.rol in ['Admin', 'Abogado'],
+        'puede_cerrar': current_user.rol in ['Admin', 'Responsable_SST']
     }
     
     return render_template('juridico/detalle.html', **contexto)
 
+# ============ CARGAR DOCUMENTO ============
 
-@juridico_bp.route('/<int:consulta_id>/asignar-abogado', methods=['POST'])
-@login_required
-def asignar_abogado(consulta_id):
-    """Asigna abogado a consulta"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
+@juridico_bp.route('/<int:id>/documento/cargar', methods=['POST'])
+@juridico_required
+def cargar_documento(id):
+    """Cargar documento legal"""
     
-    if current_user.rol not in ['Admin', 'Responsable_SST']:
-        flash('No autorizado', 'error')
-        return redirect(url_for('juridico.detalle_consulta', consulta_id=consulta_id))
-    
-    try:
-        abogado_id = request.form.get('abogado_id')
-        abogado = Abogado.query.get_or_404(abogado_id)
-        
-        consulta.cambiar_estado('En revisión', current_user.id, 
-                               razon='Asignación manual de abogado')
-        consulta.abogado_asignado_id = abogado.id
-        
-        auditoria = AuditoriaConsulta(
-            usuario_id=current_user.id,
-            consulta_id=consulta_id,
-            accion='asignacion_abogado',
-            detalles={'abogado_id': abogado.id, 'abogado_nombre': abogado.usuario.nombre_completo}
-        )
-        db.session.add(auditoria)
-        db.session.commit()
-        
-        # Notificar abogado
-        try:
-            NotificacionService.enviar_asignacion_consulta(abogado.usuario, consulta)
-        except:
-            pass  # Si falla notificación, continuar
-        
-        flash(f'Consulta asignada a {abogado.usuario.nombre_completo}', 'success')
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error: {str(e)}', 'error')
-    
-    return redirect(url_for('juridico.detalle_consulta', consulta_id=consulta_id))
-
-
-@juridico_bp.route('/<int:consulta_id>/cambiar-estado', methods=['POST'])
-@login_required
-def cambiar_estado_consulta(consulta_id):
-    """Cambia estado de consulta y registra auditoría"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
-    
-    nuevo_estado = request.form.get('nuevo_estado')
-    razon = request.form.get('razon', '')
-    
-    # Validar permisos según estado
-    puede_cambiar = (
-        (current_user.rol in ['Admin', 'Responsable_SST']) or
-        (current_user.rol == 'Abogado' and 
-         consulta.abogado_asignado_id == current_user.abogado_profile.id)
-    )
-    
-    if not puede_cambiar:
-        return jsonify({'error': 'No autorizado'}), 403
-    
-    try:
-        consulta.cambiar_estado(nuevo_estado, current_user.id, razon)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'nuevo_estado': nuevo_estado})
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-@juridico_bp.route('/<int:consulta_id>/emitir-concepto', methods=['POST'])
-@login_required
-def emitir_concepto(consulta_id):
-    """Emite concepto jurídico"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
-    
-    # Solo el abogado asignado puede emitir concepto
-    if current_user.rol != 'Abogado' or consulta.abogado_asignado_id != current_user.abogado_profile.id:
-        return jsonify({'error': 'No autorizado'}), 403
-    
-    try:
-        concepto = request.form.get('concepto_legal')
-        recomendaciones = request.form.get('recomendaciones')
-        normativa = request.form.getlist('normativa_aplicable[]')
-        horas_reales = float(request.form.get('horas_reales', 0))
-        
-        consulta.concepto_legal = concepto
-        consulta.recomendaciones = recomendaciones
-        consulta.normativa_aplicable = normativa
-        consulta.horas_reales = horas_reales
-        
-        consulta.cambiar_estado('Concepto emitido', current_user.id)
-        
-        auditoria = AuditoriaConsulta(
-            usuario_id=current_user.id,
-            consulta_id=consulta_id,
-            accion='emision_concepto',
-            detalles={'horas_reales': horas_reales}
-        )
-        db.session.add(auditoria)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'concepto_id': consulta.id})
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-# ==================== GESTIÓN DOCUMENTAL ====================
-
-@juridico_bp.route('/<int:consulta_id>/documentos/agregar', methods=['POST'])
-@login_required
-def agregar_documento(consulta_id):
-    """Agrega documento a consulta con versionado"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
-    
-    # Verificar permisos
-    puede_agregar = (
-        current_user.rol in ['Admin', 'Responsable_SST'] or
-        (current_user.rol == 'Abogado' and 
-         consulta.abogado_asignado_id == current_user.abogado_profile.id)
-    )
-    
-    if not puede_agregar:
-        return jsonify({'error': 'No autorizado'}), 403
+    consulta = ConsultaJuridica.query.get_or_404(id)
     
     try:
         nombre = request.form.get('nombre')
         tipo = request.form.get('tipo')
-        clasificacion = request.form.get('clasificacion', 'Interno')
-        tabla_retencion_id = request.form.get('tabla_retencion_id')
+        contenido = request.form.get('contenido')
         
         documento = DocumentoLegal(
-            consulta_id=consulta_id,
+            consulta_id=id,
             nombre=nombre,
             tipo=tipo,
-            clasificacion=clasificacion,
-            creado_por_id=current_user.id,
-            tabla_retencion_id=tabla_retencion_id or None
+            contenido=contenido,
+            creado_por_id=current_user.id
         )
-        
-        # Manejar archivo
-        if 'archivo' in request.files:
-            archivo = request.files['archivo']
-            if archivo and allowed_file(archivo.filename):
-                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-                filename = secure_filename(archivo.filename)
-                timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-                filename = f"{timestamp}_{filename}"
-                
-                ruta = os.path.join(UPLOAD_FOLDER, filename)
-                archivo.save(ruta)
-                
-                documento.ruta_archivo = ruta
-                documento.tamano_bytes = os.path.getsize(ruta)
-                documento.calcular_hash(ruta)
-        
-        # Manejar contenido de texto
-        if request.form.get('contenido'):
-            documento.contenido = request.form.get('contenido')
-        
-        # Calcular fecha de destrucción si aplica
-        if documento.tabla_retencion:
-            documento.fecha_destruccion = documento.tabla_retencion.calcular_fecha_destruccion(
-                datetime.utcnow()
-            )
-        
-        # Registrar usuarios con acceso
-        documento.usuarios_con_acceso = [current_user.id]
-        if consulta.abogado_asignado_id:
-            documento.usuarios_con_acceso.append(consulta.abogado_asignado_id)
         
         db.session.add(documento)
-        db.session.flush()
-        
-        # Registrar en auditoría
-        auditoria = AuditoriaConsulta(
-            usuario_id=current_user.id,
-            consulta_id=consulta_id,
-            accion='agregar_documento',
-            detalles={'nombre': nombre, 'tipo': tipo}
-        )
-        db.session.add(auditoria)
-        
-        # Registrar en historial
-        historial = HistorialDocumento(
-            documento_id=documento.id,
-            usuario_id=current_user.id,
-            accion='creacion',
-            version_nueva=1
-        )
-        db.session.add(historial)
         db.session.commit()
         
-        flash(f'Documento "{nombre}" agregado', 'success')
-        return redirect(url_for('juridico.detalle_consulta', consulta_id=consulta_id))
-    
+        flash('✅ Documento cargado exitosamente', 'success')
+        
     except Exception as e:
         db.session.rollback()
-        flash(f'Error al agregar documento: {str(e)}', 'error')
-        return redirect(url_for('juridico.detalle_consulta', consulta_id=consulta_id))
+        flash(f'❌ Error al cargar documento: {str(e)}', 'error')
+    
+    return redirect(url_for('juridico.detalle', id=id))
 
+# ============ ELIMINAR DOCUMENTO ============
 
-@juridico_bp.route('/documento/<int:doc_id>/versiones', methods=['GET'])
-@login_required
-def historial_documento(doc_id):
-    """Muestra historial de versiones de un documento"""
+@juridico_bp.route('/documento/<int:doc_id>/eliminar', methods=['POST'])
+@juridico_required
+def eliminar_documento(doc_id):
+    """Eliminar documento legal"""
+    
     documento = DocumentoLegal.query.get_or_404(doc_id)
-    
-    # Obtener todas las versiones
-    if documento.documento_padre_id:
-        # Este es una versión, obtener el documento padre
-        doc_principal = DocumentoLegal.query.get(documento.documento_padre_id)
-    else:
-        doc_principal = documento
-    
-    versiones = DocumentoLegal.query.filter_by(
-        documento_padre_id=doc_principal.id
-    ).order_by(DocumentoLegal.numero_version.desc()).all()
-    
-    cambios = HistorialDocumento.query.filter_by(
-        documento_id=doc_id
-    ).order_by(HistorialDocumento.fecha.desc()).all()
-    
-    return render_template('juridico/historial_documento.html',
-                         documento=documento,
-                         versiones=versiones,
-                         cambios=cambios)
-
-
-@juridico_bp.route('/documento/<int:doc_id>/crear-version', methods=['POST'])
-@login_required
-def crear_version_documento(doc_id):
-    """Crea nueva versión de documento"""
-    documento = DocumentoLegal.query.get_or_404(doc_id)
-    
-    razon = request.form.get('razon_cambio', '')
-    
-    try:
-        nueva_version = documento.crear_nueva_version(current_user.id, razon)
-        
-        # Actualizar contenido si lo proporciona
-        if request.form.get('contenido'):
-            nueva_version.contenido = request.form.get('contenido')
-        
-        # Actualizar archivo si lo proporciona
-        if 'archivo' in request.files:
-            archivo = request.files['archivo']
-            if archivo and allowed_file(archivo.filename):
-                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-                filename = secure_filename(archivo.filename)
-                timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-                filename = f"{timestamp}_{filename}"
-                
-                ruta = os.path.join(UPLOAD_FOLDER, filename)
-                archivo.save(ruta)
-                
-                nueva_version.ruta_archivo = ruta
-                nueva_version.tamano_bytes = os.path.getsize(ruta)
-                nueva_version.calcular_hash(ruta)
-        
-        db.session.commit()
-        
-        flash(f'Nueva versión creada: v{nueva_version.numero_version}', 'success')
-        return redirect(url_for('juridico.historial_documento', doc_id=nueva_version.id))
-    
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error al crear versión: {str(e)}', 'error')
-        return redirect(url_for('juridico.historial_documento', doc_id=doc_id))
-
-
-@juridico_bp.route('/documento/<int:doc_id>/descargar', methods=['GET'])
-@login_required
-def descargar_documento(doc_id):
-    """Descarga documento con auditoría"""
-    documento = DocumentoLegal.query.get_or_404(doc_id)
+    consulta_id = documento.consulta_id
     
     # Verificar permisos
-    if current_user.id not in (documento.usuarios_con_acceso or []) and \
-       current_user.rol not in ['Admin', 'Responsable_SST']:
-        return jsonify({'error': 'No autorizado'}), 403
+    if current_user.id != documento.creado_por_id and current_user.rol not in ['Admin', 'Abogado']:
+        flash('❌ No tienes permiso para eliminar este documento', 'error')
+        return redirect(url_for('juridico.detalle', id=consulta_id))
     
     try:
-        # Registrar descarga en auditoría
-        auditoria = AuditoriaConsulta(
-            usuario_id=current_user.id,
-            consulta_id=documento.consulta_id,
-            accion='descarga_documento',
-            detalles={'nombre': documento.nombre}
-        )
-        db.session.add(auditoria)
+        db.session.delete(documento)
         db.session.commit()
-        
-        if documento.ruta_archivo and os.path.exists(documento.ruta_archivo):
-            return send_file(documento.ruta_archivo, 
-                           as_attachment=True,
-                           download_name=documento.nombre)
-        else:
-            return jsonify({'error': 'Archivo no encontrado'}), 404
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-# ==================== COMENTARIOS COLABORATIVOS ====================
-
-@juridico_bp.route('/<int:consulta_id>/comentario/agregar', methods=['POST'])
-@login_required
-def agregar_comentario_consulta(consulta_id):
-    """Agrega comentario a consulta"""
-    consulta = ConsultaJuridica.query.get_or_404(consulta_id)
-    
-    try:
-        comentario = ComentarioConsulta(
-            consulta_id=consulta_id,
-            usuario_id=current_user.id,
-            contenido=request.form.get('contenido'),
-            tipo=request.form.get('tipo', 'Observacion'),
-            prioridad=request.form.get('prioridad', 'Normal'),
-            responde_a_id=request.form.get('responde_a_id') or None
-        )
-        
-        db.session.add(comentario)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'comentario_id': comentario.id})
-    
+        flash('✅ Documento eliminado', 'success')
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        flash(f'❌ Error al eliminar documento: {str(e)}', 'error')
+    
+    return redirect(url_for('juridico.detalle', id=consulta_id))
 
+# ============ NORMATIVA - BÚSQUEDA ============
 
-@juridico_bp.route('/comentario-doc/<int:doc_id>/agregar', methods=['POST'])
-@login_required
-def agregar_comentario_documento(doc_id):
-    """Agrega anotación a documento"""
-    documento = DocumentoLegal.query.get_or_404(doc_id)
+@juridico_bp.route('/normativa')
+@juridico_required
+def normativa():
+    """Listar normativa SST Colombia"""
+    
+    # Buscar consultas marcadas como normativa
+    normativas = ConsultaJuridica.query.filter(
+        ConsultaJuridica.numero_consulta.like('NORM-%')
+    ).order_by(ConsultaJuridica.fecha_creacion.desc()).all()
+    
+    contexto = {
+        'normativas': normativas,
+        'total': len(normativas)
+    }
+    
+    return render_template('juridico/normativa.html', **contexto)
+
+# ============ DESCARGAR REPORTE ============
+
+@juridico_bp.route('/<int:id>/descargar')
+@juridico_required
+def descargar_reporte(id):
+    """Generar y descargar reporte de consulta en PDF"""
+    
+    consulta = ConsultaJuridica.query.get_or_404(id)
     
     try:
-        comentario = ComentarioDocumento(
-            documento_id=doc_id,
-            usuario_id=current_user.id,
-            contenido=request.form.get('contenido'),
-            tipo=request.form.get('tipo', 'Revision'),
-            linea_inicio=request.form.get('linea_inicio'),
-            linea_fin=request.form.get('linea_fin'),
-            fragmento_texto=request.form.get('fragmento_texto')
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from io import BytesIO
+        import uuid
+        
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Título
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            textColor='#1e3a8a',
+            spaceAfter=30,
+            alignment=1
+        )
+        story.append(Paragraph("REPORTE CONSULTA JURÍDICA", title_style))
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Información general
+        data = [
+            ['Campo', 'Valor'],
+            ['Número Consulta', consulta.numero_consulta],
+            ['Título', consulta.titulo],
+            ['Tipo', consulta.tipo_consulta],
+            ['Estado', consulta.estado],
+            ['Prioridad', consulta.prioridad],
+            ['Riesgo Legal', consulta.riesgo_legal],
+            ['Creado', str(consulta.fecha_creacion)],
+            ['Resuelto', str(consulta.fecha_resolucion) if consulta.fecha_resolucion else 'N/A'],
+        ]
+        
+        table = Table(data, colWidths=[2*inch, 4*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), '#e0e7ff'),
+            ('TEXTCOLOR', (0, 0), (-1, 0), '#1e3a8a'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), '#f0f4ff'),
+            ('GRID', (0, 0), (-1, -1), 1, '#cccccc'),
+        ]))
+        
+        story.append(table)
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Descripción
+        story.append(Paragraph("<b>Descripción:</b>", styles['Heading3']))
+        story.append(Paragraph(consulta.descripcion or "N/A", styles['BodyText']))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # Resolución
+        if consulta.resolucion:
+            story.append(PageBreak())
+            story.append(Paragraph("<b>Resolución:</b>", styles['Heading3']))
+            story.append(Paragraph(consulta.resolucion, styles['BodyText']))
+        
+        # Footer
+        story.append(Spacer(1, 0.5*inch))
+        story.append(Paragraph(f"Generado el: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}", 
+                              ParagraphStyle('footer', parent=styles['Normal'], fontSize=8, alignment=2)))
+        
+        doc.build(story)
+        buffer.seek(0)
+        
+        from flask import send_file
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"Consulta_{consulta.numero_consulta}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
         )
         
-        db.session.add(comentario)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'comentario_id': comentario.id})
-    
+    except ImportError:
+        flash('❌ ReportLab no está instalado. Instala con: pip install reportlab', 'error')
+        return redirect(url_for('juridico.detalle', id=id))
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        flash(f'❌ Error al generar reporte: {str(e)}', 'error')
+        return redirect(url_for('juridico.detalle', id=id))
 
+# ============ API ENDPOINTS ============
 
-# ==================== AUDITORÍA Y CUMPLIMIENTO ====================
+@juridico_bp.route('/api/estadisticas')
+@juridico_required
+def api_estadisticas():
+    """API para obtener estadísticas jurídicas"""
+    
+    stats = {
+        'total_consultas': ConsultaJuridica.query.count(),
+        'por_estado': {
+            'Abierta': ConsultaJuridica.query.filter_by(estado='Abierta').count(),
+            'En revisión': ConsultaJuridica.query.filter_by(estado='En revisión').count(),
+            'Resuelta': ConsultaJuridica.query.filter_by(estado='Resuelta').count(),
+            'Cerrada': ConsultaJuridica.query.filter_by(estado='Cerrada').count(),
+        },
+        'por_tipo': {},
+        'por_riesgo': {
+            'Bajo': ConsultaJuridica.query.filter_by(riesgo_legal='Bajo').count(),
+            'Medio': ConsultaJuridica.query.filter_by(riesgo_legal='Medio').count(),
+            'Alto': ConsultaJuridica.query.filter_by(riesgo_legal='Alto').count(),
+            'Crítico': ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count(),
+        },
+        'promedio_resolucion_horas': calcular_promedio_resolucion()
+    }
+    
+    # Contar por tipo
+    tipos = ['Laboral', 'Penal', 'Civil', 'Administrativo', 'Cumplimiento Normativo']
+    for tipo in tipos:
+        stats['por_tipo'][tipo] = ConsultaJuridica.query.filter_by(tipo_consulta=tipo).count()
+    
+    return jsonify(stats)
 
-@juridico_bp.route('/auditoria')
-@login_required
-def reporte_auditoria():
-    """Reporte de auditoría del módulo jurídico"""
-    if current_user.rol not in ['Admin', 'Responsable_SST']:
-        flash('No autorizado', 'error')
-        return redirect(url_for('juridico.listar_consultas'))
-    
-    page = request.args.get('page', 1, type=int)
-    usuario_id = request.args.get('usuario_id', None)
-    fecha_desde = request.args.get('fecha_desde', None)
-    fecha_hasta = request.args.get('fecha_hasta', None)
-    
-    query = AuditoriaConsulta.query
-    
-    if usuario_id:
-        query = query.filter_by(usuario_id=usuario_id)
-    
-    if fecha_desde:
-        query = query.filter(AuditoriaConsulta.fecha >= datetime.fromisoformat(fecha_desde))
-    
-    if fecha_hasta:
-        query = query.filter(AuditoriaConsulta.fecha <= datetime.fromisoformat(fecha_hasta))
-    
-    registros = query.order_by(AuditoriaConsulta.fecha.desc()).paginate(page=page, per_page=50)
-    
-    return render_template('juridico/auditoria.html', registros=registros)
-
-
-@juridico_bp.route('/tabla-retencion', methods=['GET'])
-@login_required
-def tabla_retencion():
-    """Gestión de tabla de retención documental"""
-    if current_user.rol not in ['Admin', 'Responsable_SST']:
-        return jsonify({'error': 'No autorizado'}), 403
-    
-    tablas = TablaRetencion.query.filter_by(activa=True).all()
-    return render_template('juridico/tabla_retencion.html', tablas=tablas)
-
-
-@juridico_bp.route('/api/estadisticas', methods=['GET'])
-@login_required
-def estadisticas_juridico():
-    """API de estadísticas del módulo jurídico"""
-    total = ConsultaJuridica.query.count()
-    abiertas = ConsultaJuridica.query.filter_by(estado='Abierta').count()
-    en_revision = ConsultaJuridica.query.filter_by(estado='En revisión').count()
-    en_concepto = ConsultaJuridica.query.filter_by(estado='En concepto').count()
-    resueltas = ConsultaJuridica.query.filter_by(estado='Resuelta').count()
-    cerradas = ConsultaJuridica.query.filter_by(estado='Cerrada').count()
-    
-    criticas = ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count()
-    altas = ConsultaJuridica.query.filter_by(riesgo_legal='Alto').count()
-    
-    # Tiempo promedio de resolución
+def calcular_promedio_resolucion():
+    """Calcular promedio de tiempo de resolución"""
     consultas_resueltas = ConsultaJuridica.query.filter(
-        ConsultaJuridica.fecha_resolucion != None
+        ConsultaJuridica.fecha_resolucion.isnot(None)
     ).all()
     
-    tiempos = []
+    if not consultas_resueltas:
+        return 0
+    
+    total_horas = 0
     for consulta in consultas_resueltas:
-        tiempo = (consulta.fecha_resolucion - consulta.fecha_creacion).days
-        tiempos.append(tiempo)
+        delta = consulta.fecha_resolucion - consulta.fecha_creacion
+        total_horas += delta.total_seconds() / 3600
     
-    tiempo_promedio = sum(tiempos) / len(tiempos) if tiempos else 0
-    
-    return jsonify({
-        'total': total,
-        'abierta': abiertas,
-        'en_revision': en_revision,
-        'en_concepto': en_concepto,
-        'resuelta': resueltas,
-        'cerrada': cerradas,
-        'criticas': criticas,
-        'altas': altas,
-        'tiempo_promedio_resolucion_dias': int(tiempo_promedio)
-    })
+    return round(total_horas / len(consultas_resueltas), 2)
