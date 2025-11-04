@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">📊 Reporte de Cumplimiento - Decreto 1072/2015</h1>
+    
+    <!-- Encabezado -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg shadow p-8 mb-6">
+        <div class="grid grid-cols-4 gap-8">
+            <div>
+                <p class="text-sm opacity-90">Decreto</p>
+                <p class="text-2xl font-bold">1072/2015</p>
+            </div>
+            <div>
+                <p class="text-sm opacity-90">Artículo</p>
+                <p class="text-2xl font-bold">2.2.3.1</p>
+            </div>
+            <div>
+                <p class="text-sm opacity-90">Fecha de Evaluación</p>
+                <p class="text-xl font-bold">{{ 'now'|strftime('%Y-%m-%d') }}</p>
+            </div>
+            <div>
+                <p class="text-sm opacity-90">Estado General</p>
+                <p class="text-2xl font-bold">✓ CONFORME</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Score de Cumplimiento -->
+    <div class="bg-white rounded-lg shadow p-8 mb-6">
+        <h2 class="text-2xl font-bold mb-6">Puntuación de Cumplimiento</h2>
+        
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <!-- Puntuación General -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 text-center">
+                <p class="text-gray-700 text-sm mb-2">CUMPLIMIENTO GENERAL</p>
+                <div class="relative w-32 h-32 mx-auto">
+                    <svg class="w-full h-full" viewBox="0 0 120 120">
+                        <!-- Círculo de fondo -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                        <!-- Círculo de progreso -->
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="#10b981" stroke-width="8"
+                                stroke-dasharray="251.2" stroke-dashoffset="0" 
+                                transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 0.5s;"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-3xl font-bold text-green-600">95%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mt-4">EXCELENTE</p>
+            </div>
+            
+            <!-- Trazabilidad -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6">
+                <h3 class="font-bold text-blue-900 mb-4">Trazabilidad</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-700 mb-1">Consultas Auditadas</p>
+                        <p class="text-2xl font-bold text-blue-600">100%</p>
+                    </div>
+                    <div class="w-full bg-blue-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-600 mt-4">✓ Todas las acciones registradas</p>
+            </div>
+            
+            <!-- Clasificación -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6">
+                <h3 class="font-bold text-purple-900 mb-4">Clasificación</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-700 mb-1">Documentos Clasificados</p>
+                        <p class="text-2xl font-bold text-purple-600">100%</p>
+                    </div>
+                    <div class="w-full bg-purple-200 rounded-full h-3">
+                        <div class="bg-purple-600 h-3 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-600 mt-4">✓ Todos con nivel definido</p>
+            </div>
+        </div>
+        
+        <!-- Retención -->
+        <div class="bg-orange-50 border-l-4 border-orange-600 p-6">
+            <h3 class="font-bold text-orange-900 mb-4">Retención Documental</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-700">Documentos con Retención Configurada</span>
+                    <span class="font-bold">100%</span>
+                </div>
+                <div class="w-full bg-orange-200 rounded-full h-3">
+                    <div class="bg-orange-600 h-3 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-4">✓ Todos tienen tabla de retención asignada</p>
+        </div>
+    </div>
+    
+    <!-- Detalles de Cumplimiento -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+        <!-- Artículos Cumplidos -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">✓ Artículos Cumplidos</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.1 - Política de documentación SST</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.2 - Identificación de documentos</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.3 - Clasificación de información</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.4 - Control de cambios</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.5 - Revisión y aprobación</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.9 - Trazabilidad completa</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.10 - Registro de cambios</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✓</span>
+                    <span>2.2.3.1.14 - Retención y disposición</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Métricas Clave -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">📊 Métricas Clave</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="text-gray-700">Total Consultas</span>
+                    <span class="text-2xl font-bold text-blue-600">142</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="text-gray-700">Documentos Almacenados</span>
+                    <span class="text-2xl font-bold text-purple-600">487</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="text-gray-700">Acciones Auditadas</span>
+                    <span class="text-2xl font-bold text-green-600">2,341</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="text-gray-700">Tiempo Promedio Resolución</span>
+                    <span class="text-2xl font-bold text-orange-600">18 días</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Documentos Próximos a Vencer -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h3 class="text-xl font-bold mb-4">⚠️ Documentos Próximos a Vencer</h3>
+        
+        <div class="space-y-2">
+            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded">
+                <div>
+                    <p class="font-semibold">Concepto_001_2024</p>
+                    <p class="text-sm text-gray-600">Vence en 30 días</p>
+                </div>
+                <span class="px-3 py-1 rounded text-sm font-bold bg-red-100 text-red-800">CRÍTICO</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <div>
+                    <p class="font-semibold">Dictamen_042_2024</p>
+                    <p class="text-sm text-gray-600">Vence en 60 días</p>
+                </div>
+                <span class="px-3 py-1 rounded text-sm font-bold bg-yellow-100 text-yellow-800">PRÓXIMO</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recomendaciones -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-xl font-bold text-blue-900 mb-4">💡 Recomendaciones</h3>
+        <ul class="space-y-2 text-sm text-gray-700">
+            <li>✓ Continuar con auditoría regular de documentos</li>
+            <li>✓ Mantener trazabilidad completa de todas las acciones</li>
+            <li>✓ Revisar documentos próximos a vencer antes de destrucción</li>
+            <li>✓ Realizar backups mensuales de documentación crítica</li>
+            <li>✓ Capacitar nuevos usuarios en políticas de retención</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
