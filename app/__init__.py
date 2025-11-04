@@ -42,16 +42,36 @@ def create_app(config='development'):
     CORS(app)
     
     with app.app_context():
+        # ============ IMPORTAR MODELOS ============
+        from app.models import (
+            ConsultaJuridica, DocumentoLegal, Usuario, Empleado,
+            CondicionInsegura, Evento, ConfiguracionIA,
+            CategoriaArea, Dependencia, RolSST, TipoReporte,
+            TipoEvidencia, MetodologiaInvestigacion
+        )
+        
         # ============ REGISTRAR BLUEPRINTS ============
-        from app.routes import auth_bp, dashboard_bp, reportes_bp, ia_bp, juridico_bp, admin_bp, controles_bp
+        from app.routes import (
+            auth_bp, dashboard_bp, reportes_bp, ia_bp, 
+            juridico_bp, admin_bp, controles_bp
+        )
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(dashboard_bp)
         app.register_blueprint(reportes_bp)
         app.register_blueprint(ia_bp)
-        app.register_blueprint(juridico_bp)
+        app.register_blueprint(juridico_bp)      # ⭐ MÓDULO JURÍDICO
         app.register_blueprint(admin_bp)
-        app.register_blueprint(controles_bp)  # ✅ AGREGAR ESTO
+        app.register_blueprint(controles_bp)
+        
+        logger.info("✅ Blueprints registrados:")
+        logger.info("   ├── auth_bp")
+        logger.info("   ├── dashboard_bp")
+        logger.info("   ├── reportes_bp")
+        logger.info("   ├── ia_bp")
+        logger.info("   ├── juridico_bp ⭐")
+        logger.info("   ├── admin_bp")
+        logger.info("   └── controles_bp")
         
         # ============ RUTA RAÍZ ============
         @app.route('/')
@@ -62,8 +82,12 @@ def create_app(config='development'):
             return redirect(url_for('auth.login'))
         
         # ============ CREAR TABLAS ============
+        logger.info("📊 Inicializando base de datos...")
         db.create_all()
         logger.info("✅ Base de datos inicializada")
+        logger.info("   ├── Tablas SST: OK")
+        logger.info("   ├── Tablas Jurídicas: consultas_juridicas, documentos_legales ⭐")
+        logger.info("   └── Tablas Configuración: OK")
         
         # ============ INICIAR SCHEDULER ============
         try:
