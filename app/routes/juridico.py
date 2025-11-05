@@ -11,6 +11,9 @@ from app.services.notificaciones import NotificacionService
 from app.routes import juridico_bp
 from datetime import datetime, timedelta
 from functools import wraps
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ============ DECORADOR PARA AUTENTICACIÓN JURÍDICA ============
 
@@ -118,26 +121,49 @@ def crear():
             
             consulta.generar_numero_consulta()
             
-            # Enviar notificación a abogados
-            abogados = Usuario.query.filter_by(rol='Abogado').all()
-            for abogado in abogados:
-                NotificacionService.notificar(
-                    usuario_id=abogado.id,
-                    titulo=f"Nueva Consulta Jurídica: {consulta.numero_consulta}",
-                    mensaje=f"Prioridad: {consulta.prioridad} | Riesgo: {consulta.riesgo_legal}",
-                    tipo='juridico',
-                    referencia_id=consulta.id
-                )
-            
             db.session.add(consulta)
             db.session.commit()
+            
+            logger.info(f"✅ Consulta jurídica creada: {consulta.numero_consulta}")
+            
+            # Enviar notificación a abogados usando método correcto
+            try:
+                abogados = Usuario.query.filter_by(rol='Abogado', activo=True).all()
+                for abogado in abogados:
+                    html = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <div style="background-color: #6f42c1; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+                            <h2 style="margin: 0;">⚖️ Nueva Consulta Jurídica</h2>
+                        </div>
+                        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 0 0 5px 5px;">
+                            <p><strong>📋 Número:</strong> {consulta.numero_consulta}</p>
+                            <p><strong>📝 Título:</strong> {consulta.titulo}</p>
+                            <p><strong>🏷️ Tipo:</strong> {consulta.tipo_consulta}</p>
+                            <p><strong>⚠️ Prioridad:</strong> {consulta.prioridad}</p>
+                            <p><strong>⚡ Riesgo Legal:</strong> {consulta.riesgo_legal}</p>
+                            <p style="text-align: center; margin-top: 20px;">
+                                <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Consulta</a>
+                            </p>
+                        </div>
+                    </div>
+                    """
+                    NotificacionService.enviar_email(
+                        abogado.email,
+                        f"[SST] Nueva Consulta Jurídica: {consulta.numero_consulta}",
+                        html
+                    )
+                logger.info(f"📧 Notificaciones enviadas a {len(abogados)} abogados")
+            except Exception as e:
+                logger.warning(f"⚠️ Error al enviar notificaciones (no crítico): {str(e)}")
             
             flash(f'✅ Consulta jurídica creada: {consulta.numero_consulta}', 'success')
             return redirect(url_for('juridico.detalle', id=consulta.id))
             
         except Exception as e:
             db.session.rollback()
+            logger.error(f"❌ Error al crear consulta: {str(e)}", exc_info=True)
             flash(f'❌ Error al crear consulta: {str(e)}', 'error')
+            return redirect(url_for('juridico.crear'))
     
     # GET - Mostrar formulario
     condiciones_inseguras = CondicionInsegura.query.filter_by(estado='Abierto').all()
@@ -170,50 +196,80 @@ def detalle(id):
             return redirect(url_for('juridico.listar'))
     
     if request.method == 'POST':
-        accion = request.form.get('accion')
-        
-        if accion == 'asignar' and current_user.rol in ['Admin', 'Responsable_SST']:
-            abogado_id = request.form.get('abogado_id')
-            consulta.abogado_asignado_id = abogado_id
-            consulta.estado = 'En revisión'
-            consulta.fecha_asignacion = datetime.utcnow()
+        try:
+            accion = request.form.get('accion')
             
-            abogado = Usuario.query.get(abogado_id)
-            NotificacionService.notificar(
-                usuario_id=abogado_id,
-                titulo=f"Consulta Asignada: {consulta.numero_consulta}",
-                mensaje=f"Tipo: {consulta.tipo_consulta} | Prioridad: {consulta.prioridad}",
-                tipo='juridico_asignacion',
-                referencia_id=consulta.id
-            )
-            flash(f'✅ Consulta asignada a {abogado.nombre_completo}', 'success')
-        
-        elif accion == 'resolver' and current_user.rol in ['Admin', 'Abogado']:
-            consulta.resolucion = request.form.get('resolucion')
-            consulta.recomendaciones = request.form.get('recomendaciones')
-            consulta.estado = 'Resuelta'
-            consulta.fecha_resolucion = datetime.utcnow()
+            if accion == 'asignar' and current_user.rol in ['Admin', 'Responsable_SST']:
+                abogado_id = request.form.get('abogado_id')
+                consulta.abogado_asignado_id = abogado_id
+                consulta.estado = 'En revisión'
+                consulta.fecha_asignacion = datetime.utcnow()
+                
+                db.session.commit()
+                
+                # Usar método correcto de notificación
+                abogado = Usuario.query.get(abogado_id)
+                NotificacionService.enviar_asignacion_consulta(abogado, consulta)
+                
+                logger.info(f"✅ Consulta {consulta.numero_consulta} asignada a {abogado.nombre_completo}")
+                flash(f'✅ Consulta asignada a {abogado.nombre_completo}', 'success')
             
-            NotificacionService.notificar(
-                usuario_id=consulta.responsable_creador_id,
-                titulo=f"Consulta Resuelta: {consulta.numero_consulta}",
-                mensaje=f"La consulta jurídica ha sido resuelta por {current_user.nombre_completo}",
-                tipo='juridico_resolucion',
-                referencia_id=consulta.id
-            )
-            flash('✅ Consulta marcada como resuelta', 'success')
-        
-        elif accion == 'cerrar' and current_user.rol in ['Admin', 'Responsable_SST']:
-            consulta.estado = 'Cerrada'
-            consulta.fecha_cierre = datetime.utcnow()
-            flash('✅ Consulta cerrada', 'success')
-        
-        elif accion == 'reabrir' and current_user.rol in ['Admin', 'Responsable_SST']:
-            consulta.estado = 'Abierta'
-            flash('✅ Consulta reabierta', 'success')
-        
-        db.session.commit()
-        return redirect(url_for('juridico.detalle', id=consulta.id))
+            elif accion == 'resolver' and current_user.rol in ['Admin', 'Abogado']:
+                consulta.resolucion = request.form.get('resolucion')
+                consulta.recomendaciones = request.form.get('recomendaciones')
+                consulta.estado = 'Resuelta'
+                consulta.fecha_resolucion = datetime.utcnow()
+                
+                db.session.commit()
+                
+                # Usar método correcto de notificación
+                if consulta.empleado_afectado:
+                    NotificacionService.enviar_resolucion_consulta(consulta.empleado_afectado, consulta)
+                
+                # Notificar también al creador
+                if consulta.responsable_creador and consulta.responsable_creador_id != consulta.empleado_afectado_id:
+                    html = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <div style="background-color: #28a745; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+                            <h2 style="margin: 0;">✅ Consulta Resuelta</h2>
+                        </div>
+                        <div style="background-color: #e8f5e9; padding: 20px; border-radius: 0 0 5px 5px;">
+                            <p>La consulta jurídica <strong>{consulta.numero_consulta}</strong> ha sido resuelta por {current_user.nombre_completo}.</p>
+                            <p style="text-align: center; margin-top: 20px;">
+                                <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Resolución</a>
+                            </p>
+                        </div>
+                    </div>
+                    """
+                    NotificacionService.enviar_email(
+                        consulta.responsable_creador.email,
+                        f"[SST] Consulta Resuelta: {consulta.numero_consulta}",
+                        html
+                    )
+                
+                logger.info(f"✅ Consulta {consulta.numero_consulta} marcada como resuelta")
+                flash('✅ Consulta marcada como resuelta', 'success')
+            
+            elif accion == 'cerrar' and current_user.rol in ['Admin', 'Responsable_SST']:
+                consulta.estado = 'Cerrada'
+                consulta.fecha_cierre = datetime.utcnow()
+                db.session.commit()
+                logger.info(f"✅ Consulta {consulta.numero_consulta} cerrada")
+                flash('✅ Consulta cerrada', 'success')
+            
+            elif accion == 'reabrir' and current_user.rol in ['Admin', 'Responsable_SST']:
+                consulta.estado = 'Abierta'
+                db.session.commit()
+                logger.info(f"✅ Consulta {consulta.numero_consulta} reabierta")
+                flash('✅ Consulta reabierta', 'success')
+            
+            return redirect(url_for('juridico.detalle', id=consulta.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"❌ Error en operación: {str(e)}", exc_info=True)
+            flash(f'❌ Error: {str(e)}', 'error')
+            return redirect(url_for('juridico.detalle', id=consulta.id))
     
     # Obtener abogados disponibles
     abogados = Usuario.query.filter_by(rol='Abogado').all()
@@ -269,10 +325,12 @@ def cargar_documento(id):
         db.session.add(documento)
         db.session.commit()
         
+        logger.info(f"✅ Documento {nombre} cargado en consulta {consulta.numero_consulta}")
         flash('✅ Documento cargado exitosamente', 'success')
         
     except Exception as e:
         db.session.rollback()
+        logger.error(f"❌ Error al cargar documento: {str(e)}", exc_info=True)
         flash(f'❌ Error al cargar documento: {str(e)}', 'error')
     
     return redirect(url_for('juridico.detalle', id=id))
@@ -295,9 +353,11 @@ def eliminar_documento(doc_id):
     try:
         db.session.delete(documento)
         db.session.commit()
+        logger.info(f"✅ Documento {documento.nombre} eliminado")
         flash('✅ Documento eliminado', 'success')
     except Exception as e:
         db.session.rollback()
+        logger.error(f"❌ Error al eliminar documento: {str(e)}", exc_info=True)
         flash(f'❌ Error al eliminar documento: {str(e)}', 'error')
     
     return redirect(url_for('juridico.detalle', id=consulta_id))
@@ -414,6 +474,7 @@ def descargar_reporte(id):
         flash('❌ ReportLab no está instalado. Instala con: pip install reportlab', 'error')
         return redirect(url_for('juridico.detalle', id=id))
     except Exception as e:
+        logger.error(f"❌ Error al generar reporte: {str(e)}", exc_info=True)
         flash(f'❌ Error al generar reporte: {str(e)}', 'error')
         return redirect(url_for('juridico.detalle', id=id))
 
@@ -424,43 +485,51 @@ def descargar_reporte(id):
 def api_estadisticas():
     """API para obtener estadísticas jurídicas"""
     
-    stats = {
-        'total_consultas': ConsultaJuridica.query.count(),
-        'por_estado': {
-            'Abierta': ConsultaJuridica.query.filter_by(estado='Abierta').count(),
-            'En revisión': ConsultaJuridica.query.filter_by(estado='En revisión').count(),
-            'Resuelta': ConsultaJuridica.query.filter_by(estado='Resuelta').count(),
-            'Cerrada': ConsultaJuridica.query.filter_by(estado='Cerrada').count(),
-        },
-        'por_tipo': {},
-        'por_riesgo': {
-            'Bajo': ConsultaJuridica.query.filter_by(riesgo_legal='Bajo').count(),
-            'Medio': ConsultaJuridica.query.filter_by(riesgo_legal='Medio').count(),
-            'Alto': ConsultaJuridica.query.filter_by(riesgo_legal='Alto').count(),
-            'Crítico': ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count(),
-        },
-        'promedio_resolucion_horas': calcular_promedio_resolucion()
-    }
-    
-    # Contar por tipo
-    tipos = ['Laboral', 'Penal', 'Civil', 'Administrativo', 'Cumplimiento Normativo']
-    for tipo in tipos:
-        stats['por_tipo'][tipo] = ConsultaJuridica.query.filter_by(tipo_consulta=tipo).count()
-    
-    return jsonify(stats)
+    try:
+        stats = {
+            'total_consultas': ConsultaJuridica.query.count(),
+            'por_estado': {
+                'Abierta': ConsultaJuridica.query.filter_by(estado='Abierta').count(),
+                'En revisión': ConsultaJuridica.query.filter_by(estado='En revisión').count(),
+                'Resuelta': ConsultaJuridica.query.filter_by(estado='Resuelta').count(),
+                'Cerrada': ConsultaJuridica.query.filter_by(estado='Cerrada').count(),
+            },
+            'por_tipo': {},
+            'por_riesgo': {
+                'Bajo': ConsultaJuridica.query.filter_by(riesgo_legal='Bajo').count(),
+                'Medio': ConsultaJuridica.query.filter_by(riesgo_legal='Medio').count(),
+                'Alto': ConsultaJuridica.query.filter_by(riesgo_legal='Alto').count(),
+                'Crítico': ConsultaJuridica.query.filter_by(riesgo_legal='Crítico').count(),
+            },
+            'promedio_resolucion_horas': calcular_promedio_resolucion()
+        }
+        
+        # Contar por tipo
+        tipos = ['Laboral', 'Penal', 'Civil', 'Administrativo', 'Cumplimiento Normativo']
+        for tipo in tipos:
+            stats['por_tipo'][tipo] = ConsultaJuridica.query.filter_by(tipo_consulta=tipo).count()
+        
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"❌ Error al obtener estadísticas: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 def calcular_promedio_resolucion():
     """Calcular promedio de tiempo de resolución"""
-    consultas_resueltas = ConsultaJuridica.query.filter(
-        ConsultaJuridica.fecha_resolucion.isnot(None)
-    ).all()
-    
-    if not consultas_resueltas:
+    try:
+        consultas_resueltas = ConsultaJuridica.query.filter(
+            ConsultaJuridica.fecha_resolucion.isnot(None)
+        ).all()
+        
+        if not consultas_resueltas:
+            return 0
+        
+        total_horas = 0
+        for consulta in consultas_resueltas:
+            delta = consulta.fecha_resolucion - consulta.fecha_creacion
+            total_horas += delta.total_seconds() / 3600
+        
+        return round(total_horas / len(consultas_resueltas), 2)
+    except Exception as e:
+        logger.error(f"❌ Error calculando promedio: {str(e)}")
         return 0
-    
-    total_horas = 0
-    for consulta in consultas_resueltas:
-        delta = consulta.fecha_resolucion - consulta.fecha_creacion
-        total_horas += delta.total_seconds() / 3600
-    
-    return round(total_horas / len(consultas_resueltas), 2)
