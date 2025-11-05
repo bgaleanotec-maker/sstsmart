@@ -5,7 +5,7 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">⚖️ Consultas Jurídicas</h1>
         {% if current_user.rol in ['Admin', 'Responsable_SST'] %}
-        <a href="{{ url_for('juridico.crear_consulta') }}" 
+        <a href="{{ url_for('juridico.crear') }}" 
            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             + Nueva Consulta
         </a>
@@ -145,14 +145,14 @@
     <!-- Paginación -->
     <div class="mt-6 flex justify-center gap-2">
         {% if consultas.has_prev %}
-        <a href="{{ url_for('juridico.listar_consultas', page=consultas.prev_num) }}"
+        <a href="{{ url_for('juridico.listar', page=consultas.prev_num) }}"
            class="px-4 py-2 border rounded hover:bg-gray-100">← Anterior</a>
         {% endif %}
         
         <span class="px-4 py-2">Página {{ consultas.page }} de {{ consultas.pages }}</span>
         
         {% if consultas.has_next %}
-        <a href="{{ url_for('juridico.listar_consultas', page=consultas.next_num) }}"
+        <a href="{{ url_for('juridico.listar', page=consultas.next_num) }}"
            class="px-4 py-2 border rounded hover:bg-gray-100">Siguiente →</a>
         {% endif %}
     </div>
