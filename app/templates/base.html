@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SST Smart{% endblock %}</title>
+    <title>{% block title %}Justrabajo{% endblock %}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,35 +70,47 @@
             <!-- Logo -->
             <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-3 group">
                 <div
-                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
-                    <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-blue-600 flex items-center justify-center shadow-lg group-hover:shadow-amber-500/40 transition-all duration-300">
+                    <i class="fa-solid fa-scale-balanced text-slate-900 text-lg"></i>
                 </div>
-                <span class="text-xl font-bold text-white tracking-wide">SST <span
-                        class="text-blue-400">Smart</span></span>
+                <span class="text-xl font-extrabold text-white tracking-tight"><span
+                        class="text-amber-400">Jus</span>trabajo</span>
             </a>
 
-            <!-- Navigation Links -->
-            <div class="hidden md:flex items-center gap-8">
+            <!-- Navigation Links (según módulos contratados) -->
+            <div class="hidden md:flex items-center gap-7">
                 <a href="{{ url_for('dashboard.index') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors relative py-2">
-                    Dashboard
-                    <span
-                        class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 transition-transform duration-300 hover:scale-x-100"></span>
-                </a>
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Dashboard</a>
+                {% if 'reportes' in modulos_activos %}
                 <a href="{{ url_for('reportes.listar') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Reportes</a>
+                {% endif %}
+                {% if 'autoevaluacion' in modulos_activos %}
                 <a href="{{ url_for('autoevaluacion.lista') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Autoevaluación</a>
+                {% endif %}
+                {% if 'matriz_legal' in modulos_activos %}
+                <a href="{{ url_for('matriz_legal.dashboard') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Matriz legal</a>
+                {% endif %}
+                {% if 'controles' in modulos_activos %}
+                <a href="{{ url_for('controles.listar_controles') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Controles</a>
+                {% endif %}
+                {% if 'juridico' in modulos_activos %}
                 <a href="{{ url_for('juridico.listar') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Jurídico</a>
+                {% endif %}
+                {% if 'formacion' in modulos_activos %}
                 <a href="{{ url_for('formacion.catalogo') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Formación</a>
-                {% if current_user.rol == 'Admin' %}
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.tiene_rol('Admin') %}
                 <a href="{{ url_for('admin.dashboard') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Admin</a>
-                <a href="{{ url_for('admin.ver_manual') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors"><i
-                        class="fa-solid fa-book mr-1"></i>Manual</a>
+                <a href="{{ url_for('admin.suscripcion') }}"
+                    class="text-sm font-medium text-amber-400/90 hover:text-amber-300 transition-colors"><i
+                        class="fa-solid fa-cubes mr-1"></i>Plan</a>
                 {% endif %}
             </div>
 
@@ -153,7 +165,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-slate-800 mt-12 py-8 text-center text-slate-500 text-sm">
-        <p>&copy; 2025 SST Smart Solutions. Todos los derechos reservados.</p>
+        <p>&copy; 2026 Justrabajo. Todos los derechos reservados.</p>
     </footer>
 
 </body>

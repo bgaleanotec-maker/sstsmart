@@ -61,6 +61,9 @@ def create_app(config='development'):
         from app.tenancy import init_tenancy
         init_tenancy(app)
 
+        from app.modulos import init_modulos
+        init_modulos(app)
+
         from app.routes import (
             auth_bp, dashboard_bp, reportes_bp, ia_bp,
             juridico_bp, admin_bp, controles_bp, formacion_bp, matriz_legal_bp
@@ -75,7 +78,9 @@ def create_app(config='development'):
         def index():
             if current_user.is_authenticated:
                 return redirect(url_for('dashboard.index'))
-            return redirect(url_for('auth.login'))
+            from flask import render_template
+            from app.data.modulos import MODULOS
+            return render_template('landing.html', MODULOS=MODULOS)
 
         @app.route('/healthz')
         def healthz():

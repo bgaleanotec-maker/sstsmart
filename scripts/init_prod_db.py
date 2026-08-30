@@ -52,7 +52,7 @@ def main():
             'usuarios', 'empleados', 'condiciones_inseguras', 'eventos',
             'riesgo_matriz', 'controles', 'requisitos_legales',
             'consultas_juridicas', 'cursos', 'gestion_reportes',
-            'autoevaluaciones', 'acciones_mejora',
+            'autoevaluaciones', 'acciones_mejora', 'empresa_modulos',
         ]
         for tabla in tablas_tenant:
             try:
@@ -64,6 +64,14 @@ def main():
             except Exception as e:
                 print(f"AVISO {tabla}: {e}")
                 db.session.rollback()
+        db.session.commit()
+
+        # Todos los módulos activos para la empresa inicial
+        from app.models import EmpresaModulo
+        from app.data.modulos import MODULOS
+        for codigo in MODULOS:
+            if not EmpresaModulo.query.filter_by(empresa_id=empresa.id, modulo=codigo).first():
+                db.session.add(EmpresaModulo(empresa_id=empresa.id, modulo=codigo, activo=True))
         db.session.commit()
 
         # Matriz legal 2026

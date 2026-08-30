@@ -1,162 +1,111 @@
 {% extends "base.html" %}
-
+{% block title %}Dashboard · Justrabajo{% endblock %}
 {% block content %}
-<div class="space-y-8 animate-fade-in">
+<div class="max-w-6xl mx-auto">
 
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <!-- Saludo + semáforo -->
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-8">
         <div>
-            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                Dashboard General
-            </h1>
-            <p class="text-slate-400 mt-1">Resumen de indicadores SST en tiempo real</p>
+            <p class="text-slate-500 text-sm">Hola, {{ usuario.nombre_completo.split(' ')[0] }} 👋</p>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight mt-1">Tu SG-SST hoy</h1>
         </div>
-
-        <div class="flex gap-3">
-            <button
-                class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors text-sm font-medium border border-slate-700">
-                <i class="fa-solid fa-calendar mr-2"></i> Últimos 30 días
-            </button>
-            {% if usuario.rol in ['Admin', 'Responsable SST'] %}
-            <a href="{{ url_for('reportes.nuevo') }}" class="btn-primary flex items-center gap-2">
-                <i class="fa-solid fa-plus"></i> Nuevo Reporte
-            </a>
-            {% endif %}
-        </div>
+        {% if ultima_autoeval and ultima_autoeval.puntaje_total is not none %}
+        <a href="{{ url_for('autoevaluacion.resultado', id=ultima_autoeval.id) if ultima_autoeval.estado == 'CERRADA' else url_for('autoevaluacion.diligenciar', id=ultima_autoeval.id) }}"
+           class="flex items-center gap-4 bg-slate-800/60 border rounded-2xl px-6 py-4 hover:bg-slate-800 transition-colors
+                  {% if ultima_autoeval.clasificacion == 'ACEPTABLE' %}border-emerald-500/40{% elif ultima_autoeval.clasificacion == 'MODERADO' %}border-amber-500/40{% else %}border-red-500/40{% endif %}">
+            <div class="text-right">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Cumplimiento {{ ultima_autoeval.anio }}</p>
+                <p class="text-3xl font-black
+                   {% if ultima_autoeval.clasificacion == 'ACEPTABLE' %}text-emerald-400{% elif ultima_autoeval.clasificacion == 'MODERADO' %}text-amber-400{% else %}text-red-400{% endif %}">
+                    {{ '%.0f' % ultima_autoeval.puntaje_total }}<span class="text-base text-slate-500">/100</span>
+                </p>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-600"></i>
+        </a>
+        {% elif 'autoevaluacion' in modulos_activos %}
+        <a href="{{ url_for('autoevaluacion.lista') }}"
+           class="bg-amber-500/10 border border-amber-500/30 rounded-2xl px-6 py-4 text-amber-200 text-sm hover:bg-amber-500/20 transition-colors">
+            <i class="fa-solid fa-clipboard-check mr-2"></i>Aún no tienes autoevaluación — <b>empieza aquí</b>
+        </a>
+        {% endif %}
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <!-- Total Reportes -->
-        <div class="glass-card p-6 relative overflow-hidden group">
-            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <i class="fa-solid fa-file-contract text-6xl text-blue-500"></i>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Total Reportes</p>
-                <div class="mt-2 flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-white">{{ total_reportes }}</span>
-                </div>
-            </div>
-            <div class="mt-4 h-1 w-full bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full bg-blue-500 w-[70%]"></div>
-            </div>
-        </div>
-
-        <!-- Reportes Abiertos -->
-        <div class="glass-card p-6 relative overflow-hidden group">
-            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <i class="fa-solid fa-triangle-exclamation text-6xl text-amber-500"></i>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Pendientes</p>
-                <div class="mt-2 flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-amber-400">{{ reportes_abiertos }}</span>
-                </div>
-            </div>
-            <div class="mt-4 flex gap-2 text-xs text-amber-400 bg-amber-500/10 py-1 px-2 rounded w-fit">
-                <i class="fa-solid fa-clock"></i> Requieren atención
-            </div>
-        </div>
-
-        <!-- Reportes Corregidos -->
-        <div class="glass-card p-6 relative overflow-hidden group">
-            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <i class="fa-solid fa-check-circle text-6xl text-emerald-500"></i>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Corregidos</p>
-                <div class="mt-2 flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-emerald-400">{{ reportes_corregidos }}</span>
-                </div>
-            </div>
-            <div class="mt-4 flex gap-2 text-xs text-emerald-400 bg-emerald-500/10 py-1 px-2 rounded w-fit">
-                <i class="fa-solid fa-chart-line"></i> +12% vs mes anterior
-            </div>
-        </div>
-
-        <!-- Consultas Jurídicas -->
-        <div class="glass-card p-6 relative overflow-hidden group">
-            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <i class="fa-solid fa-scale-balanced text-6xl text-purple-500"></i>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Jurídico</p>
-                <div class="mt-2 flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-purple-400">{{ consultas_juridicas }}</span>
-                    <span class="text-sm text-slate-500">Consultas</span>
-                </div>
-            </div>
-            <div class="mt-4 flex gap-2 text-xs text-slate-400">
-                <span class="text-white font-bold">{{ consultas_abiertas }}</span> abiertas actualmente
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Area (Layout with Sidebar) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        <!-- Recent Activity Column -->
-        <div class="lg:col-span-2 space-y-6">
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
             <div class="flex items-center justify-between">
-                <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-blue-500"></i> Actividad Reciente
-                </h3>
-                <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Ver todo</a>
+                <p class="text-slate-400 text-sm">Reportes abiertos</p>
+                <i class="fa-solid fa-triangle-exclamation {{ 'text-red-400' if reportes_abiertos else 'text-slate-600' }}"></i>
             </div>
-
-            <div class="glass-card p-6">
-                <!-- Placeholder for dynamic content or charts -->
-                <div
-                    class="flex items-center justify-center h-64 text-slate-500 flex-col gap-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/30">
-                    <i class="fa-solid fa-chart-area text-4xl opacity-50"></i>
-                    <p>Gráficos de tendencia próximamente</p>
-                </div>
-            </div>
+            <p class="text-3xl font-extrabold text-white mt-2">{{ reportes_abiertos }}</p>
+            <p class="text-xs text-slate-500">de {{ total_reportes }} totales</p>
         </div>
-
-        <!-- Quick Actions & Notifications -->
-        <div class="space-y-6">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-amber-500"></i> Accesos Rápidos
-            </h3>
-
-            <div class="grid grid-cols-1 gap-4">
-                <a href="{{ url_for('formacion.catalogo') }}"
-                    class="glass-card p-4 flex items-center gap-4 hover:bg-slate-700/50 transition-colors group cursor-pointer">
-                    <div
-                        class="w-12 h-12 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-graduation-cap text-xl"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-white">Mi Formación</h4>
-                        <p class="text-xs text-slate-400">Cursos pendientes y exámenes</p>
-                    </div>
-                    <i class="fa-solid fa-chevron-right ml-auto text-slate-600 group-hover:text-white"></i>
-                </a>
-
-                <a href="{{ url_for('juridico.listar') }}"
-                    class="glass-card p-4 flex items-center gap-4 hover:bg-slate-700/50 transition-colors group cursor-pointer">
-                    <div
-                        class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-gavel text-xl"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-white">Base Legal</h4>
-                        <p class="text-xs text-slate-400">Normativa vigente</p>
-                    </div>
-                    <i class="fa-solid fa-chevron-right ml-auto text-slate-600 group-hover:text-white"></i>
-                </a>
-
-                <div class="glass-card p-6 mt-8 bg-gradient-to-br from-blue-900/50 to-slate-900 border-blue-500/30">
-                    <h4 class="font-bold text-blue-200 mb-2">💡 Tip SST del Día</h4>
-                    <p class="text-sm text-slate-400 leading-relaxed">
-                        Recuerda realizar pausas activas cada 2 horas para reducir la fatiga visual y muscular.
-                    </p>
-                </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-slate-400 text-sm">Acciones de mejora</p>
+                <i class="fa-solid fa-list-check {{ 'text-amber-400' if acciones_abiertas else 'text-slate-600' }}"></i>
             </div>
+            <p class="text-3xl font-extrabold text-white mt-2">{{ acciones_abiertas }}</p>
+            <p class="text-xs text-slate-500">pendientes del plan</p>
         </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-slate-400 text-sm">Consultas jurídicas</p>
+                <i class="fa-solid fa-gavel {{ 'text-blue-400' if consultas_abiertas else 'text-slate-600' }}"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-white mt-2">{{ consultas_abiertas }}</p>
+            <p class="text-xs text-slate-500">abiertas</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-slate-400 text-sm">Controles activos</p>
+                <i class="fa-solid fa-shield-halved text-slate-600"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-white mt-2">{{ controles_activos }}</p>
+            <p class="text-xs text-slate-500">{{ requisitos_legales }} requisitos legales</p>
+        </div>
+    </div>
+
+    <!-- Accesos por módulo contratado -->
+    <h2 class="text-lg font-bold text-white mb-4">Tus módulos</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% set destinos = {
+            'autoevaluacion': url_for('autoevaluacion.lista'),
+            'reportes': url_for('reportes.nuevo'),
+            'matriz_legal': url_for('matriz_legal.dashboard'),
+            'controles': url_for('controles.listar_controles'),
+            'formacion': url_for('formacion.catalogo'),
+            'juridico': url_for('juridico.listar'),
+        } %}
+        {% set acciones_mod = {
+            'autoevaluacion': 'Diligenciar la vigencia actual',
+            'reportes': 'Reportar una condición insegura',
+            'matriz_legal': 'Revisar cumplimiento normativo',
+            'controles': 'Ver controles y seguimientos',
+            'formacion': 'Ir al catálogo de cursos',
+            'juridico': 'Crear o revisar consultas',
+        } %}
+        {% for codigo, m in CATALOGO_MODULOS.items() %}
+        {% if codigo in modulos_activos and codigo != 'ia' %}
+        <a href="{{ destinos.get(codigo, url_for('dashboard.index')) }}"
+           class="group bg-slate-800/60 border border-slate-700 hover:border-amber-400/40 rounded-2xl p-6 transition-all hover:-translate-y-0.5">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-blue-500/20 border border-white/10 flex items-center justify-center mb-4">
+                <i class="fa-solid {{ m.icono }} text-amber-400"></i>
+            </div>
+            <p class="text-white font-bold">{{ m.nombre }}</p>
+            <p class="text-slate-400 text-sm mt-1">{{ acciones_mod.get(codigo, '') }}</p>
+            <p class="text-amber-400/80 text-xs font-semibold mt-3 group-hover:text-amber-300">Abrir <i class="fa-solid fa-arrow-right ml-1"></i></p>
+        </a>
+        {% endif %}
+        {% endfor %}
+        {% if current_user.tiene_rol('Admin') %}
+        <a href="{{ url_for('admin.suscripcion') }}"
+           class="bg-slate-900/60 border border-dashed border-slate-600 hover:border-amber-400/50 rounded-2xl p-6 transition-colors flex flex-col items-start justify-center">
+            <i class="fa-solid fa-cubes text-slate-500 text-xl mb-3"></i>
+            <p class="text-slate-300 font-semibold text-sm">Gestionar plan y módulos</p>
+            <p class="text-slate-500 text-xs mt-1">Activa módulos y consulta el valor mensual</p>
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

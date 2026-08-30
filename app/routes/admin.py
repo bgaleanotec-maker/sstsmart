@@ -617,12 +617,12 @@ def eliminar_regla_escalonamiento(id):
 def prueba_notificacion():
     if request.method == 'POST':
         email_destino = request.form.get('email')
-        subject = "Prueba de Integración SendGrid - SST Smart"
+        subject = "Prueba de Integración SendGrid - Justrabajo"
         
         html_content = f"""
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ddd; border-radius: 8px;">
             <h2 style="color: #10b981;">✅ Prueba Exitosa</h2>
-            <p>Este es un correo de prueba enviado desde el sistema <strong>SST Smart Solutions</strong>.</p>
+            <p>Este es un correo de prueba enviado desde el sistema <strong>Justrabajo</strong>.</p>
             <p>Si estás leyendo esto, la integración con SendGrid está funcionando correctamente.</p>
             <hr>
             <p style="font-size: 12px; color: #666;">Fecha: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</p>
@@ -915,6 +915,56 @@ def desmatricular_usuario(id):
         
     return redirect(url_for('admin.gestionar_matriculas', id=curso.id))
 
+# ============== SUSCRIPCIÓN (MÓDULOS DEL PLAN) ==============
+
+@admin_bp.route('/suscripcion', methods=['GET', 'POST'])
+@admin_required
+def suscripcion():
+    from app.models import Empresa, EmpresaModulo
+    from app.data.modulos import MODULOS, descuento_por_volumen
+
+    empresa = None
+    if current_user.empresa_id:
+        empresa = db.session.get(Empresa, current_user.empresa_id)
+    empresa = empresa or Empresa.query.first()
+    if not empresa:
+        flash('Configura primero los datos de la empresa', 'warning')
+        return redirect(url_for('autoevaluacion.perfil_empresa'))
+
+    if request.method == 'POST':
+        for codigo in MODULOS:
+            fila = EmpresaModulo.query.filter_by(
+                empresa_id=empresa.id, modulo=codigo).first()
+            if not fila:
+                fila = EmpresaModulo(empresa_id=empresa.id, modulo=codigo)
+                db.session.add(fila)
+            fila.activo = request.form.get(f'mod_{codigo}') == 'on'
+            precio = request.form.get(f'precio_{codigo}', '').replace('.', '').replace(',', '').strip()
+            fila.precio_pactado = int(precio) if precio.isdigit() else None
+        db.session.commit()
+        flash('Suscripción actualizada', 'success')
+        return redirect(url_for('admin.suscripcion'))
+
+    filas = {f.modulo: f for f in EmpresaModulo.query.filter_by(empresa_id=empresa.id).all()}
+    items = []
+    subtotal = 0
+    n_activos = 0
+    for codigo, info in MODULOS.items():
+        fila = filas.get(codigo)
+        activo = fila.activo if fila else False
+        precio = (fila.precio_pactado if fila and fila.precio_pactado else info['precio'])
+        if activo:
+            subtotal += precio
+            n_activos += 1
+        items.append({'codigo': codigo, 'info': info, 'activo': activo, 'precio': precio})
+    desc = descuento_por_volumen(n_activos)
+    total = round(subtotal * (1 - desc))
+
+    return render_template('admin/suscripcion.html', empresa=empresa, items=items,
+                           subtotal=subtotal, descuento=desc, total=total,
+                           n_activos=n_activos)
+
+
 # ============== GESTIÓN DE USUARIOS (ADMIN) ==============
 
 @admin_bp.route('/usuarios', methods=['GET'])
@@ -952,7 +1002,7 @@ def crear_usuario():
         db.session.commit()
         
         # Enviar Credenciales por Email
-        subject = "Bienvenido a SST Smart System - Tus Credenciales"
+        subject = "Bienvenido a Justrabajo - Tus Credenciales"
         html_content = f"""
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="color: #2563eb;">Bienvenido, {nombre_completo}</h2>

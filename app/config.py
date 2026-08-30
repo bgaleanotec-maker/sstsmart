@@ -26,10 +26,13 @@ class BaseConfig:
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
     GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash')
     SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'no-reply@sst-smart.com')
+    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'no-reply@justrabajo.co')
 
     # URL pública para links en correos (en dev: localhost)
     BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+
+    # Número de WhatsApp para el CTA de la landing (formato 573001234567)
+    CONTACT_WHATSAPP = os.getenv('CONTACT_WHATSAPP', '')
 
     # Scheduler de escalamiento (apagar en workers múltiples / migraciones)
     SCHEDULER_ENABLED = os.getenv('SCHEDULER_ENABLED', '1') == '1'

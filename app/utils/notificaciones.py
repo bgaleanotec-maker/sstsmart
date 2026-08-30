@@ -26,7 +26,7 @@ class NotificationService:
             return True # Retornamos True para que el flujo continúe sin errores en Dev
             
         message = Mail(
-            from_email=os.getenv('SENDGRID_FROM_EMAIL', 'no-reply@sst-smart.com'),
+            from_email=os.getenv('SENDGRID_FROM_EMAIL', 'no-reply@justrabajo.co'),
             to_emails=to_email,
             subject=subject,
             html_content=html_content
@@ -65,7 +65,7 @@ class NotificationService:
                         <p>{mensaje}</p>
                         {f'<a href="{link}" style="background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Ver Detalles</a>' if link else ''}
                         <hr>
-                        <p style="font-size:12px; color:#888;">SST Smart System</p>
+                        <p style="font-size:12px; color:#888;">Justrabajo</p>
                     </div>
                     """
                     NotificationService.enviar_email(user.email, subject, html)

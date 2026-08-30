@@ -17,7 +17,7 @@ BEGIN
     'usuarios', 'empleados', 'condiciones_inseguras', 'eventos',
     'riesgo_matriz', 'controles', 'requisitos_legales',
     'consultas_juridicas', 'cursos', 'gestion_reportes',
-    'autoevaluaciones', 'acciones_mejora'
+    'autoevaluaciones', 'acciones_mejora', 'empresa_modulos'
   ] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
