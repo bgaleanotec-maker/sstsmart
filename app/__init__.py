@@ -31,6 +31,10 @@ def create_app(config='development'):
     config_cls = CONFIGS.get(config, CONFIGS['development'])
     if config_cls is ProductionConfig:
         config_cls.validar()
+        # Detrás del proxy de Render: IP real del cliente (rate limiting)
+        # y esquema https correcto (cookies seguras, url_for _external)
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     app.config.from_object(config_cls)
 
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static/uploads')
