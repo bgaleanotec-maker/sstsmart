@@ -1,36 +1,161 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SST Colombia{% endblock %}</title>
+    <title>{% block title %}SST Smart{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151f32' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Modern CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSRF: token para formularios y fetch (Flask-WTF) -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        (function () {
+            var token = document.querySelector('meta[name="csrf-token"]').content;
+            // 1. Inyectar el token en todo formulario POST clásico
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('form').forEach(function (f) {
+                    if ((f.method || '').toLowerCase() === 'post' && !f.querySelector('input[name="csrf_token"]')) {
+                        var i = document.createElement('input');
+                        i.type = 'hidden'; i.name = 'csrf_token'; i.value = token;
+                        f.appendChild(i);
+                    }
+                });
+            });
+            // 2. Añadir cabecera a los fetch same-origin con método de escritura
+            var _fetch = window.fetch;
+            window.fetch = function (url, opts) {
+                opts = opts || {};
+                var method = (opts.method || 'GET').toUpperCase();
+                var sameOrigin = typeof url === 'string' && !/^https?:\/\//.test(url);
+                if (sameOrigin && method !== 'GET' && method !== 'HEAD') {
+                    opts.headers = Object.assign({}, opts.headers, { 'X-CSRFToken': token });
+                }
+                return _fetch(url, opts);
+            };
+        })();
+    </script>
 </head>
-<body>
-    <nav class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">🛡️ SST Colombia</h1>
-            <div class="flex gap-4">
-                <a href="{{ url_for('dashboard.index') }}" class="hover:text-blue-200">Dashboard</a>
-                <a href="{{ url_for('reportes.listar') }}" class="hover:text-blue-200">Reportes</a>
-                <a href="{{ url_for('juridico.listar') }}" class="hover:text-blue-200">Jurídico</a>
-                <a href="{{ url_for('auth.logout') }}" class="hover:text-blue-200">Salir</a>
+
+<body class="antialiased text-slate-200 selection:bg-blue-500 selection:text-white">
+
+    <!-- Modern Navbar -->
+    <nav class="glass-header w-full">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-3 group">
+                <div
+                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
+                    <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-white tracking-wide">SST <span
+                        class="text-blue-400">Smart</span></span>
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="{{ url_for('dashboard.index') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors relative py-2">
+                    Dashboard
+                    <span
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 transition-transform duration-300 hover:scale-x-100"></span>
+                </a>
+                <a href="{{ url_for('reportes.listar') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Reportes</a>
+                <a href="{{ url_for('autoevaluacion.lista') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Autoevaluación</a>
+                <a href="{{ url_for('juridico.listar') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Jurídico</a>
+                <a href="{{ url_for('formacion.catalogo') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Formación</a>
+                {% if current_user.rol == 'Admin' %}
+                <a href="{{ url_for('admin.dashboard') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Admin</a>
+                <a href="{{ url_for('admin.ver_manual') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors"><i
+                        class="fa-solid fa-book mr-1"></i>Manual</a>
+                {% endif %}
+            </div>
+
+            <!-- User Profile & Action -->
+            <div class="flex items-center gap-4">
+                {% if current_user.is_authenticated %}
+                <div class="hidden md:flex flex-col items-end mr-2">
+                    <span class="text-sm font-semibold text-white">{{ current_user.nombre_completo }}</span>
+                    <span class="text-xs text-blue-400">{{ current_user.rol }}</span>
+                </div>
+                <a href="{{ url_for('auth.logout') }}"
+                    class="p-2 rounded-full hover:bg-white/10 transition-colors text-slate-400 hover:text-red-400"
+                    title="Cerrar Sesión">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn-primary text-sm px-6 py-2">Iniciar Sesión</a>
+                {% endif %}
             </div>
         </div>
     </nav>
-    
-    <div class="container mx-auto p-4">
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-6 min-h-[calc(100vh-80px)]">
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="mb-4 p-4 rounded {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        <div class="mb-8 flex flex-col gap-3 animate-fade-in">
+            {% for category, message in messages %}
+            <div class="p-4 rounded-xl border flex items-center gap-3 backdrop-blur-md shadow-lg
+                            {% if category == 'error' %}
+                                bg-red-500/10 border-red-500/20 text-red-200
+                            {% elif category == 'success' %}
+                                bg-emerald-500/10 border-emerald-500/20 text-emerald-200
+                            {% else %}
+                                bg-blue-500/10 border-blue-500/20 text-blue-200
+                            {% endif %}">
+                <i class="fa-solid 
+                                {% if category == 'error' %}fa-circle-exclamation text-red-400
+                                {% elif category == 'success' %}fa-circle-check text-emerald-400
+                                {% else %}fa-circle-info text-blue-400{% endif %} 
+                                text-xl"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
-        
+
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 mt-12 py-8 text-center text-slate-500 text-sm">
+        <p>&copy; 2025 SST Smart Solutions. Todos los derechos reservados.</p>
+    </footer>
+
 </body>
+
 </html>

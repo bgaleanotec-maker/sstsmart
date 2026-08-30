@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto animate-fade-in space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">{{ requisito.norma }}</h1>
+            <p class="text-slate-400 font-mono text-lg mb-1">{{ requisito.articulo }}</p>
+            <span class="px-3 py-1 rounded-full text-xs font-bold border 
+                {% if requisito.estado.value == 'Cumple' %}bg-emerald-500/10 text-emerald-400 border-emerald-500/30
+                {% elif requisito.estado.value == 'No Cumple' %}bg-red-500/10 text-red-400 border-red-500/30
+                {% elif requisito.estado.value == 'En Proceso' %}bg-blue-500/10 text-blue-400 border-blue-500/30
+                {% else %}bg-slate-700/50 text-slate-400 border-slate-600
+                {% endif %}">
+                {{ requisito.estado.value }}
+            </span>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('matriz_legal.evaluar_requisito', id=requisito.id) }}"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition-all">
+                <i class="fas fa-gavel mr-2"></i> Evaluar
+            </a>
+            <a href="{{ url_for('matriz_legal.dashboard') }}"
+                class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-bold transition-all">
+                Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Details & Evidence -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Description -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold text-slate-300 mb-4 border-b border-white/5 pb-2">Detalles de la Norma</h3>
+                <p class="text-slate-300 leading-relaxed">{{ requisito.descripcion }}</p>
+                <div class="mt-4 flex gap-6 text-sm">
+                    <div>
+                        <span class="block text-slate-500 text-xs uppercase">Entidad</span>
+                        <span class="text-white">{{ requisito.entidad }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-slate-500 text-xs uppercase">Año</span>
+                        <span class="text-white">{{ requisito.anio }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Manager -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold text-slate-300 mb-4 border-b border-white/5 pb-2">Gestión Documental
+                    (Evidencias)</h3>
+
+                <!-- Upload Form -->
+                <form action="{{ url_for('matriz_legal.subir_evidencia', id=requisito.id) }}" method="POST"
+                    enctype="multipart/form-data"
+                    class="mb-6 bg-slate-800/50 p-4 rounded-lg border border-slate-700 border-dashed">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Nueva Evidencia /
+                                Versión</label>
+                            <input type="file" name="archivo" required
+                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
+                        </div>
+                        <input type="text" name="descripcion_cambio" placeholder="Motivo de la carga (opcional)"
+                            class="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 md:col-span-3">
+                        <button type="submit"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold transition-colors w-full md:col-span-3">
+                            <i class="fas fa-upload mr-2"></i> Cargar Evidencia
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Documents List -->
+                <div class="space-y-3">
+                    {% for evid in requisito.evidencias|sort(attribute='version', reverse=True) %}
+                    <div
+                        class="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-500 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-slate-700 p-2 rounded text-slate-400">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium text-sm">{{ evid.nombre_archivo }}</p>
+                                <p class="text-xs text-slate-500">
+                                    Versión {{ evid.version }} • {{ evid.fecha_carga.strftime('%Y-%m-%d %H:%M') }}
+                                </p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('static', filename='uploads/' + evid.archivo_path) }}" target="_blank"
+                            class="text-blue-400 hover:text-blue-300 text-sm font-bold">
+                            <i class="fas fa-download mr-1"></i> Descargar
+                        </a>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-slate-500 py-4 text-sm">No hay evidencias cargadas.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Forensic Log & Latest Valuation -->
+        <div class="space-y-6">
+
+            <!-- Latest Valuation -->
+            {% if requisito.valoraciones %}
+            <div class="glass-card p-6 border-l-4 border-indigo-500">
+                <h3 class="text-lg font-bold text-slate-300 mb-4">Última Valoración</h3>
+                {% set val = requisito.valoraciones[-1] %}
+                <div class="mb-4">
+                    <span class="text-xs text-slate-500 uppercase block mb-1">Concepto Jurídico</span>
+                    <p class="text-slate-200 text-sm italic">"{{ val.concepto_final }}"</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-slate-800 p-2 rounded">
+                        <span class="block text-2xl font-bold text-white">{{ val.puntuacion_cumplimiento }}%</span>
+                        <span class="text-xs text-slate-500 uppercase">Cumplimiento</span>
+                    </div>
+                    <div class="bg-slate-800 p-2 rounded">
+                        <span class="block text-lg font-bold 
+                            {% if val.probabilidad_sancion.name == 'ALTA' %}text-red-400
+                            {% elif val.probabilidad_sancion.name == 'MEDIA' %}text-yellow-400
+                            {% else %}text-emerald-400{% endif %}">
+                            {{ val.probabilidad_sancion.value }}
+                        </span>
+                        <span class="text-xs text-slate-500 uppercase">Prob. Sanción</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 uppercase">Riesgo Total</span>
+                        <span class="text-xl font-mono text-white font-bold">${{
+                            "{:,.0f}".format(val.nivel_riesgo_total) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Forensic Logs -->
+            <div class="glass-card p-6 max-h-96 overflow-y-auto custom-scrollbar">
+                <h3 class="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                    <i class="fas fa-history text-slate-500"></i> Auditoría Forense
+                </h3>
+                <div class="relative border-l border-slate-700 ml-2 space-y-6 pl-6">
+                    {% for log in requisito.logs|products(attribute='timestamp', reverse=True) %}
+                    <div class="relative">
+                        <div
+                            class="absolute -left-[29px] bg-slate-900 border border-slate-600 rounded-full w-3 h-3 mt-1.5">
+                        </div>
+                        <p class="text-xs text-slate-500 mb-1 font-mono">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                            }}</p>
+                        <p class="text-sm text-white font-bold">{{ log.accion }}</p>
+                        <p class="text-xs text-slate-400">{{ log.detalles }}</p>
+                        <!-- <p class="text-xs text-slate-600 mt-1">User ID: {{ log.usuario_id }}</p> -->
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

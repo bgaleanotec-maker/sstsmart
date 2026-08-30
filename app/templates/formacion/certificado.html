@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado - {{ curso.titulo }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&family=Montserrat:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .font-serif {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-script {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-sans {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        @page {
+            size: landscape;
+            margin: 0;
+        }
+
+        .certificate-bg {
+            background-color: #fcfbf9;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="certificate-bg h-screen w-screen flex items-center justify-center p-0 m-0">
+
+    <div
+        class="relative w-[280mm] h-[200mm] bg-white border-[16px] border-double border-slate-800 shadow-2xl p-16 flex flex-col items-center justify-between text-center overflow-hidden">
+
+        <!-- Watermark -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+            <svg class="w-[500px] h-[500px]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z" />
+            </svg>
+        </div>
+
+        <!-- Corner Ornaments (CSS Shapes) -->
+        <div class="absolute top-4 left-4 w-16 h-16 border-t-4 border-l-4 border-yellow-600"></div>
+        <div class="absolute top-4 right-4 w-16 h-16 border-t-4 border-r-4 border-yellow-600"></div>
+        <div class="absolute bottom-4 left-4 w-16 h-16 border-b-4 border-l-4 border-yellow-600"></div>
+        <div class="absolute bottom-4 right-4 w-16 h-16 border-b-4 border-r-4 border-yellow-600"></div>
+
+        <!-- Header -->
+        <div class="space-y-4 z-10">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <i class="fas fa-shield-alt text-4xl text-slate-800"></i>
+                <h1 class="text-3xl font-bold tracking-widest text-slate-800 uppercase font-serif">SST Smart System</h1>
+            </div>
+            <h2 class="text-xl text-yellow-700 font-serif tracking-widest uppercase mb-8">Certificado de Aprobación</h2>
+        </div>
+
+        <!-- Body -->
+        <div class="space-y-6 z-10 w-full">
+            <p class="text-lg text-slate-500 font-sans italic">Se certifica que</p>
+
+            <h3 class="text-5xl font-script text-slate-900 border-b border-slate-300 pb-4 mx-20 min-w-[500px]">
+                {{ usuario.nombre_completo }}
+            </h3>
+
+            <p class="text-lg text-slate-500 font-sans">Ha completado satisfactoriamente el curso de formación en:</p>
+
+            <h4 class="text-3xl font-bold text-slate-800 font-serif uppercase max-w-4xl mx-auto leading-relaxed">
+                {{ curso.titulo }}
+            </h4>
+
+            <div class="flex justify-center gap-12 mt-6 text-sm text-slate-600 font-sans">
+                <div>
+                    <span class="font-bold block text-slate-400 uppercase text-xs">Duración</span>
+                    {{ curso.duracion_horas }} Horas
+                </div>
+                <div>
+                    <span class="font-bold block text-slate-400 uppercase text-xs">Fecha de Emisión</span>
+                    {{ fecha.strftime('%d de %B del %Y') }}
+                </div>
+                <div>
+                    <span class="font-bold block text-slate-400 uppercase text-xs">Código Validación</span>
+                    SST-{{ curso.id }}-{{ usuario.id }}-{{ fecha.strftime('%Y') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Signatures -->
+        <div class="grid grid-cols-2 gap-32 w-full mt-12 z-10">
+            <div class="flex flex-col items-center">
+                <div class="w-48 border-b border-slate-400 mb-2"></div> <!-- Line for signature -->
+                <p class="font-bold text-slate-800 text-sm">Gerencia General</p>
+                <p class="text-xs text-slate-500">Representante Legal</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Firma_ficticia.svg"
+                    class="h-12 mb-[-2rem] opacity-70" alt="Firma"> <!-- Placeholder signature -->
+                <div class="w-48 border-b border-slate-400 mb-2 mt-8"></div>
+                <p class="font-bold text-slate-800 text-sm">Departamento SST</p>
+                <p class="text-xs text-slate-500">Responsable del Sistema</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Auto-print prompt
+        window.onload = function () {
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

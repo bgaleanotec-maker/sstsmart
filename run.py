@@ -1,29 +1,38 @@
 from app import create_app, db
-from app.models import Usuario
+from app.models import Usuario, Empresa
 
 app = create_app('development')
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'Usuario': Usuario}
+    return {'db': db, 'Usuario': Usuario, 'Empresa': Empresa}
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        
+
+        empresa = Empresa.query.first()
+        if not empresa:
+            empresa = Empresa(nit='000000000', razon_social='Mi Empresa',
+                              num_trabajadores=10, clase_riesgo=1)
+            empresa.calcular_regimen()
+            db.session.add(empresa)
+            db.session.commit()
+
         admin = Usuario.query.filter_by(email='admin@sst.local').first()
         if not admin:
             admin = Usuario(
                 email='admin@sst.local',
                 nombre_completo='Administrador SST',
                 rol='Admin',
-                activo=True
+                activo=True,
+                empresa_id=empresa.id,
             )
             admin.set_password('admin123')
             db.session.add(admin)
             db.session.commit()
-            print("✓ Admin creado: admin@sst.local / admin123")
-        
-        print("✓ Base de datos inicializada")
-    
+            print("Admin creado: admin@sst.local / admin123")
+
+        print("Base de datos inicializada")
+
     app.run(debug=True, host='0.0.0.0', port=5000)

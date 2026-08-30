@@ -1,12 +1,22 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+import os
+from flask import current_app
+from datetime import datetime
 from app import db
 from app.models import (
     CategoriaArea, Dependencia, RolSST, TipoReporte, 
     TipoEvidencia, MetodologiaInvestigacion,
     NivelRiesgo, MatrizRiesgos, GestorResponsabilidades, 
-    ReglasEscalonamiento, PasoEscalonamiento
+    ReglasEscalonamiento, PasoEscalonamiento,
+    Curso, Examen, Pregunta, Opcion, IntentoExamen, ProgresoFormacion,
+    Usuario
 )
+from app.utils.notificaciones import NotificationService
+from app.constants import ROL_ADMIN, ROLES_FORMACION_ADMIN, ROLES_TODOS
+import string
+import random
 from functools import wraps
 from app.routes import admin_bp
 
@@ -15,8 +25,19 @@ def admin_required(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if current_user.rol != 'Admin':
+        if not current_user.tiene_rol(ROL_ADMIN):
             flash('No tienes permiso para acceder', 'error')
+            return redirect(url_for('reportes.listar'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Decorator para Formación (Admin o Responsable SST)
+def formacion_permission_required(f):
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.tiene_rol(*ROLES_FORMACION_ADMIN):
+            flash('No tienes permiso para gestionar formación', 'error')
             return redirect(url_for('reportes.listar'))
         return f(*args, **kwargs)
     return decorated_function
@@ -33,9 +54,88 @@ def dashboard():
         'tipos_evidencia': TipoEvidencia.query.count(),
         'metodologias': MetodologiaInvestigacion.query.count(),
         'niveles_riesgo': NivelRiesgo.query.count(),
-        'gestores_configurados': GestorResponsabilidades.query.count()
+        'gestores_configurados': GestorResponsabilidades.query.count(),
+        'cursos': Curso.query.count()
     }
     return render_template('admin/dashboard.html', stats=stats)
+
+# ============== MANUAL DEL SISTEMA ==============
+
+@admin_bp.route('/manual', methods=['GET'])
+@admin_required
+def ver_manual():
+    return render_template('admin/manual.html')
+
+@admin_bp.route('/manual/descargar', methods=['GET'])
+@admin_required
+def descargar_manual():
+    # 1. Renderizar el template
+    html_content = render_template('admin/manual.html')
+    
+    # 2. Leer estilos personalizados
+    try:
+        style_path = os.path.join(current_app.static_folder, 'css', 'style.css')
+        with open(style_path, 'r', encoding='utf-8') as f:
+            custom_css = f.read()
+    except Exception as e:
+        custom_css = "/* Error reading style.css */"
+
+    # 3. Reemplazar Links con Inserciones Directas para funcionamiento Offline
+    
+    # Reemplazar Link a output.css con CDN de Tailwind + Config
+    tailwind_cdn = """
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151f32' }
+                    }
+                }
+            }
+        }
+    </script>
+    """
+    
+    # Eliminar bloques existentes de CSS/Tailwind en base.html para evitar conflictos/404s
+    # NOTA: Esto es un reemplazo simple de strings. Si el base.html cambia drásticamente, ajustar.
+    
+    # a. Quitar CDN actual si existe para ponerlo limpio o dejarlo si ya es CDN (en base.html lo es, pero aseguramos)
+    # b. Quitar style.css link y poner style tag
+    
+    # Estrategia: Buscar el cierre de </head> e inyectar todo si no podemos hacer reemplazo fino
+    # Pero el usuario reporta "fondo blanco", así que los estilos no cargan. 
+    # Vamos a reemplazar las líneas específicas de base.html si las encontramos, o inyectar en head.
+    
+    # Reemplazo del link a style.css
+    link_style_tag = '<link rel="stylesheet" href="/static/css/style.css">'
+    style_injection = f'<style>\n{custom_css}\n</style>'
+    
+    # Ajuste por si url_for generó otra cosa (depende de deployment context, pero local es /static/...)
+    if link_style_tag in html_content:
+        html_content = html_content.replace(link_style_tag, style_injection)
+    else:
+        # Intento regex o simplemente append to head
+        html_content = html_content.replace('</head>', f'{style_injection}\n</head>')
+
+    # Asegurar Tailwind (base.html ya tiene CDN, pero si se descargó mal...)
+    # Si base.html tiene <script src="https://cdn.tailwindcss.com"></script>, debería funcionar.
+    # El problema 'fondo blanco' sugiere que el script no corrió o style.css falló.
+    # Como style.css define variables --primary-bg, si falla, variables son undefined -> fallback white?
+    # Sí. style.css define :root { --primary-bg: ... } y body { background-color: var(--primary-bg) }
+    
+    # CONCLUSIÓN: El fallo principal es style.css local (404). Inyectándolo arriba lo arregla.
+    
+    # Limpieza final de links rotos (opcional pero limpio)
+    
+    from flask import Response
+    return Response(
+        html_content,
+        mimetype="text/html",
+        headers={"Content-disposition": "attachment; filename=Manual_SST_Smart.html"}
+    )
 
 # ============== CATEGORÍAS DE ÁREAS ==============
 
@@ -510,6 +610,36 @@ def eliminar_regla_escalonamiento(id):
     flash('Regla eliminada', 'success')
     return redirect(url_for('admin.listar_reglas_escalonamiento'))
 
+# ============== NOTIFICACIONES DE PRUEBA ==============
+
+@admin_bp.route('/usuarios/prueba-notificacion', methods=['GET', 'POST'])
+@admin_required
+def prueba_notificacion():
+    if request.method == 'POST':
+        email_destino = request.form.get('email')
+        subject = "Prueba de Integración SendGrid - SST Smart"
+        
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="color: #10b981;">✅ Prueba Exitosa</h2>
+            <p>Este es un correo de prueba enviado desde el sistema <strong>SST Smart Solutions</strong>.</p>
+            <p>Si estás leyendo esto, la integración con SendGrid está funcionando correctamente.</p>
+            <hr>
+            <p style="font-size: 12px; color: #666;">Fecha: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        </div>
+        """
+        
+        exito = NotificationService.enviar_email(email_destino, subject, html_content)
+        
+        if exito:
+            flash(f'Correo de prueba enviado a {email_destino}', 'success')
+        else:
+            flash('Error al enviar el correo. Revisa los logs o la consola.', 'error')
+            
+        return redirect(url_for('admin.prueba_notificacion'))
+
+    return render_template('admin/usuarios/prueba_notificacion.html')
+
 
 
 
@@ -535,3 +665,337 @@ def api_dependencia_detail(id):
         'latitud': dependencia.latitud,
         'longitud': dependencia.longitud
     })
+
+
+
+
+# ============== GESTIÓN DE FORMACIÓN (ADMIN) ==============
+
+@admin_bp.route('/formacion/cursos', methods=['GET'])
+@formacion_permission_required
+def listar_cursos():
+    cursos = Curso.query.all()
+    return render_template('admin/formacion/listar_cursos.html', cursos=cursos)
+
+@admin_bp.route('/formacion/curso/nuevo', methods=['GET', 'POST'])
+@formacion_permission_required
+def crear_curso():
+    if request.method == 'POST':
+        titulo = request.form.get('titulo')
+        descripcion = request.form.get('descripcion')
+        contenido_html = request.form.get('contenido_html')
+        duracion_horas = request.form.get('duracion_horas')
+        video_url = request.form.get('video_url')
+        
+        # Nuevos campos
+        categoria = request.form.get('categoria')
+        tipo_contenido = request.form.get('tipo_contenido') # video/pdf
+        
+        # --- LOGICA DE ARCHIVOS ---
+        import time
+        def save_file(file, subdir):
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                # Timestamp prevent overwrites
+                filename = f"{int(time.time())}_{filename}"
+                path = os.path.join(current_app.config['UPLOAD_FOLDER'], subdir)
+                os.makedirs(path, exist_ok=True)
+                file.save(os.path.join(path, filename))
+                return url_for('static', filename=f'uploads/{subdir}/{filename}')
+            return None
+
+        # 1. Imagen Portada (Prioridad: Archivo > URL input)
+        imagen_file = request.files.get('imagen_file')
+        imagen_portada = request.form.get('imagen_portada')  # campo URL (fallback)
+        if imagen_file:
+            uploaded_img = save_file(imagen_file, 'cursos/imagenes')
+            if uploaded_img:
+                imagen_portada = uploaded_img
+
+        # 2. PDF (Prioridad: Archivo > URL input)
+        pdf_file = request.files.get('pdf_file')
+        pdf_url_input = request.form.get('pdf_url')
+        if pdf_file:
+            uploaded_pdf = save_file(pdf_file, 'cursos/docs')
+            if uploaded_pdf:
+                pdf_url = uploaded_pdf
+            else:
+                pdf_url = pdf_url_input
+        else:
+             pdf_url = pdf_url_input
+
+        # 3. Video (Prioridad: Archivo > URL input)
+        video_file = request.files.get('video_file')
+        video_url_input = request.form.get('video_url')
+        
+        if video_file:
+            uploaded_video = save_file(video_file, 'cursos/videos')
+            if uploaded_video:
+                video_url = uploaded_video
+            else:
+                video_url = video_url_input
+        else:
+            video_url = video_url_input
+
+        # Validación básica
+        if tipo_contenido == 'video' and not video_url:
+            flash('Debes proporcionar una URL de video o subir un archivo MP4.', 'error')
+            return redirect(request.url)
+
+        nuevo_curso = Curso(
+            titulo=titulo,
+            descripcion=descripcion,
+            contenido_html=contenido_html,
+            duracion_horas=duracion_horas,
+            video_url=video_url,
+            categoria=categoria,
+            tipo_contenido=tipo_contenido,
+            imagen_portada=imagen_portada,
+            pdf_url=pdf_url
+        )
+        db.session.add(nuevo_curso)
+        db.session.commit()
+        flash('Curso creado exitosamente.', 'success')
+        return redirect(url_for('admin.listar_cursos'))
+    return render_template('admin/formacion/crear_curso.html')
+
+@admin_bp.route('/formacion/curso/<int:curso_id>/examen', methods=['GET', 'POST'])
+@formacion_permission_required
+def gestionar_examen(curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    examen = Examen.query.filter_by(curso_id=curso.id).first()
+    
+    if request.method == 'POST':
+        if not examen:
+            examen = Examen(
+                curso_id=curso.id,
+                titulo=f"Examen Final - {curso.titulo}",
+                porcentaje_aprobacion=int(request.form.get('porcentaje_aprobacion', 70))
+            )
+            db.session.add(examen)
+        else:
+            examen.porcentaje_aprobacion = int(request.form.get('porcentaje_aprobacion', 70))
+        
+        db.session.commit()
+        
+        # Agregar pregunta si viene en el form
+        texto_pregunta = request.form.get('nueva_pregunta')
+        if texto_pregunta:
+            pregunta = Pregunta(
+                examen_id=examen.id,
+                texto_pregunta=texto_pregunta,
+                puntaje=int(request.form.get('puntaje_pregunta', 10))
+            )
+            db.session.add(pregunta)
+            db.session.flush() # Para tener el ID de la pregunta
+            
+            # Opciones
+            correcta_idx = request.form.get('opcion_correcta')
+            for i in range(1, 5):
+                texto_opcion = request.form.get(f'opcion_{i}')
+                if texto_opcion:
+                    opcion = Opcion(
+                        pregunta_id=pregunta.id,
+                        texto_opcion=texto_opcion,
+                        es_correcta=(str(i) == correcta_idx)
+                    )
+                    db.session.add(opcion)
+            
+            db.session.commit()
+            flash('Pregunta agregada correctamente.', 'success')
+            
+        return redirect(url_for('admin.gestionar_examen', curso_id=curso.id))
+
+    return render_template('admin/formacion/gestionar_examen.html', curso=curso, examen=examen)
+
+@admin_bp.route('/formacion/dashboard', methods=['GET'])
+@formacion_permission_required
+def dashboard_formacion():
+    # 1. KPIs Generales
+    total_empleados = Usuario.query.count() # O filtrar por rol 'Usuario'
+    total_cursos = Curso.query.filter_by(estado='Activo').count()
+    
+    # Progreso promedio
+    progresos = ProgresoFormacion.query.all()
+    avg_score = sum([p.puntaje_global_sst for p in progresos]) / len(progresos) if progresos else 0
+    
+    # 2. Ranking de Empleados
+    ranking = db.session.query(Usuario, ProgresoFormacion).join(ProgresoFormacion, Usuario.id == ProgresoFormacion.usuario_id).order_by(ProgresoFormacion.puntaje_global_sst.desc()).limit(10).all()
+    
+    # 3. Detalle por Curso (Aprobación)
+    cursos_stats = []
+    cursos = Curso.query.all()
+    for curso in cursos:
+        # Contar intentos aprobados únicos para este curso
+        aprobados = IntentoExamen.query.join(Examen).filter(Examen.curso_id == curso.id, IntentoExamen.aprobado == True).with_entities(IntentoExamen.usuario_id).distinct().count()
+        tasa = (aprobados / total_empleados * 100) if total_empleados > 0 else 0
+        cursos_stats.append({
+            'titulo': curso.titulo,
+            'aprobados': aprobados,
+            'tasa': round(tasa, 1)
+        })
+        
+    return render_template('admin/formacion/dashboard.html', 
+                         total_empleados=total_empleados,
+                         total_cursos=total_cursos,
+                         avg_score=round(avg_score, 1),
+                         ranking=ranking,
+                         cursos_stats=cursos_stats)
+
+@admin_bp.route('/formacion/pregunta/eliminar/<int:pregunta_id>', methods=['POST'])
+@formacion_permission_required
+def eliminar_pregunta(pregunta_id):
+    pregunta = Pregunta.query.get_or_404(pregunta_id)
+    curso_id = pregunta.examen.curso_id
+    db.session.delete(pregunta)
+    db.session.commit()
+    flash('Pregunta eliminada.', 'success')
+    return redirect(url_for('admin.gestionar_examen', curso_id=curso_id))
+
+# ============== GESTIÓN AVANZADA DE CURSOS ==============
+
+@admin_bp.route('/formacion/curso/<int:id>/eliminar', methods=['POST'])
+@formacion_permission_required
+def eliminar_curso(id):
+    curso = Curso.query.get_or_404(id)
+    # Verificar si tiene historial importante (opcional, por ahora permitimos borrar)
+    db.session.delete(curso)
+    db.session.commit()
+    flash('Curso eliminado correctamente.', 'success')
+    return redirect(url_for('admin.listar_cursos'))
+
+@admin_bp.route('/formacion/curso/<int:id>/toggle-estado', methods=['POST'])
+@formacion_permission_required
+def toggle_estado_curso(id):
+    curso = Curso.query.get_or_404(id)
+    if curso.estado == 'Activo':
+        curso.estado = 'Inactivo'
+    else:
+        curso.estado = 'Activo'
+    db.session.commit()
+    return jsonify({'success': True, 'nuevo_estado': curso.estado})
+
+@admin_bp.route('/formacion/curso/<int:id>/matriculas', methods=['GET'])
+@formacion_permission_required
+def gestionar_matriculas(id):
+    curso = Curso.query.get_or_404(id)
+    usuarios = Usuario.query.filter_by(activo=True).all()
+    matriculados_ids = [u.id for u in curso.estudiantes]
+    
+    return render_template('admin/formacion/gestion_matriculas.html', 
+                         curso=curso, 
+                         usuarios=usuarios, 
+                         matriculados_ids=matriculados_ids)
+
+@admin_bp.route('/formacion/curso/<int:id>/matricular', methods=['POST'])
+@formacion_permission_required
+def matricular_usuario(id):
+    curso = Curso.query.get_or_404(id)
+    usuario_id = int(request.form.get('usuario_id'))
+    usuario = Usuario.query.get_or_404(usuario_id)
+    
+    if usuario not in curso.estudiantes:
+        curso.estudiantes.append(usuario)
+        db.session.commit()
+        flash(f'Usuario {usuario.nombre_completo} matriculado.', 'success')
+    
+    return redirect(url_for('admin.gestionar_matriculas', id=curso.id))
+
+@admin_bp.route('/formacion/curso/<int:id>/desmatricular', methods=['POST'])
+@formacion_permission_required
+def desmatricular_usuario(id):
+    curso = Curso.query.get_or_404(id)
+    usuario_id = int(request.form.get('usuario_id'))
+    usuario = Usuario.query.get_or_404(usuario_id)
+    
+    if usuario in curso.estudiantes:
+        curso.estudiantes.remove(usuario)
+        db.session.commit()
+        flash(f'Usuario {usuario.nombre_completo} retirado.', 'warning')
+        
+    return redirect(url_for('admin.gestionar_matriculas', id=curso.id))
+
+# ============== GESTIÓN DE USUARIOS (ADMIN) ==============
+
+@admin_bp.route('/usuarios', methods=['GET'])
+@admin_required
+def listar_usuarios():
+    usuarios = Usuario.query.all()
+    return render_template('admin/usuarios/listar.html', usuarios=usuarios)
+
+@admin_bp.route('/usuarios/nuevo', methods=['GET', 'POST'])
+@admin_required
+def crear_usuario():
+    if request.method == 'POST':
+        nombre_completo = request.form.get('nombre_completo')
+        email = request.form.get('email')
+        rol = request.form.get('rol')
+        
+        # Verificar email duplicado
+        if Usuario.query.filter_by(email=email).first():
+            flash('El email ya está registrado.', 'error')
+            return redirect(url_for('admin.crear_usuario'))
+            
+        # Generar Contraseña Aleatoria (8 chars)
+        chars = string.ascii_letters + string.digits
+        password = ''.join(random.choice(chars) for i in range(10))
+        
+        # Crear Usuario
+        nuevo_usuario = Usuario(
+            nombre_completo=nombre_completo,
+            email=email,
+            rol=rol,
+            activo=True
+        )
+        nuevo_usuario.set_password(password)
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+        
+        # Enviar Credenciales por Email
+        subject = "Bienvenido a SST Smart System - Tus Credenciales"
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2 style="color: #2563eb;">Bienvenido, {nombre_completo}</h2>
+            <p>Se ha creado tu cuenta en el sistema de Gestión SST.</p>
+            <p><strong>Rol Asignado:</strong> {rol}</p>
+            <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; font-weight: bold;">Tus Credenciales:</p>
+                <p style="margin: 5px 0;">Usuario: {email}</p>
+                <p style="margin: 5px 0;">Contraseña: <span style="font-family: monospace; font-size: 1.2em; color: #dc2626;">{password}</span></p>
+            </div>
+            <p>Por favor, ingresa al sistema y cambia tu contraseña lo antes posible.</p>
+            <a href="{url_for('auth.login', _external=True)}" style="background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Iniciar Sesión</a>
+        </div>
+        """
+        
+        email_enviado = NotificationService.enviar_email(email, subject, html_content)
+        NotificationService.notificar_usuario(nuevo_usuario.id, "Bienvenido al sistema. Revisa tu correo para ver tus credenciales.", "success")
+        
+        if email_enviado:
+            flash(f'Usuario creado. Contraseña enviada a {email}.', 'success')
+        else:
+            flash(f'Usuario creado, pero hubo un error enviando el correo a {email}.', 'warning')
+        
+        return redirect(url_for('admin.listar_usuarios'))
+        
+    roles = ROLES_TODOS
+    return render_template('admin/usuarios/crear.html', roles=roles)
+
+@admin_bp.route('/usuarios/<int:user_id>/editar', methods=['GET', 'POST'])
+@admin_required
+def editar_usuario(user_id):
+    usuario = Usuario.query.get_or_404(user_id)
+    if request.method == 'POST':
+        usuario.nombre_completo = request.form.get('nombre_completo')
+        usuario.email = request.form.get('email')
+        usuario.rol = request.form.get('rol')
+        usuario.activo = 'activo' in request.form
+        
+        db.session.commit()
+        flash('Usuario actualizado correctamente.', 'success')
+        return redirect(url_for('admin.listar_usuarios'))
+        
+    roles = ROLES_TODOS
+    return render_template('admin/usuarios/editar.html', usuario=usuario, roles=roles)
+
+# Fin del archivo admin.py

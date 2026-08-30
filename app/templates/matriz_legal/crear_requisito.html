@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto animate-fade-in">
+    <!-- Header -->
+    <div class="glass-card p-8 mb-6 relative overflow-hidden">
+        <div class="absolute right-0 top-0 p-4 opacity-10">
+            <i class="fas fa-file-contract text-8xl text-blue-500"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2">Nuevo Requisito Legal</h1>
+        <p class="text-slate-400">Registre una nueva norma para su seguimiento en la Matriz Legal SST.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="glass-card p-8">
+        <form method="POST" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Norma / Ley *</label>
+                    <input type="text" name="norma" required
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-4 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        placeholder="Ej: Resolución 0312">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Artículo Aplicable *</label>
+                    <input type="text" name="articulo" required
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-4 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        placeholder="Ej: Art. 2.2.4.6.12">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Descripción / Obligación *</label>
+                <textarea name="descripcion" required rows="4"
+                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-4 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                    placeholder="Describa brevemente qué exige la norma..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Entidad Emisora</label>
+                    <input type="text" name="entidad"
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-4 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        placeholder="Ej: Ministerio del Trabajo">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Año de Emisión</label>
+                    <input type="number" name="anio"
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-4 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        placeholder="Ej: 2019">
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-6 border-t border-slate-700 mt-6">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg shadow-lg shadow-blue-500/20 font-bold transition-all transform active:scale-95 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Guardar Requisito
+                </button>
+                <a href="{{ url_for('matriz_legal.dashboard') }}"
+                    class="px-8 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

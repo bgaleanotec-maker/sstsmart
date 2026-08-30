@@ -1,19 +1,161 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Dashboard SST</h1>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-gray-600 font-bold">Reportes Totales</h3>
-            <p class="text-3xl font-bold text-blue-600">{{ total_reportes }}</p>
+<div class="space-y-8 animate-fade-in">
+
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                Dashboard General
+            </h1>
+            <p class="text-slate-400 mt-1">Resumen de indicadores SST en tiempo real</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-gray-600 font-bold">Reportes Abiertos</h3>
-            <p class="text-3xl font-bold text-red-600">{{ reportes_abiertos }}</p>
+
+        <div class="flex gap-3">
+            <button
+                class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors text-sm font-medium border border-slate-700">
+                <i class="fa-solid fa-calendar mr-2"></i> Últimos 30 días
+            </button>
+            {% if usuario.rol in ['Admin', 'Responsable SST'] %}
+            <a href="{{ url_for('reportes.nuevo') }}" class="btn-primary flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Nuevo Reporte
+            </a>
+            {% endif %}
         </div>
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-gray-600 font-bold">Consultas Jurídicas</h3>
-            <p class="text-3xl font-bold text-purple-600">{{ consultas_juridicas }}</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Total Reportes -->
+        <div class="glass-card p-6 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fa-solid fa-file-contract text-6xl text-blue-500"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Total Reportes</p>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-4xl font-bold text-white">{{ total_reportes }}</span>
+                </div>
+            </div>
+            <div class="mt-4 h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 w-[70%]"></div>
+            </div>
+        </div>
+
+        <!-- Reportes Abiertos -->
+        <div class="glass-card p-6 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fa-solid fa-triangle-exclamation text-6xl text-amber-500"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Pendientes</p>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-4xl font-bold text-amber-400">{{ reportes_abiertos }}</span>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2 text-xs text-amber-400 bg-amber-500/10 py-1 px-2 rounded w-fit">
+                <i class="fa-solid fa-clock"></i> Requieren atención
+            </div>
+        </div>
+
+        <!-- Reportes Corregidos -->
+        <div class="glass-card p-6 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fa-solid fa-check-circle text-6xl text-emerald-500"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Corregidos</p>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-4xl font-bold text-emerald-400">{{ reportes_corregidos }}</span>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2 text-xs text-emerald-400 bg-emerald-500/10 py-1 px-2 rounded w-fit">
+                <i class="fa-solid fa-chart-line"></i> +12% vs mes anterior
+            </div>
+        </div>
+
+        <!-- Consultas Jurídicas -->
+        <div class="glass-card p-6 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fa-solid fa-scale-balanced text-6xl text-purple-500"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Jurídico</p>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-4xl font-bold text-purple-400">{{ consultas_juridicas }}</span>
+                    <span class="text-sm text-slate-500">Consultas</span>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2 text-xs text-slate-400">
+                <span class="text-white font-bold">{{ consultas_abiertas }}</span> abiertas actualmente
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area (Layout with Sidebar) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Recent Activity Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-blue-500"></i> Actividad Reciente
+                </h3>
+                <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Ver todo</a>
+            </div>
+
+            <div class="glass-card p-6">
+                <!-- Placeholder for dynamic content or charts -->
+                <div
+                    class="flex items-center justify-center h-64 text-slate-500 flex-col gap-4 border-2 border-dashed border-slate-700 rounded-xl bg-slate-800/30">
+                    <i class="fa-solid fa-chart-area text-4xl opacity-50"></i>
+                    <p>Gráficos de tendencia próximamente</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Notifications -->
+        <div class="space-y-6">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-500"></i> Accesos Rápidos
+            </h3>
+
+            <div class="grid grid-cols-1 gap-4">
+                <a href="{{ url_for('formacion.catalogo') }}"
+                    class="glass-card p-4 flex items-center gap-4 hover:bg-slate-700/50 transition-colors group cursor-pointer">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white">Mi Formación</h4>
+                        <p class="text-xs text-slate-400">Cursos pendientes y exámenes</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right ml-auto text-slate-600 group-hover:text-white"></i>
+                </a>
+
+                <a href="{{ url_for('juridico.listar') }}"
+                    class="glass-card p-4 flex items-center gap-4 hover:bg-slate-700/50 transition-colors group cursor-pointer">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-gavel text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white">Base Legal</h4>
+                        <p class="text-xs text-slate-400">Normativa vigente</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right ml-auto text-slate-600 group-hover:text-white"></i>
+                </a>
+
+                <div class="glass-card p-6 mt-8 bg-gradient-to-br from-blue-900/50 to-slate-900 border-blue-500/30">
+                    <h4 class="font-bold text-blue-200 mb-2">💡 Tip SST del Día</h4>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        Recuerda realizar pausas activas cada 2 horas para reducir la fatiga visual y muscular.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

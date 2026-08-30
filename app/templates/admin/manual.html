@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8 animate-fade-in pb-16">
+
+    <!-- Header -->
+    <div class="glass-card p-8 relative overflow-hidden flex justify-between items-center">
+        <div class="z-10">
+            <div class="absolute right-0 top-0 p-4 opacity-10">
+                <i class="fa-solid fa-book-sparkles text-8xl text-blue-500"></i>
+            </div>
+            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-4">
+                Manual del Sistema SST Smart
+            </h1>
+            <p class="text-slate-300 text-lg max-w-2xl">
+                Guía oficial de procedimientos. Seleccione el perfil (Usuario u Operativo/Admin) en cada módulo para ver
+                las
+                instrucciones específicas.
+            </p>
+        </div>
+        <a href="{{ url_for('admin.descargar_manual') }}"
+            class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-blue-500/30 transition-all z-20 flex items-center gap-2">
+            <i class="fas fa-download"></i> Descargar HTML
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- Sidebar Navigation -->
+        <div class="lg:col-span-1 space-y-4">
+            <div class="glass-card p-4 sticky top-24 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <h3 class="text-lg font-bold text-white mb-4 px-2 border-b border-slate-700 pb-2">Contenido</h3>
+                <nav class="flex flex-col gap-1">
+                    <a href="#intro"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        1. Introducción
+                    </a>
+                    <a href="#reportes"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        2. Gestión de Reportes
+                    </a>
+                    <a href="#juridico"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        3. Módulo Jurídico
+                    </a>
+                    <a href="#formacion"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        4. Formación y Exámenes
+                    </a>
+                    <a href="#configuracion"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        5. Configuración General
+                    </a>
+                    <a href="#usuarios"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        6. Gestión de Usuarios
+                    </a>
+                    <a href="#matriz-legal"
+                        class="px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-lg transition-all border-l-2 border-transparent hover:border-blue-500">
+                        7. Matriz Legal (Nuevo)
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-3 space-y-16">
+
+            <!-- 1. Intro -->
+            <section id="intro" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm font-mono">1</span>
+                    Introducción
+                </h2>
+                <div class="glass-card p-6 text-slate-300">
+                    <p class="mb-4">
+                        Este manual está diseñado con un enfoque dual:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-blue-600/10 border border-blue-500/30 p-4 rounded-lg">
+                            <strong class="text-blue-400 block mb-1"><i class="fas fa-user mr-2"></i> Pestaña
+                                Usuario</strong>
+                            <p class="text-sm">Instrucciones para empleados y contratistas. Cómo utilizar las
+                                herramientas en su día a día.</p>
+                        </div>
+                        <div class="bg-purple-600/10 border border-purple-500/30 p-4 rounded-lg">
+                            <strong class="text-purple-400 block mb-1"><i class="fas fa-cogs mr-2"></i> Pestaña
+                                Operativo/Admin</strong>
+                            <p class="text-sm">Instrucciones de configuración, gestión de datos y tareas administrativas
+                                para el equipo SST.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Reportes -->
+            <section id="reportes" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-sm font-mono">2</span>
+                    Gestión de Reportes
+                </h2>
+
+                <div class="glass-card overflow-hidden">
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-white/10 bg-slate-900/40">
+                        <button onclick="switchTab('reportes', 'user')" id="btn-reportes-user"
+                            class="flex-1 py-4 text-center font-bold text-sm bg-white/5 text-blue-400 border-b-2 border-blue-500 transition-all hover:bg-white/10">
+                            <i class="fas fa-user mr-2"></i> Usuario (Reportar)
+                        </button>
+                        <button onclick="switchTab('reportes', 'admin')" id="btn-reportes-admin"
+                            class="flex-1 py-4 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent transition-all hover:bg-white/10 hover:text-white">
+                            <i class="fas fa-shield-alt mr-2"></i> Operativo (Investigar)
+                        </button>
+                    </div>
+
+                    <!-- User Body -->
+                    <div id="content-reportes-user" class="p-6 space-y-6">
+                        <h3 class="text-white font-bold text-lg">¿Cómo reportar un incidente?</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-slate-300 text-sm">
+                            <li>Diríjase al menú lateral y seleccione <strong>"Mis Reportes"</strong>.</li>
+                            <li>Haga clic en el botón <span
+                                    class="bg-blue-600 px-2 py-0.5 rounded text-xs text-white">Nuevo Reporte</span>.
+                            </li>
+                            <li>Complete el formulario:
+                                <ul class="list-disc list-inside pl-4 mt-1 space-y-1 text-slate-400">
+                                    <li><strong>Título:</strong> Corto y descriptivo (ej. "Gotera en almacén").</li>
+                                    <li><strong>Tipo:</strong> Seleccione si es Acto Inseguro o Condición Insegura.</li>
+                                    <li><strong>Evidencia:</strong> Adjunte fotos o videos (Obligatorio para validar el
+                                        caso).</li>
+                                </ul>
+                            </li>
+                            <li>Presione <strong>"Enviar"</strong>. Recibirá una confirmación vía correo electrónico.
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Admin Body -->
+                    <div id="content-reportes-admin" class="p-6 space-y-6 hidden">
+                        <h3 class="text-white font-bold text-lg">Gestión del Flujo de Reportes</h3>
+                        <p class="text-xs text-slate-400 bg-slate-800 p-2 rounded border border-slate-700 mb-4">
+                            <i class="fas fa-info-circle mr-1"></i> Responsable: Coordinador SST y Analistas.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div class="border-l-2 border-purple-500 pl-4">
+                                <strong class="text-white block mb-1">1. Recepción y Validación</strong>
+                                <p class="text-slate-400 text-sm">Los reportes nuevos aparecen en "Pendientes".
+                                    Verifique la evidencia. Si es inválida, rechace el reporte con una justificación.
+                                </p>
+                            </div>
+                            <div class="border-l-2 border-purple-500 pl-4">
+                                <strong class="text-white block mb-1">2. Investigación (Causa Raíz)</strong>
+                                <p class="text-slate-400 text-sm">Para accidentes o actos inseguros críticos, inicie una
+                                    investigación. Asigne la metodología (ej. 5 Porqués) y documente los hallazgos.</p>
+                            </div>
+                            <div class="border-l-2 border-purple-500 pl-4">
+                                <strong class="text-white block mb-1">3. Cierre y Plan de Acción</strong>
+                                <p class="text-slate-400 text-sm">Una vez mitigado el riesgo, cambie el estado a
+                                    "Cerrado". Esto actualizará los indicadores del Dashboard Gerencial.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Juridico -->
+            <section id="juridico" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-mono">3</span>
+                    Módulo Jurídico
+                </h2>
+
+                <div class="glass-card overflow-hidden">
+                    <div class="flex border-b border-white/10 bg-slate-900/40">
+                        <button onclick="switchTab('juridico', 'user')" id="btn-juridico-user"
+                            class="flex-1 py-4 text-center font-bold text-sm bg-white/5 text-blue-400 border-b-2 border-blue-500 transition-all hover:bg-white/10">
+                            <i class="fas fa-user mr-2"></i> Solicitante
+                        </button>
+                        <button onclick="switchTab('juridico', 'admin')" id="btn-juridico-admin"
+                            class="flex-1 py-4 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent transition-all hover:bg-white/10 hover:text-white">
+                            <i class="fas fa-gavel mr-2"></i> Abogado / Admin
+                        </button>
+                    </div>
+
+                    <!-- User Body -->
+                    <div id="content-juridico-user" class="p-6 space-y-6">
+                        <h3 class="text-white font-bold text-lg">Radicación de Consultas</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-slate-300 text-sm">
+                            <li>Acceda al módulo Jurídico y haga clic en <strong>"Nueva Consulta"</strong>.</li>
+                            <li>Seleccione la categoría (ej. Laboral, Civil, Administrativo).</li>
+                            <li>Describa los hechos y adjunte documentos soporte (PDF).</li>
+                            <li>Puede ver el estado de su trámite en la columna "Estado" (Radicado → En Revisión →
+                                Resuelto).</li>
+                        </ol>
+                    </div>
+
+                    <!-- Admin Body -->
+                    <div id="content-juridico-admin" class="p-6 space-y-6 hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-white font-bold mb-2">Gestión de Casos</h4>
+                                <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                                    <li>Asigne un abogado responsable a cada caso entrante.</li>
+                                    <li>Registre cada actuación procesal con fecha y documento adjunto.</li>
+                                    <li>Controle los términos vencidos desde el tablero de alertas.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold mb-2">Compliance (Normativa)</h4>
+                                <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                                    <li>Cargue la matriz legal en la sección "Configuración Jurídica".</li>
+                                    <li>El sistema notificará automáticamente antes del vencimiento de licencias o
+                                        requisitos legales.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Formacion -->
+            <section id="formacion" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-mono">4</span>
+                    Formación y Exámenes
+                </h2>
+
+                <div class="glass-card overflow-hidden">
+                    <div class="flex border-b border-white/10 bg-slate-900/40">
+                        <button onclick="switchTab('formacion', 'user')" id="btn-formacion-user"
+                            class="flex-1 py-4 text-center font-bold text-sm bg-white/5 text-blue-400 border-b-2 border-blue-500 transition-all hover:bg-white/10">
+                            <i class="fas fa-graduation-cap mr-2"></i> Estudiante
+                        </button>
+                        <button onclick="switchTab('formacion', 'admin')" id="btn-formacion-admin"
+                            class="flex-1 py-4 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent transition-all hover:bg-white/10 hover:text-white">
+                            <i class="fas fa-chalkboard-teacher mr-2"></i> Instructor / Admin
+                        </button>
+                    </div>
+
+                    <!-- User Body -->
+                    <div id="content-formacion-user" class="p-6 space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex gap-4 items-start">
+                                <span
+                                    class="bg-emerald-900 text-emerald-400 w-6 h-6 rounded-full flex items-center justify-center text-xs border border-emerald-500/50 shrink-0">1</span>
+                                <div>
+                                    <strong class="text-white">Realizar Curso</strong>
+                                    <p class="text-sm text-slate-400 mt-1">Ingrese al catálogo. Seleccione el curso
+                                        asignado y revise todo el material audiovisual y lecturas.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start">
+                                <span
+                                    class="bg-emerald-900 text-emerald-400 w-6 h-6 rounded-full flex items-center justify-center text-xs border border-emerald-500/50 shrink-0">2</span>
+                                <div>
+                                    <strong class="text-white">Presentar Examen</strong>
+                                    <p class="text-sm text-slate-400 mt-1">Al finalizar el contenido, habilite el
+                                        examen. Tiene múltiples intentos según la configuración. Debe superar el puntaje
+                                        mínimo (ej. 70%).</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start">
+                                <span
+                                    class="bg-emerald-900 text-emerald-400 w-6 h-6 rounded-full flex items-center justify-center text-xs border border-emerald-500/50 shrink-0">3</span>
+                                <div>
+                                    <strong class="text-white">Ranking SST</strong>
+                                    <p class="text-sm text-slate-400 mt-1">Cada logro aumenta su puntaje global, visible
+                                        en su perfil.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Body -->
+                    <div id="content-formacion-admin" class="p-6 space-y-6 hidden">
+                        <p class="text-sm text-slate-300 mb-4">Administre el contenido educativo desde el panel de
+                            control.</p>
+
+                        <div class="space-y-6">
+                            <!-- Step 1 -->
+                            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                <h4 class="text-white font-bold mb-2 flex justify-between">
+                                    <span>1. Crear Curso</span>
+                                    <a href="{{ url_for('admin.crear_curso') }}"
+                                        class="text-xs text-blue-400 hover:underline">Ir a crear <i
+                                            class="fas fa-external-link-alt ml-1"></i></a>
+                                </h4>
+                                <p class="text-xs text-slate-400 mb-2">Ruta:
+                                    <code>Admin > Formación > Nuevo Curso</code>
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-slate-400 pl-2">
+                                    <li>Ingrese título, duración y descripción.</li>
+                                    <li>Pegue la URL del video (YouTube/Vimeo) o el código embed.</li>
+                                    <li>Redacte el contenido HTML detallado.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                <h4 class="text-white font-bold mb-2">2. Configurar Examen</h4>
+                                <p class="text-xs text-slate-400 mb-2">Ruta:
+                                    <code>Admin > Formación > Lista Cursos > Icono [Tareas]</code>
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-slate-400 pl-2">
+                                    <li>Defina el porcentaje de aprobación (Default: 70%).</li>
+                                    <li><strong>Banco de Preguntas:</strong> Agregue preguntas de selección múltiple una
+                                        por una. Marque la respuesta correcta con el radio button.</li>
+                                    <li>Puede eliminar preguntas obsoletas directamente desde la lista.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Configuration -->
+            <section id="configuracion" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-slate-500/20 text-slate-400 flex items-center justify-center text-sm font-mono">5</span>
+                    Configuración General
+                </h2>
+                <div class="glass-card p-6 text-slate-300">
+                    <p class="text-sm mb-4"><span
+                            class="text-slate-500 font-bold uppercase text-xs border border-slate-600 px-1 rounded">Admin
+                            Only</span> Este módulo controla las "Maestras" del sistema.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div class="p-3 bg-slate-800 rounded border border-slate-700">
+                            <strong class="text-white block">Maestras Básicas</strong>
+                            <span class="text-slate-400 text-xs">Categorías, Dependencias, Tipos de Reporte.</span>
+                        </div>
+                        <div class="p-3 bg-slate-800 rounded border border-slate-700">
+                            <strong class="text-white block">Matriz de Riesgos</strong>
+                            <span class="text-slate-400 text-xs">Definición de Probabilidad x Severidad y Nivel de
+                                Riesgo.</span>
+                        </div>
+                        <div class="p-3 bg-slate-800 rounded border border-slate-700">
+                            <strong class="text-white block">Usuarios</strong>
+                            <span class="text-slate-400 text-xs">Gestión de roles y accesos al sistema.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Users -->
+            <section id="usuarios" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center text-sm font-mono">6</span>
+                    Gestión de Usuarios y Notificaciones
+                </h2>
+
+                <div class="glass-card overflow-hidden">
+                    <div class="p-6 space-y-6">
+                        <!-- Creating Users -->
+                        <div class="space-y-2">
+                            <h3 class="text-white font-bold text-lg"><i
+                                    class="fas fa-user-plus text-blue-500 mr-2"></i>Creación de Usuarios</h3>
+                            <p class="text-slate-300 text-sm">
+                                El sistema automatiza el proceso de alta para garantizar la seguridad de las
+                                credenciales.
+                            </p>
+                            <ol
+                                class="list-decimal list-inside space-y-2 text-slate-400 text-sm bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                <li>Ingrese a <strong>Admin > Usuarios > Nuevo Usuario</strong>.</li>
+                                <li>Complete <strong>Nombre</strong> y <strong>Correo Electrónico</strong>.</li>
+                                <li>Seleccione el <strong>Rol</strong> (ver abajo).</li>
+                                <li>Al guardar, el sistema:
+                                    <ul class="list-disc list-inside pl-4 mt-1 text-xs text-slate-500">
+                                        <li>Genera una contraseña aleatoria segura de 8 caracteres.</li>
+                                        <li>Envía un correo automático al usuario con sus credenciales.</li>
+                                        <li>Activa la cuenta inmediatamente.</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <!-- Roles -->
+                        <div class="space-y-2">
+                            <h3 class="text-white font-bold text-lg"><i
+                                    class="fas fa-id-badge text-purple-500 mr-2"></i>Definición de Roles</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div class="p-3 border border-slate-700 rounded bg-slate-800/30">
+                                    <strong class="text-red-400 block">Admin</strong>
+                                    <span class="text-slate-400 text-xs">Acceso total. Puede crear usuarios, cursos, y
+                                        configurar el sistema.</span>
+                                </div>
+                                <div class="p-3 border border-slate-700 rounded bg-slate-800/30">
+                                    <strong class="text-purple-400 block">Jurídico</strong>
+                                    <span class="text-slate-400 text-xs">Acceso al módulo legal. Recibe casos, carga
+                                        documentos y emite conceptos.</span>
+                                </div>
+                                <div class="p-3 border border-slate-700 rounded bg-slate-800/30">
+                                    <strong class="text-emerald-400 block">Responsable SST</strong>
+                                    <span class="text-slate-400 text-xs">Gestión operativa. Investiga accidentes y
+                                        supervisa el plan de formación.</span>
+                                </div>
+                                <div class="p-3 border border-slate-700 rounded bg-slate-800/30">
+                                    <strong class="text-blue-400 block">Empleado</strong>
+                                    <span class="text-slate-400 text-xs">Reporta incidentes, realiza cursos y consultas
+                                        jurídicas.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="space-y-2">
+                            <h3 class="text-white font-bold text-lg"><i
+                                    class="fas fa-bell text-yellow-500 mr-2"></i>Sistema de Notificaciones</h3>
+                            <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg text-sm text-blue-200">
+                                <p class="mb-2"><i class="fas fa-info-circle mr-1"></i> El sistema notifica
+                                    automáticamente eventos críticos vía Correo Electrónico y Alerta en App.</p>
+                                <ul class="space-y-1 ml-4 list-disc">
+                                    <li><strong>Creación de Caso Jurídico:</strong> Notifica a todo el equipo
+                                        <em>Jurídico</em> (Abogados).
+                                    </li>
+                                    <li><strong>Resolución de Caso:</strong> Notifica al <em>Responsable SST</em> y al
+                                        <em>Usuario Creador</em>.
+                                    </li>
+                                    <li><strong>Alta de Usuario:</strong> Envía credenciales de acceso al nuevo usuario.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Legal Matrix -->
+            <section id="matriz-legal" class="space-y-4 pt-4 scroll-mt-24">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-mono">7</span>
+                    Matriz Legal Forense
+                </h2>
+
+                <div class="glass-card overflow-hidden">
+                    <div class="flex border-b border-white/10 bg-slate-900/40">
+                        <button onclick="switchTab('legal', 'user')" id="btn-legal-user"
+                            class="flex-1 py-4 text-center font-bold text-sm bg-white/5 text-blue-400 border-b-2 border-blue-500 transition-all hover:bg-white/10">
+                            <i class="fas fa-hard-hat mr-2"></i> SST / Admin
+                        </button>
+                        <button onclick="switchTab('legal', 'admin')" id="btn-legal-admin"
+                            class="flex-1 py-4 text-center font-bold text-sm text-slate-400 border-b-2 border-transparent transition-all hover:bg-white/10 hover:text-white">
+                            <i class="fas fa-balance-scale mr-2"></i> Jurídico / Abogado
+                        </button>
+                    </div>
+
+                    <!-- User Body (SST) -->
+                    <div id="content-legal-user" class="p-6 space-y-6">
+                        <div class="space-y-4">
+                            <h3 class="text-white font-bold text-lg">Responsable SST: Gestión de Requisitos</h3>
+                            <ul class="list-disc list-inside text-slate-300 space-y-2 text-sm">
+                                <li><strong>Crear Requisito:</strong> Ingrese la norma (Ley, Decreto), artículo y
+                                    descripción. Esto inicia el ciclo de vida del requisito.</li>
+                                <li><strong>Cargar Evidencia:</strong> En el detalle de la norma, suba documentos (PDF,
+                                    Excel) que soporten el cumplimiento.</li>
+                                <li><strong>Control de Versiones:</strong> El sistema guarda un historial inmutable de
+                                    cada archivo subido.</li>
+                                <li><strong>Monitoreo:</strong> Use el Dashboard para ver el semáforo de cumplimiento
+                                    (Verde/Amarillo/Rojo) calculado por el área jurídica.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Admin Body (Juridico) -->
+                    <div id="content-legal-admin" class="p-6 space-y-6 hidden">
+                        <div class="space-y-4">
+                            <h3 class="text-white font-bold text-lg">Jurídico: Evaluación Forense</h3>
+                            <p class="text-sm text-slate-400">Como abogado, su rol es auditar y evaluar el riesgo legal
+                                de cada requisito.</p>
+
+                            <div class="bg-indigo-900/20 p-4 rounded border border-indigo-500/30">
+                                <h4 class="text-indigo-300 font-bold mb-2">Proceso de Evaluación</h4>
+                                <ol class="list-decimal list-inside text-slate-300 text-sm space-y-2">
+                                    <li>Ingrese al requisito y haga clic en <strong>"Evaluar"</strong>.</li>
+                                    <li><strong>Análisis:</strong> Revise la evidencia cargada por SST.</li>
+                                    <li><strong>Puntuación:</strong> Asigne % de cumplimiento (0-100).</li>
+                                    <li><strong>Riesgo:</strong> Defina la Probabilidad de Sanción (Baja/Media/Alta) y
+                                        el Impacto Financiero ($).</li>
+                                    <li><strong>Concepto:</strong> Redacte su concepto técnico-legal. Este quedará
+                                        registrado en el Log Forense.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(module, tabName) {
+        // Hide all contents for this module
+        document.getElementById(`content-${module}-user`).classList.add('hidden');
+        document.getElementById(`content-${module}-admin`).classList.add('hidden');
+
+        // Deactivate all buttons for this module
+        const btnUser = document.getElementById(`btn-${module}-user`);
+        const btnAdmin = document.getElementById(`btn-${module}-admin`);
+
+        const activeClassTitle = "text-blue-400";
+        const activeClassBorder = "border-blue-500";
+        const activeClassBg = "bg-white/5";
+
+        const inactiveClassTitle = "text-slate-400";
+        const inactiveClassBorder = "border-transparent";
+
+        // Reset classes
+        [btnUser, btnAdmin].forEach(btn => {
+            btn.classList.remove(activeClassTitle, activeClassBorder, activeClassBg);
+            btn.classList.add(inactiveClassTitle, inactiveClassBorder);
+        });
+
+        // Show selected content
+        document.getElementById(`content-${module}-${tabName}`).classList.remove('hidden');
+
+        // Activate selected button
+        const activeBtn = document.getElementById(`btn-${module}-${tabName}`);
+        activeBtn.classList.remove(inactiveClassTitle, inactiveClassBorder);
+        activeBtn.classList.add(activeClassTitle, activeClassBorder, activeClassBg);
+    }
+</script>
+{% endblock %}

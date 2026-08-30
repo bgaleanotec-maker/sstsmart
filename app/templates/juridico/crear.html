@@ -1,112 +1,110 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto p-6 max-w-2xl">
+<div class="container mx-auto p-6 max-w-2xl animate-fade-in">
     <div class="mb-6">
-        <a href="{{ url_for('juridico.listar') }}" class="text-blue-600 hover:underline">
-            &larr; Volver a consultas
+        <a href="{{ url_for('juridico.listar') }}"
+            class="text-slate-400 hover:text-white transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Volver a consultas
         </a>
     </div>
-    
-    <div class="bg-white rounded-lg shadow p-8">
-        <h1 class="text-3xl font-bold mb-6">⚖️ Nueva Consulta Jurídica</h1>
-        
+
+    <div class="glass-card p-8">
+        <h1 class="text-3xl font-bold mb-6 text-white flex items-center gap-3">
+            <span class="p-2 rounded-lg bg-purple-500/20 text-purple-300">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </span>
+            Nueva Consulta Jurídica
+        </h1>
+
         <form method="POST" class="space-y-6">
             <!-- Título -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Título *</label>
-                <input type="text" name="titulo" required 
-                       class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                       placeholder="Ej: Accidente laboral en área de producción">
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Título *</label>
+                <input type="text" name="titulo" required class="modern-input"
+                    placeholder="Ej: Accidente laboral en área de producción">
             </div>
-            
+
             <!-- Descripción -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Descripción *</label>
-                <textarea name="descripcion" required rows="4"
-                          class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Describe los detalles de la consulta..."></textarea>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Descripción *</label>
+                <textarea name="descripcion" required rows="4" class="modern-input"
+                    placeholder="Describe los detalles de la consulta..."></textarea>
             </div>
-            
+
             <!-- Tipo de Consulta -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Tipo de Consulta *</label>
-                <select name="tipo_consulta" required
-                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">-- Selecciona tipo --</option>
-                    <option value="Laboral">Laboral</option>
-                    <option value="Penal">Penal</option>
-                    <option value="Civil">Civil</option>
-                    <option value="Administrativo">Administrativo</option>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Tipo de Consulta *</label>
+                <select name="tipo_consulta" required class="modern-input">
+                    <option value="" class="bg-slate-800">-- Selecciona tipo --</option>
+                    <option value="Laboral" class="bg-slate-800">Laboral</option>
+                    <option value="Penal" class="bg-slate-800">Penal</option>
+                    <option value="Civil" class="bg-slate-800">Civil</option>
+                    <option value="Administrativo" class="bg-slate-800">Administrativo</option>
                 </select>
             </div>
-            
+
             <!-- Grid de opciones -->
             <div class="grid grid-cols-2 gap-6">
                 <!-- Prioridad -->
                 <div>
-                    <label class="block text-sm font-semibold mb-2">Prioridad</label>
-                    <select name="prioridad"
-                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Baja">Baja</option>
-                        <option value="Normal" selected>Normal</option>
-                        <option value="Alta">Alta</option>
-                        <option value="Crítica">Crítica</option>
+                    <label class="block text-sm font-semibold mb-2 text-slate-300">Prioridad</label>
+                    <select name="prioridad" class="modern-input">
+                        <option value="Baja" class="bg-slate-800">Baja</option>
+                        <option value="Normal" selected class="bg-slate-800">Normal</option>
+                        <option value="Alta" class="bg-slate-800">Alta</option>
+                        <option value="Crítica" class="bg-slate-800">Crítica</option>
                     </select>
                 </div>
-                
+
                 <!-- Riesgo Legal -->
                 <div>
-                    <label class="block text-sm font-semibold mb-2">Riesgo Legal</label>
-                    <select name="riesgo_legal"
-                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Bajo">Bajo</option>
-                        <option value="Medio" selected>Medio</option>
-                        <option value="Alto">Alto</option>
-                        <option value="Crítico">Crítico</option>
+                    <label class="block text-sm font-semibold mb-2 text-slate-300">Riesgo Legal</label>
+                    <select name="riesgo_legal" class="modern-input">
+                        <option value="Bajo" class="bg-slate-800">Bajo</option>
+                        <option value="Medio" selected class="bg-slate-800">Medio</option>
+                        <option value="Alto" class="bg-slate-800">Alto</option>
+                        <option value="Crítico" class="bg-slate-800">Crítico</option>
                     </select>
                 </div>
             </div>
-            
+
             <!-- Confidencialidad -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Nivel de Confidencialidad</label>
-                <select name="confidencialidad"
-                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="Público">Público</option>
-                    <option value="Interno" selected>Interno</option>
-                    <option value="Confidencial">Confidencial</option>
-                    <option value="Restringido">Restringido (Datos médicos/sensibles)</option>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Nivel de Confidencialidad</label>
+                <select name="confidencialidad" class="modern-input">
+                    <option value="Público" class="bg-slate-800">Público</option>
+                    <option value="Interno" selected class="bg-slate-800">Interno</option>
+                    <option value="Confidencial" class="bg-slate-800">Confidencial</option>
+                    <option value="Restringido" class="bg-slate-800">Restringido (Datos médicos/sensibles)</option>
                 </select>
             </div>
-            
+
             <!-- Horas Estimadas -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Horas Estimadas de Consulta</label>
-                <input type="number" name="horas_estimadas" step="0.5" min="0"
-                       class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                       placeholder="Ej: 3">
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Horas Estimadas de Consulta</label>
+                <input type="number" name="horas_estimadas" step="0.5" min="0" class="modern-input" placeholder="Ej: 3">
             </div>
-            
+
             <!-- Empleado Afectado (opcional) -->
             <div>
-                <label class="block text-sm font-semibold mb-2">Empleado Afectado (opcional)</label>
-                <select name="empleado_afectado_id"
-                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">-- Sin empleado específico --</option>
+                <label class="block text-sm font-semibold mb-2 text-slate-300">Empleado Afectado (opcional)</label>
+                <select name="empleado_afectado_id" class="modern-input">
+                    <option value="" class="bg-slate-800">-- Sin empleado específico --</option>
                     {% for empleado in empleados %}
-                    <option value="{{ empleado.id }}">{{ empleado.nombre }} - {{ empleado.area }}</option>
+                    <option value="{{ empleado.id }}" class="bg-slate-800">{{ empleado.nombre }} - {{ empleado.area }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
-            
+
             <!-- Botones -->
             <div class="flex gap-4 pt-6">
-                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700">
-                    ✓ Crear Consulta
+                <button type="submit" class="flex-1 btn-primary shadow-lg shadow-blue-900/20">
+                    <i class="fa-solid fa-check mr-2"></i> Crear Consulta
                 </button>
-                <a href="{{ url_for('juridico.listar') }}" 
-                   class="flex-1 bg-gray-300 text-gray-800 px-6 py-3 rounded font-semibold hover:bg-gray-400 text-center">
+                <a href="{{ url_for('juridico.listar') }}"
+                    class="flex-1 px-6 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white text-center transition-colors">
                     ✕ Cancelar
                 </a>
             </div>

@@ -1,0 +1,100 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Gestión de Cursos de Formación{% endblock %}
+
+{% block content %}
+<div class="glass-card animate-fade-in p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h3 class="text-xl font-bold text-white mb-1">Cursos Disponibles</h3>
+            <p class="text-sm text-slate-400">Administra el catálogo de formación y sus evaluaciones.</p>
+        </div>
+        <a href="{{ url_for('admin.crear_curso') }}"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+            <i class="fas fa-plus"></i> Nuevo Curso
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-white/5">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-white/5 text-slate-300 text-xs uppercase tracking-wider">
+                    <th class="p-4 font-semibold">Título</th>
+                    <th class="p-4 font-semibold">Duración</th>
+                    <th class="p-4 font-semibold">Estado</th>
+                    <th class="p-4 font-semibold">Examen</th>
+                    <th class="p-4 font-semibold text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-sm text-slate-300">
+                {% for curso in cursos %}
+                <tr class="hover:bg-white/5 transition-colors group">
+                    <td class="p-4 font-medium text-white">{{ curso.titulo }}</td>
+                    <td class="p-4">{{ curso.duracion_horas }} Horas</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs font-bold 
+                            {% if curso.estado == 'Activo' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                            {% else %}bg-slate-500/20 text-slate-400 border border-slate-500/30{% endif %}">
+                            {{ curso.estado }}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        {% if curso.examenes|length > 0 %}
+                        <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i>
+                            Configurado</span>
+                        {% else %}
+                        <span class="text-amber-400 flex items-center gap-1"><i class="fas fa-exclamation-triangle"></i>
+                            Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <a href="{{ url_for('admin.gestionar_examen', curso_id=curso.id) }}"
+                            class="text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 p-2 rounded hover:bg-blue-500/20"
+                            title="Gestionar Examen">
+                            <i class="fas fa-tasks"></i>
+                        </a>
+
+                        <!-- Enrollment -->
+                        <a href="{{ url_for('admin.gestionar_matriculas', id=curso.id) }}"
+                            class="text-purple-400 hover:text-purple-300 transition-colors bg-purple-500/10 p-2 rounded hover:bg-purple-500/20"
+                            title="Matrículas">
+                            <i class="fas fa-users"></i>
+                        </a>
+
+                        <!-- Toggle Status -->
+                        <form action="{{ url_for('admin.toggle_estado_curso', id=curso.id) }}" method="POST"
+                            class="inline" onsubmit="return confirm('¿Cambiar estado?');">
+                            <button type="submit"
+                                class="text-amber-400 hover:text-amber-300 transition-colors bg-amber-500/10 p-2 rounded hover:bg-amber-500/20"
+                                title="Activar/Inactivar">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </form>
+
+                        <!-- Delete -->
+                        <form action="{{ url_for('admin.eliminar_curso', id=curso.id) }}" method="POST" class="inline"
+                            onsubmit="return confirm('¿Eliminar curso permanentemente?');">
+                            <button type="submit"
+                                class="text-red-400 hover:text-red-300 transition-colors bg-red-500/10 p-2 rounded hover:bg-red-500/20"
+                                title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        <!-- Add edit/delete if needed later -->
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-slate-500">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-book-open text-3xl mb-2 opacity-50"></i>
+                            <p>No hay cursos creados aún.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

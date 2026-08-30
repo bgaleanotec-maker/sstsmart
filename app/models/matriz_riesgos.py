@@ -1,4 +1,5 @@
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime, timedelta
 from enum import Enum
 
@@ -155,7 +156,7 @@ class GestorResponsabilidades(db.Model):
     def __repr__(self):
         return f'<GestorResponsabilidades {self.rol_principal}>'
 
-class GestionReporte(db.Model):
+class GestionReporte(TenantMixin, db.Model):
     """
     Tracking de la gestión de cada reporte
     Quién lo tiene, en qué paso está, cuándo fue asignado, cuándo debe resolverse

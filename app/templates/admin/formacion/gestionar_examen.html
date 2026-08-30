@@ -1,0 +1,163 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Gestionar Examen{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in space-y-6">
+
+    <!-- Header & Stats -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-slate-400 mb-1">
+                <a href="{{ url_for('admin.listar_cursos') }}" class="hover:text-white">Cursos</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-white">{{ curso.titulo }}</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white">Configuración del Examen</h1>
+        </div>
+
+        <div class="flex items-center gap-4 bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+            <div class="px-4 border-r border-slate-700">
+                <span class="block text-xs text-slate-400 uppercase">Preguntas</span>
+                <span class="text-xl font-bold text-white">{{ examen.preguntas|length if examen else 0 }}</span>
+            </div>
+            <div class="px-4">
+                <span class="block text-xs text-slate-400 uppercase">Aprobación</span>
+                <span class="text-xl font-bold text-emerald-400">{{ examen.porcentaje_aprobacion if examen else 70
+                    }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left: Exam Config Form -->
+        <div class="glass-card p-6 h-fit">
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-cog text-slate-400"></i> Configuración General
+            </h3>
+            <form method="POST">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Porcentaje
+                            Aprobación</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" name="porcentaje_aprobacion"
+                                value="{{ examen.porcentaje_aprobacion if examen else 70 }}" min="1" max="100"
+                                class="modern-input w-24 bg-slate-900/50 border border-slate-700 rounded-lg p-2 text-white text-center">
+                            <span class="text-slate-400">%</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm">
+                        Actualizar Configuración
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Center/Right: Questions Manager -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- List of Questions -->
+            {% if examen and examen.preguntas %}
+            <div class="space-y-4">
+                {% for pregunta in examen.preguntas %}
+                <div class="glass-card p-4 relative group">
+                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <form action="{{ url_for('admin.eliminar_pregunta', pregunta_id=pregunta.id) }}" method="POST"
+                            onsubmit="return confirm('¿Eliminar esta pregunta?');">
+                            <button type="submit" class="text-red-400 hover:text-red-300 p-1"><i
+                                    class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
+                            {{ loop.index }}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white font-medium mb-3">{{ pregunta.texto_pregunta }}</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                {% for opcion in pregunta.opciones %}
+                                <div
+                                    class="flex items-center gap-2 p-2 rounded {{ 'bg-emerald-500/10 border border-emerald-500/30' if opcion.es_correcta else 'bg-slate-800/30' }}">
+                                    <i
+                                        class="fa-solid fa-{{ 'check text-emerald-400' if opcion.es_correcta else 'circle text-slate-600' }} text-xs"></i>
+                                    <span
+                                        class="{{ 'text-emerald-100' if opcion.es_correcta else 'text-slate-400' }}">{{
+                                        opcion.texto_opcion }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500 font-mono pt-1">
+                            {{ pregunta.puntaje }}pts
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-8 text-center border border-dashed border-slate-700 rounded-xl">
+                <p class="text-slate-500">No hay preguntas configuradas para este examen.</p>
+            </div>
+            {% endif %}
+
+            <!-- Add New Question Form -->
+            <div class="glass-card p-6 border-t-4 border-blue-500">
+                <h3 class="text-lg font-bold text-white mb-6">Agregar Nueva Pregunta</h3>
+                <form method="POST">
+                    <!-- Hidden field to preserve config settings when adding question -->
+                    <input type="hidden" name="porcentaje_aprobacion"
+                        value="{{ examen.porcentaje_aprobacion if examen else 70 }}">
+
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Enunciado</label>
+                                <input type="text" name="nueva_pregunta" required
+                                    class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white"
+                                    placeholder="¿Cuál es la altura mínima para considerar trabajo en alturas?">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Puntos</label>
+                                <input type="number" name="puntaje_pregunta" value="10"
+                                    class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white text-center">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for i in range(1, 5) %}
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <span class="text-slate-500 text-xs font-bold">opción {{ i }}</span>
+                                </div>
+                                <input type="text" name="opcion_{{ i }}" required
+                                    class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg py-2 pl-20 pr-10 text-white text-sm focus:border-blue-500 transition-colors"
+                                    placeholder="Respuesta posible...">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <input type="radio" name="opcion_correcta" value="{{ i }}" {{ 'checked' if i==1 }}
+                                        class="w-4 h-4 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900"
+                                        title="Marcar como correcta">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="pt-2 text-right">
+                            <button type="submit"
+                                class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg shadow-blue-500/20 font-medium transition-all">
+                                <i class="fas fa-plus mr-2"></i> Guardar Pregunta
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

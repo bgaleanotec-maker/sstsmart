@@ -1,0 +1,56 @@
+"""Configuración por entornos.
+
+Toda credencial vive en variables de entorno (.env local, panel del hosting
+en producción). Nunca incrustar claves en el código: este archivo va a git.
+"""
+import os
+
+
+class BaseConfig:
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-change-in-prod')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or SECRET_KEY
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Uploads
+    MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB (videos de formación)
+    UPLOAD_EXTENSIONS = {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'}
+
+    # Integraciones
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash')
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'no-reply@sst-smart.com')
+
+    # URL pública para links en correos (en dev: localhost)
+    BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+
+    # Scheduler de escalamiento (apagar en workers múltiples / migraciones)
+    SCHEDULER_ENABLED = os.getenv('SCHEDULER_ENABLED', '1') == '1'
+
+
+class DevelopmentConfig(BaseConfig):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///sst.db')
+
+
+class ProductionConfig(BaseConfig):
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', '')
+
+    @classmethod
+    def validar(cls):
+        faltantes = []
+        if not os.getenv('SECRET_KEY'):
+            faltantes.append('SECRET_KEY')
+        if not cls.SQLALCHEMY_DATABASE_URI:
+            faltantes.append('DATABASE_URL')
+        if faltantes:
+            raise RuntimeError(
+                f"Producción requiere variables de entorno: {', '.join(faltantes)}"
+            )
+
+
+CONFIGS = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+}

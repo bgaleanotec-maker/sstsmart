@@ -1,3 +1,4 @@
+from .empresa import Empresa
 from .usuario import Usuario
 from .empleado import Empleado
 from .riesgo import RiesgoMatriz  # ← QUITAMOS Control de aquí
@@ -25,10 +26,15 @@ from .matriz_riesgos import (
     TareaGestion
 )
 from .control import Control, SeguimientoControl, TipoControl, NivelControl, EstadoControl
+from .formacion import Curso, Examen, Pregunta, Opcion, IntentoExamen, ProgresoFormacion
 
+
+from .notificacion import Notificacion
+from .autoevaluacion import Autoevaluacion, RespuestaAutoevaluacion, AccionMejora
+from .matriz_legal import RequisitoLegal, ValoracionJuridica, EvidenciaLegal, LogMatrizLegal
 
 __all__ = [
-    'Usuario', 'Empleado', 'RiesgoMatriz',  # Sin Control aquí
+    'Empresa', 'Usuario', 'Empleado', 'RiesgoMatriz',  # Sin Control aquí
     'CondicionInsegura', 'Evento', 'ConfiguracionIA',
     'ConsultaJuridica', 'DocumentoLegal',
     'CategoriaArea', 'Dependencia', 'RolSST',
@@ -36,5 +42,9 @@ __all__ = [
     'NivelSeveridad', 'NivelProbabilidad', 'NivelRiesgo',
     'ReglasEscalonamiento', 'PasoEscalonamiento', 'MatrizRiesgos',
     'GestorResponsabilidades', 'GestionReporte', 'TareaGestion',
-    'Control', 'SeguimientoControl', 'TipoControl', 'NivelControl', 'EstadoControl'  # Control solo aquí
+    'Control', 'SeguimientoControl', 'TipoControl', 'NivelControl', 'EstadoControl',
+    'Curso', 'Examen', 'Pregunta', 'Opcion', 'IntentoExamen', 'ProgresoFormacion',
+    'Notificacion',
+    'RequisitoLegal', 'ValoracionJuridica', 'EvidenciaLegal', 'LogMatrizLegal',
+    'Autoevaluacion', 'RespuestaAutoevaluacion', 'AccionMejora'
 ]

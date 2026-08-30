@@ -13,6 +13,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Control, SeguimientoControl, RiesgoMatriz, Usuario
 from app.models.control import TipoControl, NivelControl, EstadoControl
+from app.constants import ROLES_GESTION, ROLES_GESTION_CONTROLES, ROLES_VERIFICACION
 from datetime import datetime
 from functools import wraps
 import logging
@@ -24,18 +25,15 @@ controles_bp = Blueprint('controles', __name__, url_prefix='/controles')
 # ============== DECORADOR DE PERMISOS ==============
 
 def require_role(*roles):
-    """Decorador que verifica si el usuario tiene uno de los roles requeridos"""
+    """Decorador que verifica si el usuario tiene uno de los roles requeridos
+    (comparación normalizada vía Usuario.tiene_rol)."""
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            # Obtener el rol del usuario actual (es string, no objeto)
-            user_role = current_user.rol if hasattr(current_user, 'rol') and current_user.rol else None
-            
-            if user_role not in roles:
+            if not current_user.is_authenticated or not current_user.tiene_rol(*roles):
                 flash(f'❌ No tienes permiso para esta acción. Roles requeridos: {", ".join(roles)}', 'error')
-                logger.warning(f"⚠️ Acceso denegado a {current_user.nombre_completo} ({user_role}). Se requería: {roles}")
+                logger.warning(f"Acceso denegado a {getattr(current_user, 'nombre_completo', 'anónimo')}. Se requería: {roles}")
                 return redirect(url_for('dashboard.index'))
-            
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -48,14 +46,14 @@ def require_role(*roles):
 def listar_controles():
     """Lista controles según rol del usuario"""
     
-    user_role = current_user.rol if hasattr(current_user, 'rol') and current_user.rol else None
+    user_role = current_user.rol
     filtro_estado = request.args.get('estado', '')
     filtro_riesgo = request.args.get('riesgo_id', '')
     
     query = Control.query.filter_by(activo=True)
     
     # Filtrar según rol
-    if user_role not in ['Admin', 'Responsable SST', 'Abogado']:
+    if not current_user.tiene_rol(*ROLES_GESTION):
         # Responsable de Control solo ve los asignados a él
         query = query.filter_by(responsable_id=current_user.id)
     
@@ -85,9 +83,9 @@ def listar_controles():
 def mis_controles():
     """Muestra controles según el rol del usuario"""
     
-    user_role = current_user.rol if hasattr(current_user, 'rol') and current_user.rol else None
+    user_role = current_user.rol
     
-    if user_role in ['Admin', 'Responsable SST', 'Abogado']:
+    if current_user.tiene_rol(*ROLES_GESTION):
         # Estos roles ven TODOS los controles (para gestión)
         controles_asignados = Control.query.filter_by(activo=True).all()
         controles_creados = Control.query.filter(
@@ -121,7 +119,7 @@ def mis_controles():
 
 @controles_bp.route('/crear', methods=['GET', 'POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado', 'Gerente Area')
+@require_role(*ROLES_GESTION_CONTROLES)
 def crear_control():
     """Crea un nuevo control - Múltiples roles autorizados"""
     
@@ -184,7 +182,7 @@ def crear_control():
 
 @controles_bp.route('/<int:id>/editar', methods=['GET', 'POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado', 'Gerente Area')
+@require_role(*ROLES_GESTION_CONTROLES)
 def editar_control(id):
     """Edita un control existente"""
     
@@ -229,7 +227,7 @@ def editar_control(id):
 
 @controles_bp.route('/<int:id>/asignar-responsable', methods=['POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado', 'Gerente Area')
+@require_role(*ROLES_GESTION_CONTROLES)
 def asignar_responsable(id):
     """Asigna responsable a un control"""
     
@@ -265,10 +263,8 @@ def marcar_implementado(id):
     """Marca un control como implementado - Solo responsable asignado o gestores"""
     
     control = Control.query.get_or_404(id)
-    user_role = current_user.rol if hasattr(current_user, 'rol') and current_user.rol else None
-    
     # Verificar permisos
-    if control.responsable_id != current_user.id and user_role not in ['Admin', 'Responsable SST', 'Abogado']:
+    if control.responsable_id != current_user.id and not current_user.tiene_rol(*ROLES_GESTION):
         flash('❌ No tienes permiso para marcar este control como implementado', 'error')
         return redirect(request.referrer or url_for('controles.listar_controles'))
     
@@ -295,7 +291,7 @@ def marcar_implementado(id):
 
 @controles_bp.route('/<int:id>/verificar', methods=['POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado', 'Auditor')
+@require_role(*ROLES_VERIFICACION)
 def verificar_control(id):
     """Verifica un control implementado - Gestores y auditores"""
     
@@ -327,7 +323,7 @@ def verificar_control(id):
 
 @controles_bp.route('/<int:id>/seguimiento', methods=['POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado', 'Auditor')
+@require_role(*ROLES_VERIFICACION)
 def agregar_seguimiento(id):
     """Agrega un seguimiento periódico a un control"""
     
@@ -367,7 +363,7 @@ def agregar_seguimiento(id):
 
 @controles_bp.route('/<int:id>/cerrar', methods=['POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado')
+@require_role(*ROLES_GESTION)
 def cerrar_control(id):
     """Cierra un control"""
     
@@ -395,7 +391,7 @@ def cerrar_control(id):
 
 @controles_bp.route('/<int:id>/eliminar', methods=['POST'])
 @login_required
-@require_role('Admin', 'Responsable SST', 'Abogado')
+@require_role(*ROLES_GESTION)
 def eliminar_control(id):
     """Desactiva un control (eliminación lógica)"""
     

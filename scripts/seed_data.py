@@ -350,6 +350,48 @@ def seed_all():
                 db.session.add(responsable_test)
                 db.session.commit()
                 print("    ✅ Usuario Responsable SST de prueba creado")
+
+            # Crear usuario Admin
+            admin_test = Usuario.query.filter_by(email='admin@sst.local').first()
+            if not admin_test:
+                admin_test = Usuario(
+                    email='admin@sst.local',
+                    nombre_completo='Administrador Sistema',
+                    rol='Admin',
+                    activo=True
+                )
+                admin_test.set_password('admin123')
+                db.session.add(admin_test)
+                db.session.commit()
+                print("    ✅ Usuario Admin de prueba creado")
+
+            # Crear usuario Empleado
+            empleado_test = Usuario.query.filter_by(email='empleado@sst.local').first()
+            if not empleado_test:
+                empleado_test = Usuario(
+                    email='empleado@sst.local',
+                    nombre_completo='Empleado Demo',
+                    rol='Empleado',
+                    activo=True
+                )
+                empleado_test.set_password('empleado123')
+                db.session.add(empleado_test)
+                db.session.commit()
+                print("    ✅ Usuario Empleado de prueba creado")
+
+            # Crear usuario Gerente
+            gerente_test = Usuario.query.filter_by(email='gerente@sst.local').first()
+            if not gerente_test:
+                gerente_test = Usuario(
+                    email='gerente@sst.local',
+                    nombre_completo='Gerente General',
+                    rol='Gerente',
+                    activo=True
+                )
+                gerente_test.set_password('gerente123')
+                db.session.add(gerente_test)
+                db.session.commit()
+                print("    ✅ Usuario Gerente de prueba creado")
             
             # Cargar normativa - CORRECCIÓN: NO crear DocumentoLegal hasta que la consulta esté guardada
             consultas_creadas = 0
@@ -413,8 +455,10 @@ def seed_all():
             
             print("\n👤 USUARIOS DE PRUEBA:")
             print(f"  ├─ Admin: admin@sst.local / admin123")
+            print(f"  ├─ Responsable SST: responsable.sst@company.com / responsable123")
             print(f"  ├─ Abogado: abogado@sst.local / abogado123")
-            print(f"  └─ Responsable SST: responsable.sst@company.com / responsable123")
+            print(f"  ├─ Gerente: gerente@sst.local / gerente123")
+            print(f"  └─ Empleado: empleado@sst.local / empleado123")
             
             print("\n⚖️  NORMATIVA CARGADA:")
             for tipo, normas in NORMATIVA_COLOMBIA.items():

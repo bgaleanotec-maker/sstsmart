@@ -1,7 +1,8 @@
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime
 
-class ConsultaJuridica(db.Model):
+class ConsultaJuridica(TenantMixin, db.Model):
     __tablename__ = 'consultas_juridicas'
     id = db.Column(db.Integer, primary_key=True)
     numero_consulta = db.Column(db.String(50), unique=True, nullable=False, index=True)

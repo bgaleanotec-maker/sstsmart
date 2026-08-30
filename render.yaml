@@ -1,0 +1,45 @@
+# Blueprint de Render — etapa MVP/beta (docs/03-arquitectura/02 §5).
+# Región Virginia: decisión irreversible, menor latencia hacia Colombia (ADR-5).
+# Al crecer: subir web a standard, Postgres a standard, y activar workspace Pro.
+services:
+  - name: sst-web
+    type: web
+    runtime: python
+    region: virginia
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: python scripts/init_prod_db.py
+    startCommand: gunicorn -w 2 -k gthread --timeout 60 "app:create_app('production')"
+    healthCheckPath: /healthz
+    # Cambiar a checksPass cuando el CI (.github/workflows/ci.yml) esté en el
+    # repo — el PAT actual no tiene scope `workflow` para subirlo
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sst-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false          # se pide al crear el servicio; nunca en el repo
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FLASK_CONFIG
+        value: production
+      - key: SCHEDULER_ENABLED
+        value: "1"           # con 1 sola instancia web el scheduler puede vivir aquí
+      - key: BASE_URL
+        value: https://sst-web.onrender.com   # actualizar al tener dominio propio
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+
+databases:
+  - name: sst-db
+    region: virginia
+    plan: basic-256mb
+    postgresMajorVersion: "16"

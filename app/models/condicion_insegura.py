@@ -1,8 +1,9 @@
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime
 import uuid
 
-class CondicionInsegura(db.Model):
+class CondicionInsegura(TenantMixin, db.Model):
     __tablename__ = 'condiciones_inseguras'
     id = db.Column(db.Integer, primary_key=True)
     numero_reporte = db.Column(db.String(50), unique=True, nullable=False, index=True)
@@ -24,9 +25,19 @@ class CondicionInsegura(db.Model):
     cumple_norma = db.Column(db.Boolean, default=False)
     metadata_adicional = db.Column(db.JSON)
     
+    # Nuevos campos para relaciones requeridas
+    tipo_reporte_id = db.Column(db.Integer, db.ForeignKey('tipos_reportes.id'), nullable=True)
+    tipo_evidencia_id = db.Column(db.Integer, db.ForeignKey('tipos_evidencia.id'), nullable=True)
+    dependencia_id = db.Column(db.Integer, db.ForeignKey('dependencias.id'), nullable=True)
+    
     reportador = db.relationship('Usuario', foreign_keys=[empleado_reportador_id])
     responsable_sst = db.relationship('Usuario', foreign_keys=[responsable_sst_id])
     autorizador = db.relationship('Usuario', foreign_keys=[autorizado_por_id])
+    
+    # Relaciones para GestionReportesService
+    tipo_reporte_obj = db.relationship('TipoReporte', foreign_keys=[tipo_reporte_id])
+    tipo_evidencia_obj = db.relationship('TipoEvidencia', foreign_keys=[tipo_evidencia_id])
+    ubicacion_incidente = db.relationship('Dependencia', foreign_keys=[dependencia_id])
     
     def generar_numero_reporte(self):
         año = datetime.utcnow().year

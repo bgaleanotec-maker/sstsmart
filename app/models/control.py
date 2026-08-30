@@ -5,6 +5,7 @@ Decreto 1072/2015 - Resolución 0312/2019
 """
 
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime
 from enum import Enum
 
@@ -39,7 +40,7 @@ class EstadoControl(Enum):
     CANCELADO = "Cancelado"
 
 
-class Control(db.Model):
+class Control(TenantMixin, db.Model):
     """
     Control para mitigar riesgos
     Un control puede mitigar múltiples riesgos

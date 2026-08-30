@@ -1,12 +1,13 @@
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, logout_user, login_required
 from flask_jwt_extended import create_access_token
-from app import db
+from app import db, limiter, csrf
 from app.models import Usuario
 from app.routes import auth_bp
 from datetime import datetime
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit('10 per minute', methods=['POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -32,6 +33,8 @@ def logout():
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/api/token', methods=['POST'])
+@csrf.exempt
+@limiter.limit('10 per minute')
 def get_token():
     email = request.json.get('email')
     password = request.json.get('password')

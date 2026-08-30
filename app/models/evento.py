@@ -1,7 +1,8 @@
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime
 
-class Evento(db.Model):
+class Evento(TenantMixin, db.Model):
     __tablename__ = 'eventos'
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(50), nullable=False)

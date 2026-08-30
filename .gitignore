@@ -35,3 +35,6 @@ out/
 *.db
 .env.local
 .env.*.local
+# Archivos subidos por usuarios (datos de clientes - nunca a git)
+uploads/
+app/static/uploads/

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Resultado {{ autoeval.anio }} · SST Smart{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Resultado — vigencia {{ autoeval.anio }}</h1>
+            <p class="text-slate-400 text-sm mt-1">Régimen de {{ autoeval.regimen }} estándares · cerrada el {{ autoeval.fecha_cierre.strftime('%d/%m/%Y') if autoeval.fecha_cierre else '—' }}</p>
+        </div>
+        <a href="{{ url_for('autoevaluacion.exportar_csv', id=autoeval.id) }}"
+           class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold px-4 py-2 rounded-lg">
+            <i class="fa-solid fa-file-csv mr-1"></i>Exportar para SGRL / ARL
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-6 text-center">
+            <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Puntaje</p>
+            <p class="text-5xl font-bold {% if autoeval.clasificacion == 'ACEPTABLE' %}text-emerald-400{% elif autoeval.clasificacion == 'MODERADO' %}text-amber-400{% else %}text-red-400{% endif %}">
+                {{ '%.1f' % (autoeval.puntaje_total or 0) }}
+            </p>
+            <p class="text-slate-500 text-sm">de 100</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-6 text-center">
+            <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Valoración (art. 28)</p>
+            {% if autoeval.clasificacion == 'ACEPTABLE' %}
+            <p class="text-2xl font-bold text-emerald-400 mt-3">ACEPTABLE</p>
+            {% elif autoeval.clasificacion == 'MODERADO' %}
+            <p class="text-2xl font-bold text-amber-400 mt-3">MODERADAMENTE<br>ACEPTABLE</p>
+            {% else %}
+            <p class="text-2xl font-bold text-red-400 mt-3">CRÍTICO</p>
+            {% endif %}
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-6">
+            <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Desglose PHVA</p>
+            {% for ciclo, obtenido, posible in desglose %}
+            <div class="flex justify-between text-sm py-0.5">
+                <span class="text-slate-300">{{ ciclo }}</span>
+                <span class="text-white font-semibold">{{ '%.1f' % obtenido }} / {{ '%.0f' % posible }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-5 mb-10 text-blue-100 text-sm">
+        <i class="fa-solid fa-scale-balanced mr-2"></i><b>Acción que exige la norma:</b> {{ texto_accion }}
+        <span class="block text-blue-300/70 mt-1 text-xs">Recuerde registrar la autoevaluación y el plan de mejoramiento en la aplicación SGRL del Fondo de Riesgos Laborales (Circulares 009/2025 y 027/2026 del Mintrabajo) y remitir copia a su ARL.</span>
+    </div>
+
+    <h2 class="text-lg font-bold text-white mb-3">Plan de mejoramiento ({{ acciones|length }} acciones)</h2>
+    <div class="bg-slate-800/60 border border-slate-700 rounded-xl overflow-x-auto">
+        <table class="w-full text-sm min-w-[700px]">
+            <thead>
+                <tr class="text-left text-slate-400 border-b border-slate-700">
+                    <th class="px-4 py-3">Ítem</th>
+                    <th class="px-4 py-3">Acción</th>
+                    <th class="px-4 py-3">Responsable</th>
+                    <th class="px-4 py-3">Fecha límite</th>
+                    <th class="px-4 py-3">Estado</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in acciones %}
+                <tr class="border-b border-slate-800 align-top">
+                    <td class="px-4 py-3 font-mono text-blue-400">{{ a.item_codigo }}</td>
+                    <td class="px-4 py-3 text-slate-200 max-w-md">{{ a.descripcion }}</td>
+                    <td class="px-4 py-3">
+                        <select form="accion-{{ a.id }}" name="responsable_id" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs">
+                            <option value="">—</option>
+                            {% for u in usuarios %}
+                            <option value="{{ u.id }}" {% if a.responsable_id == u.id %}selected{% endif %}>{{ u.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input form="accion-{{ a.id }}" type="date" name="fecha_limite" value="{{ a.fecha_limite.isoformat() if a.fecha_limite else '' }}"
+                               class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs">
+                    </td>
+                    <td class="px-4 py-3">
+                        <select form="accion-{{ a.id }}" name="estado" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs
+                            {% if a.estado == 'Cerrada' %}text-emerald-300{% elif a.estado == 'En_Proceso' %}text-amber-300{% else %}text-slate-200{% endif %}">
+                            {% for e in ['Abierta','En_Proceso','Cerrada'] %}
+                            <option value="{{ e }}" {% if a.estado == e %}selected{% endif %}>{{ e.replace('_',' ') }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        <button form="accion-{{ a.id }}" class="text-blue-400 hover:text-blue-300 text-xs font-semibold">Guardar</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="px-4 py-6 text-center text-slate-500">Sin acciones: todos los ítems exigibles cumplen. 🎉</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% for a in acciones %}
+    <form id="accion-{{ a.id }}" method="POST" action="{{ url_for('autoevaluacion.actualizar_accion', accion_id=a.id) }}"></form>
+    {% endfor %}
+
+    <div class="mt-6">
+        <a href="{{ url_for('autoevaluacion.lista') }}" class="text-slate-400 hover:text-white text-sm">← Volver al histórico</a>
+    </div>
+</div>
+{% endblock %}

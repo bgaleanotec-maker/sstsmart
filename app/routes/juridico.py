@@ -7,7 +7,12 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.models import ConsultaJuridica, DocumentoLegal, Usuario, CondicionInsegura
+from app.utils.notificaciones import NotificationService
 from app.services.notificaciones import NotificacionService
+from app.constants import (
+    ROLES_JURIDICO, ROLES_RESOLVER_JURIDICO, ROL_ADMIN, ROL_RESPONSABLE_SST,
+    ROL_ABOGADO, ROL_EMPLEADO
+)
 from app.routes import juridico_bp
 from datetime import datetime, timedelta
 from functools import wraps
@@ -22,7 +27,7 @@ def juridico_required(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if current_user.rol not in ['Admin', 'Responsable_SST', 'Abogado']:
+        if not current_user.tiene_rol(*ROLES_JURIDICO):
             flash('❌ No tienes permiso para acceder al módulo jurídico', 'error')
             return redirect(url_for('dashboard.index'))
         return f(*args, **kwargs)
@@ -33,7 +38,7 @@ def abogado_required(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if current_user.rol not in ['Admin', 'Abogado']:
+        if not current_user.tiene_rol(*ROLES_RESOLVER_JURIDICO):
             flash('⚖️ Solo abogados pueden resolver consultas', 'error')
             return redirect(url_for('juridico.listar'))
         return f(*args, **kwargs)
@@ -126,35 +131,23 @@ def crear():
             
             logger.info(f"✅ Consulta jurídica creada: {consulta.numero_consulta}")
             
-            # Enviar notificación a abogados usando método correcto
+            # Enviar notificación a Abogados/Jurídicos
             try:
-                abogados = Usuario.query.filter_by(rol='Abogado', activo=True).all()
-                for abogado in abogados:
-                    html = f"""
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="background-color: #6f42c1; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-                            <h2 style="margin: 0;">⚖️ Nueva Consulta Jurídica</h2>
-                        </div>
-                        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 0 0 5px 5px;">
-                            <p><strong>📋 Número:</strong> {consulta.numero_consulta}</p>
-                            <p><strong>📝 Título:</strong> {consulta.titulo}</p>
-                            <p><strong>🏷️ Tipo:</strong> {consulta.tipo_consulta}</p>
-                            <p><strong>⚠️ Prioridad:</strong> {consulta.prioridad}</p>
-                            <p><strong>⚡ Riesgo Legal:</strong> {consulta.riesgo_legal}</p>
-                            <p style="text-align: center; margin-top: 20px;">
-                                <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Consulta</a>
-                            </p>
-                        </div>
-                    </div>
-                    """
-                    NotificacionService.enviar_email(
-                        abogado.email,
-                        f"[SST] Nueva Consulta Jurídica: {consulta.numero_consulta}",
-                        html
-                    )
-                logger.info(f"📧 Notificaciones enviadas a {len(abogados)} abogados")
+                msg = f"Nueva Consulta Jurídica #{consulta.numero_consulta} creada. Título: {consulta.titulo}"
+                html = f"""
+                    <h2>Nueva Consulta Jurídica</h2>
+                    <p><strong>Número:</strong> {consulta.numero_consulta}</p>
+                    <p><strong>Título:</strong> {consulta.titulo}</p>
+                    <p><strong>Prioridad:</strong> {consulta.prioridad}</p>
+                    <p><a href="{url_for('juridico.detalle', id=consulta.id, _external=True)}">Ver Detalles</a></p>
+                """
+                # Notificar al rol 'Juridico' (o 'Abogado' según se use)
+                NotificationService.notificar_rol('Juridico', msg, 'info', url_for('juridico.detalle', id=consulta.id), "Nueva Consulta Jurídica")
+                # Backup para rol 'Abogado' si existe esa distinción
+                NotificationService.notificar_rol('Abogado', msg, 'info', url_for('juridico.detalle', id=consulta.id), "Nueva Consulta Jurídica")
+                
             except Exception as e:
-                logger.warning(f"⚠️ Error al enviar notificaciones (no crítico): {str(e)}")
+                logger.warning(f"⚠️ Error al enviar notificaciones: {str(e)}")
             
             flash(f'✅ Consulta jurídica creada: {consulta.numero_consulta}', 'success')
             return redirect(url_for('juridico.detalle', id=consulta.id))
@@ -189,17 +182,17 @@ def detalle(id):
     
     consulta = ConsultaJuridica.query.get_or_404(id)
     
-    # Verificar permisos
-    if current_user.rol == 'Responsable_SST' and consulta.responsable_creador_id != current_user.id:
-        if current_user.rol != 'Admin' and current_user.rol != 'Abogado':
-            flash('❌ No tienes permiso para ver esta consulta', 'error')
-            return redirect(url_for('juridico.listar'))
+    # Verificar permisos: Responsable_SST solo ve sus propias consultas
+    if (current_user.tiene_rol(ROL_RESPONSABLE_SST)
+            and consulta.responsable_creador_id != current_user.id):
+        flash('❌ No tienes permiso para ver esta consulta', 'error')
+        return redirect(url_for('juridico.listar'))
     
     if request.method == 'POST':
         try:
             accion = request.form.get('accion')
             
-            if accion == 'asignar' and current_user.rol in ['Admin', 'Responsable_SST']:
+            if accion == 'asignar' and current_user.tiene_rol(ROL_ADMIN, ROL_RESPONSABLE_SST):
                 abogado_id = request.form.get('abogado_id')
                 consulta.abogado_asignado_id = abogado_id
                 consulta.estado = 'En revisión'
@@ -214,7 +207,7 @@ def detalle(id):
                 logger.info(f"✅ Consulta {consulta.numero_consulta} asignada a {abogado.nombre_completo}")
                 flash(f'✅ Consulta asignada a {abogado.nombre_completo}', 'success')
             
-            elif accion == 'resolver' and current_user.rol in ['Admin', 'Abogado']:
+            elif accion == 'resolver' and current_user.tiene_rol(*ROLES_RESOLVER_JURIDICO):
                 consulta.resolucion = request.form.get('resolucion')
                 consulta.recomendaciones = request.form.get('recomendaciones')
                 consulta.estado = 'Resuelta'
@@ -226,38 +219,44 @@ def detalle(id):
                 if consulta.empleado_afectado:
                     NotificacionService.enviar_resolucion_consulta(consulta.empleado_afectado, consulta)
                 
+                # Notificar a ResponsableSST
+                try:
+                    NotificationService.notificar_rol(
+                        'ResponsableSST', 
+                        f"Consulta Jurídica #{consulta.numero_consulta} RESUELTA por {current_user.nombre_completo}",
+                        'success',
+                        url_for('juridico.detalle', id=consulta.id),
+                        "Consulta Jurídica Resuelta"
+                    )
+                except Exception as e:
+                    logger.warning(f"Error notificando SST: {e}")
+
                 # Notificar también al creador
                 if consulta.responsable_creador and consulta.responsable_creador_id != consulta.empleado_afectado_id:
-                    html = f"""
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="background-color: #28a745; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-                            <h2 style="margin: 0;">✅ Consulta Resuelta</h2>
-                        </div>
-                        <div style="background-color: #e8f5e9; padding: 20px; border-radius: 0 0 5px 5px;">
-                            <p>La consulta jurídica <strong>{consulta.numero_consulta}</strong> ha sido resuelta por {current_user.nombre_completo}.</p>
-                            <p style="text-align: center; margin-top: 20px;">
-                                <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Resolución</a>
-                            </p>
-                        </div>
-                    </div>
+                    html_msg = f"""
+                        <h2>✅ Consulta Resuelta</h2>
+                        <p>La consulta jurídica <strong>{consulta.numero_consulta}</strong> ha sido resuelta por {current_user.nombre_completo}.</p>
+                        <p><a href="{url_for('juridico.detalle', id=consulta.id, _external=True)}">Ver Resolución</a></p>
                     """
-                    NotificacionService.enviar_email(
-                        consulta.responsable_creador.email,
-                        f"[SST] Consulta Resuelta: {consulta.numero_consulta}",
-                        html
+                    NotificationService.notificar_usuario(
+                        consulta.responsable_creador_id,
+                        f"Tu consulta {consulta.numero_consulta} ha sido resuelta.",
+                        'success',
+                        url_for('juridico.detalle', id=consulta.id),
+                        f"Consulta Resuelta: {consulta.numero_consulta}"
                     )
                 
                 logger.info(f"✅ Consulta {consulta.numero_consulta} marcada como resuelta")
                 flash('✅ Consulta marcada como resuelta', 'success')
             
-            elif accion == 'cerrar' and current_user.rol in ['Admin', 'Responsable_SST']:
+            elif accion == 'cerrar' and current_user.tiene_rol(ROL_ADMIN, ROL_RESPONSABLE_SST):
                 consulta.estado = 'Cerrada'
                 consulta.fecha_cierre = datetime.utcnow()
                 db.session.commit()
                 logger.info(f"✅ Consulta {consulta.numero_consulta} cerrada")
                 flash('✅ Consulta cerrada', 'success')
             
-            elif accion == 'reabrir' and current_user.rol in ['Admin', 'Responsable_SST']:
+            elif accion == 'reabrir' and current_user.tiene_rol(ROL_ADMIN, ROL_RESPONSABLE_SST):
                 consulta.estado = 'Abierta'
                 db.session.commit()
                 logger.info(f"✅ Consulta {consulta.numero_consulta} reabierta")
@@ -293,9 +292,9 @@ def detalle(id):
         'documentos': documentos,
         'sla_dias': sla_dias,
         'sla_excedido': sla_excedido,
-        'puede_asignar': current_user.rol in ['Admin', 'Responsable_SST'],
-        'puede_resolver': current_user.rol in ['Admin', 'Abogado'],
-        'puede_cerrar': current_user.rol in ['Admin', 'Responsable_SST']
+        'puede_asignar': current_user.tiene_rol(ROL_ADMIN, ROL_RESPONSABLE_SST),
+        'puede_resolver': current_user.tiene_rol(*ROLES_RESOLVER_JURIDICO),
+        'puede_cerrar': current_user.tiene_rol(ROL_ADMIN, ROL_RESPONSABLE_SST)
     }
     
     return render_template('juridico/detalle.html', **contexto)
@@ -305,19 +304,59 @@ def detalle(id):
 @juridico_bp.route('/<int:id>/documento/cargar', methods=['POST'])
 @juridico_required
 def cargar_documento(id):
-    """Cargar documento legal"""
+    """Cargar documento legal con archivo"""
+    import os
+    from werkzeug.utils import secure_filename
     
     consulta = ConsultaJuridica.query.get_or_404(id)
+    
+    # Configuración de archivos permitidos
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'}
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'uploads', 'documentos_legales')
+    
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
     
     try:
         nombre = request.form.get('nombre')
         tipo = request.form.get('tipo')
         contenido = request.form.get('contenido')
         
+        # Verificar que se envió un archivo
+        if 'archivo' not in request.files:
+            flash('❌ No se seleccionó ningún archivo', 'error')
+            return redirect(url_for('juridico.detalle', id=id))
+        
+        archivo = request.files['archivo']
+        
+        if archivo.filename == '':
+            flash('❌ No se seleccionó ningún archivo', 'error')
+            return redirect(url_for('juridico.detalle', id=id))
+        
+        if not allowed_file(archivo.filename):
+            flash('❌ Tipo de archivo no permitido. Use PDF, Word, Excel o imágenes.', 'error')
+            return redirect(url_for('juridico.detalle', id=id))
+        
+        # Crear directorio si no existe
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        # Generar nombre único para el archivo
+        filename = secure_filename(archivo.filename)
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        unique_filename = f"{consulta.id}_{timestamp}_{filename}"
+        filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+        
+        # Guardar archivo
+        archivo.save(filepath)
+        
+        # Guardar ruta relativa para la base de datos
+        ruta_relativa = f"uploads/documentos_legales/{unique_filename}"
+        
         documento = DocumentoLegal(
             consulta_id=id,
             nombre=nombre,
             tipo=tipo,
+            ruta_archivo=ruta_relativa,
             contenido=contenido,
             creado_por_id=current_user.id
         )
@@ -325,7 +364,7 @@ def cargar_documento(id):
         db.session.add(documento)
         db.session.commit()
         
-        logger.info(f"✅ Documento {nombre} cargado en consulta {consulta.numero_consulta}")
+        logger.info(f"✅ Documento {nombre} ({unique_filename}) cargado en consulta {consulta.numero_consulta}")
         flash('✅ Documento cargado exitosamente', 'success')
         
     except Exception as e:
@@ -346,7 +385,7 @@ def eliminar_documento(doc_id):
     consulta_id = documento.consulta_id
     
     # Verificar permisos
-    if current_user.id != documento.creado_por_id and current_user.rol not in ['Admin', 'Abogado']:
+    if current_user.id != documento.creado_por_id and not current_user.tiene_rol(*ROLES_RESOLVER_JURIDICO):
         flash('❌ No tienes permiso para eliminar este documento', 'error')
         return redirect(url_for('juridico.detalle', id=consulta_id))
     
@@ -361,6 +400,49 @@ def eliminar_documento(doc_id):
         flash(f'❌ Error al eliminar documento: {str(e)}', 'error')
     
     return redirect(url_for('juridico.detalle', id=consulta_id))
+
+# ============ DESCARGAR DOCUMENTO ============
+
+@juridico_bp.route('/documento/<int:doc_id>/descargar')
+@juridico_required
+def descargar_documento(doc_id):
+    """Descargar documento legal"""
+    import os
+    from flask import send_file, current_app
+    
+    documento = DocumentoLegal.query.get_or_404(doc_id)
+    
+    if not documento.ruta_archivo:
+        flash('❌ Este documento no tiene archivo asociado', 'error')
+        return redirect(url_for('juridico.detalle', id=documento.consulta_id))
+    
+    # Construir ruta absoluta
+    base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    filepath = os.path.join(base_path, documento.ruta_archivo)
+    
+    if not os.path.exists(filepath):
+        flash('❌ Archivo no encontrado en el servidor', 'error')
+        return redirect(url_for('juridico.detalle', id=documento.consulta_id))
+    
+    try:
+        # Obtener nombre original del archivo
+        filename = os.path.basename(documento.ruta_archivo)
+        # Quitar prefijo de ID y timestamp para nombre más limpio
+        parts = filename.split('_', 2)
+        if len(parts) >= 3:
+            download_name = parts[2]  # Nombre original del archivo
+        else:
+            download_name = filename
+        
+        return send_file(
+            filepath,
+            as_attachment=True,
+            download_name=download_name
+        )
+    except Exception as e:
+        logger.error(f"❌ Error al descargar documento: {str(e)}", exc_info=True)
+        flash(f'❌ Error al descargar documento: {str(e)}', 'error')
+        return redirect(url_for('juridico.detalle', id=documento.consulta_id))
 
 # ============ NORMATIVA - BÚSQUEDA ============
 

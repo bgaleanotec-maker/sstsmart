@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Tablero de Avance - Formación{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in space-y-6">
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-6 flex flex-col justify-between border-l-4 border-blue-500">
+            <span class="text-slate-400 text-sm uppercase font-bold text-center">Cumplimiento Global</span>
+            <div class="text-center mt-2">
+                <span class="text-4xl font-bold text-white">{{ avg_score }}%</span>
+                <p class="text-xs text-slate-500 mt-1">Promedio de toda la compañía</p>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 flex flex-col justify-between border-l-4 border-emerald-500">
+            <span class="text-slate-400 text-sm uppercase font-bold text-center">Cursos Activos</span>
+            <div class="text-center mt-2">
+                <span class="text-4xl font-bold text-white">{{ total_cursos }}</span>
+                <p class="text-xs text-slate-500 mt-1">Disponibles en el catálogo</p>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 flex flex-col justify-between border-l-4 border-purple-500">
+            <span class="text-slate-400 text-sm uppercase font-bold text-center">Empleados Totales</span>
+            <div class="text-center mt-2">
+                <span class="text-4xl font-bold text-white">{{ total_empleados }}</span>
+                <p class="text-xs text-slate-500 mt-1">Usuarios registrados</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Ranking Table -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-trophy text-yellow-500"></i> Top Empleados (SST)
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-800/50 text-xs uppercase text-slate-400">
+                        <tr>
+                            <th class="p-3 rounded-l-lg">#</th>
+                            <th class="p-3">Empleado</th>
+                            <th class="p-3">Cursos</th>
+                            <th class="p-3 rounded-r-lg text-right">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        {% for usuario, progreso in ranking %}
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-mono text-slate-500">{{ loop.index }}</td>
+                            <td class="p-3 font-medium text-white">{{ usuario.nombre }} {{ usuario.apellido }}</td>
+                            <td class="p-3">
+                                <span class="text-xs bg-slate-700 px-2 py-1 rounded">{{
+                                    progreso.total_cursos_completados }}/{{ progreso.total_cursos_asignados }}</span>
+                            </td>
+                            <td class="p-3 text-right font-bold text-emerald-400">{{ progreso.puntaje_global_sst }}%
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="p-4 text-center">No hay datos de progreso aún.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Course Progress Bars -->
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-chart-bar text-blue-400"></i> Avance por Curso
+            </h3>
+            <div class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                {% for stats in cursos_stats %}
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-white font-medium">{{ stats.titulo }}</span>
+                        <span class="text-slate-400 text-xs">{{ stats.aprobados }} Aprobados ({{ stats.tasa }}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ stats.tasa }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Action Bar -->
+    <div class="flex justify-end pt-4">
+        <a href="{{ url_for('admin.listar_cursos') }}"
+            class="text-slate-400 hover:text-white text-sm flex items-center gap-2">
+            <i class="fas fa-cog"></i> Configurar Cursos
+        </a>
+    </div>
+
+</div>
+{% endblock %}

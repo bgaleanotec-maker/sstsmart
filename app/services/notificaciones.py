@@ -5,6 +5,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+
 class NotificacionService:
     SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
     SENDER_EMAIL = os.getenv('SENDER_EMAIL', 'noreply@sst-system.com')
@@ -56,7 +58,7 @@ class NotificacionService:
                     </div>
                     
                     <p style="text-align: center; margin-top: 20px;">
-                        <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
+                        <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
                     </p>
                 </div>
             </div>
@@ -95,7 +97,7 @@ class NotificacionService:
                         ⏰ ACCIÓN REQUERIDA INMEDIATAMENTE
                     </p>
                     <p style="text-align: center;">
-                        <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Ver Reporte Ahora</a>
+                        <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Ver Reporte Ahora</a>
                     </p>
                 </div>
             </div>
@@ -132,7 +134,7 @@ class NotificacionService:
                     </div>
                     
                     <p style="text-align: center; margin-top: 20px;">
-                        <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #ff0000; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-size: 16px;">⚡ RESOLVER URGENTEMENTE</a>
+                        <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #ff0000; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-size: 16px;">⚡ RESOLVER URGENTEMENTE</a>
                     </p>
                 </div>
             </div>
@@ -170,7 +172,7 @@ class NotificacionService:
                     </div>
                     
                     <p style="text-align: center; margin-top: 20px;">
-                        <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Detalles Completos</a>
+                        <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Detalles Completos</a>
                     </p>
                 </div>
             </div>
@@ -209,7 +211,7 @@ class NotificacionService:
                         </div>
                         
                         <p style="text-align: center; margin-top: 20px;">
-                            <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
+                            <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
                         </p>
                     </div>
                 </div>
@@ -241,7 +243,7 @@ class NotificacionService:
                 </div>
                 
                 <p style="text-align: center; margin-top: 20px;">
-                    <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Consulta</a>
+                    <a href="{BASE_URL}/juridico/{consulta.id}" style="background-color: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Consulta</a>
                 </p>
             </div>
         </div>
@@ -273,7 +275,7 @@ class NotificacionService:
                 </div>
                 
                 <p style="text-align: center; margin-top: 20px;">
-                    <a href="http://localhost:5000/juridico/{consulta.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Detalle Completo</a>
+                    <a href="{BASE_URL}/juridico/{consulta.id}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Detalle Completo</a>
                 </p>
             </div>
         </div>
@@ -303,7 +305,7 @@ class NotificacionService:
                 </div>
                 
                 <p style="text-align: center; margin-top: 20px;">
-                    <a href="http://localhost:5000/reportes/{reporte.id}" style="background-color: #fd7e14; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
+                    <a href="{BASE_URL}/reportes/{reporte.id}" style="background-color: #fd7e14; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Reporte</a>
                 </p>
             </div>
         </div>

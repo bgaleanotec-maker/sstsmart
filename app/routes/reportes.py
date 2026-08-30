@@ -27,23 +27,24 @@ def nuevo():
             # Crear nuevo reporte
             reporte = CondicionInsegura()
             reporte.generar_numero_reporte()
-            
-            # Información del reportador
-            reporte.reportador_nombre = request.form.get('reportador_nombre') or current_user.nombre_completo
-            reporte.reportador_cargo = request.form.get('reportador_cargo', '')
+
             reporte.empleado_reportador_id = current_user.id
-            
+
             # Tipo de reporte y evidencia
-            reporte.tipo_reporte_id = request.form.get('tipo_reporte_id')
-            reporte.tipo_evidencia_id = request.form.get('tipo_evidencia_id')
-            
-            # Información del incidente
+            reporte.tipo_reporte_id = request.form.get('tipo_reporte_id') or None
+            reporte.tipo_evidencia_id = request.form.get('tipo_evidencia_id') or None
+
+            # Ubicación (columna real: dependencia_id)
+            reporte.dependencia_id = request.form.get('ubicacion_id') or None
+            reporte.ubicacion = request.form.get('ubicacion_especifica', '')
+
+            # Datos sin columna propia -> metadata_adicional (antes se perdían)
             fecha_str = request.form.get('fecha_incidente')
-            if fecha_str:
-                reporte.fecha_incidente = datetime.fromisoformat(fecha_str)
-            
-            reporte.ubicacion_id = request.form.get('ubicacion_id')
-            reporte.ubicacion_especifica = request.form.get('ubicacion_especifica', '')
+            reporte.metadata_adicional = {
+                'reportador_nombre': request.form.get('reportador_nombre') or current_user.nombre_completo,
+                'reportador_cargo': request.form.get('reportador_cargo', ''),
+                'fecha_incidente': fecha_str or None,
+            }
             
             # Descripción
             reporte.titulo = request.form.get('titulo')

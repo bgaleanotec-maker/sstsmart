@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto animate-fade-in">
+    <div class="glass-card p-8">
+        <div class="flex justify-between items-start mb-6">
+            <h1 class="text-3xl font-bold text-white">{{ curso.titulo }}</h1>
+            <a href="{{ url_for('formacion.catalogo') }}" class="text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-times text-xl"></i>
+            </a>
+        </div>
+
+        <div class="prose prose-invert max-w-none mb-8">
+            {{ curso.contenido_html|safe }}
+        </div>
+
+        {% if curso.examenes %}
+        <div class="mt-8 border-t border-slate-700 pt-8">
+            <h3 class="text-xl font-bold text-white mb-4">Evaluaciones Disponibles</h3>
+            {% for examen in curso.examenes %}
+            <div class="bg-slate-800/50 p-4 rounded-lg flex justify-between items-center border border-slate-700">
+                <div>
+                    <h4 class="font-bold text-white">{{ examen.titulo }}</h4>
+                    <p class="text-sm text-slate-400">Aprobar con {{ examen.porcentaje_aprobacion }}%</p>
+                </div>
+                <a href="{{ url_for('formacion.tomar_examen', examen_id=examen.id) }}"
+                    class="btn-primary text-sm px-4 py-2">
+                    Presentar Examen
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

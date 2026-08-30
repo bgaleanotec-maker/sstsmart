@@ -1,9 +1,10 @@
 # app/models/riesgo.py - REEMPLAZA TODO CON ESTO:
 
 from app import db
+from app.tenancy import TenantMixin
 from datetime import datetime
 
-class RiesgoMatriz(db.Model):
+class RiesgoMatriz(TenantMixin, db.Model):
     __tablename__ = 'riesgo_matriz'
     id = db.Column(db.Integer, primary_key=True)
     nombre_riesgo = db.Column(db.String(150), nullable=False)
@@ -11,7 +12,6 @@ class RiesgoMatriz(db.Model):
     probabilidad = db.Column(db.Integer)
     severidad = db.Column(db.Integer)
     clasificacion = db.Column(db.Integer)
-    empresa_id = db.Column(db.Integer)
     activo = db.Column(db.Boolean, default=True)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
     
