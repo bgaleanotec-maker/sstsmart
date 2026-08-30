@@ -6,6 +6,13 @@ en producción). Nunca incrustar claves en el código: este archivo va a git.
 import os
 
 
+def _db_url(url):
+    """Render/Heroku entregan postgres:// pero SQLAlchemy 2 exige postgresql://."""
+    if url and url.startswith('postgres://'):
+        return url.replace('postgres://', 'postgresql://', 1)
+    return url
+
+
 class BaseConfig:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-change-in-prod')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY') or SECRET_KEY
@@ -30,12 +37,12 @@ class BaseConfig:
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///sst.db')
+    SQLALCHEMY_DATABASE_URI = _db_url(os.getenv('DATABASE_URL', 'sqlite:///sst.db'))
 
 
 class ProductionConfig(BaseConfig):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', '')
+    SQLALCHEMY_DATABASE_URI = _db_url(os.getenv('DATABASE_URL', ''))
 
     @classmethod
     def validar(cls):
