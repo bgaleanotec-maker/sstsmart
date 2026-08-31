@@ -59,7 +59,7 @@
             c.closest('label').classList.toggle('border-blue-500/60', c.checked);
             c.closest('label').classList.toggle('opacity-80', !c.checked);
         });
-        var d = n >= 7 ? 0.20 : n >= 5 ? 0.15 : n >= 3 ? 0.10 : 0;
+        var d = n >= 8 ? 0.20 : n >= 5 ? 0.15 : n >= 3 ? 0.10 : 0;
         document.getElementById('res-n').textContent = n;
         document.getElementById('res-sub').textContent = fmt(sub);
         document.getElementById('res-desc').textContent = Math.round(d * 100) + '%';

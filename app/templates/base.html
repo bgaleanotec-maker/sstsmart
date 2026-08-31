@@ -89,6 +89,14 @@
                 <a href="{{ url_for('autoevaluacion.lista') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Autoevaluación</a>
                 {% endif %}
+                {% if 'sgsst' in modulos_activos %}
+                <a href="{{ url_for('sgsst.panel') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">SG-SST</a>
+                {% endif %}
+                {% if 'epp' in modulos_activos %}
+                <a href="{{ url_for('epp.kardex') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">EPP</a>
+                {% endif %}
                 {% if 'matriz_legal' in modulos_activos %}
                 <a href="{{ url_for('matriz_legal.dashboard') }}"
                     class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Matriz legal</a>

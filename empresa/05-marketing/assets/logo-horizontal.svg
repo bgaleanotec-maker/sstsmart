@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1808 512" width="1808" height="512">
+<g><rect x="0" y="0" width="512" height="512" rx="120.3" ry="120.3" fill="#103C57"/>
+  <path d="M 187.74 384.39 A 145.41 145.41 0 1 1 324.26 384.39"
+        fill="none" stroke="#16A97C" stroke-width="31.74" stroke-linecap="round"/>
+  <path d="M 179.20 267.26 L 235.52 323.58 L 340.48 195.58"
+        fill="none" stroke="#FFFFFF" stroke-width="42.24" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="645.1" y="350.7" font-family="Inter, Poppins, Helvetica, Arial, sans-serif" font-weight="800" font-size="327.7" fill="#103C57" letter-spacing="-6.6">cumplia</text>
+  <circle cx="1726.5" cy="340.5" r="32.8" fill="#16A97C"/>
+</svg>

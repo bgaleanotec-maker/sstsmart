@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Plan anual {{ anio }} · Justrabajo{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <h1 class="text-2xl font-bold text-white">Plan anual de trabajo {{ anio }}</h1>
+        <div class="flex gap-2">
+            {% for a in [anio_actual - 1, anio_actual, anio_actual + 1] %}
+            <a href="{{ url_for('sgsst.plan', anio=a) }}"
+               class="px-3 py-1.5 rounded-lg text-sm {{ 'bg-blue-600 text-white' if a == anio else 'text-slate-400 hover:text-white border border-slate-700' }}">{{ a }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <p class="text-slate-400 text-sm mb-6">Objetivos, metas, responsables, recursos y cronograma firmado (art. 2.2.4.6.17). {{ ejecutadas }}/{{ actividades|length }} ejecutadas.</p>
+
+    <form method="POST" class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 mb-8 grid md:grid-cols-6 gap-3 items-end">
+        <input type="hidden" name="anio" value="{{ anio }}">
+        <div class="md:col-span-2">
+            <label class="block text-xs text-slate-400 mb-1">Objetivo</label>
+            <input name="objetivo" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-xs text-slate-400 mb-1">Actividad</label>
+            <input name="actividad" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+        </div>
+        <div>
+            <label class="block text-xs text-slate-400 mb-1">Responsable</label>
+            <select name="responsable_id" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-white text-sm">
+                <option value="">—</option>
+                {% for u in usuarios %}<option value="{{ u.id }}">{{ u.nombre_completo }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs text-slate-400 mb-1">Fecha programada</label>
+            <input type="date" name="fecha_programada" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-white text-sm">
+        </div>
+        <button class="md:col-span-6 justify-self-end bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2 rounded-lg">
+            <i class="fa-solid fa-plus mr-1"></i>Agregar actividad
+        </button>
+    </form>
+
+    <div class="bg-slate-800/60 border border-slate-700 rounded-xl overflow-x-auto">
+        <table class="w-full text-sm min-w-[760px]">
+            <thead><tr class="text-left text-slate-400 border-b border-slate-700">
+                <th class="px-4 py-3">Objetivo</th><th class="px-4 py-3">Actividad</th>
+                <th class="px-4 py-3">Responsable</th><th class="px-4 py-3">Programada</th>
+                <th class="px-4 py-3">Estado</th><th class="px-4 py-3"></th>
+            </tr></thead>
+            <tbody>
+            {% for a in actividades %}
+            <tr class="border-b border-slate-800 {{ 'bg-red-500/5' if a.vencida }}">
+                <td class="px-4 py-3 text-slate-300 max-w-[200px]">{{ a.objetivo }}</td>
+                <td class="px-4 py-3 text-white max-w-[240px]">{{ a.actividad }}</td>
+                <td class="px-4 py-3 text-slate-300">{{ a.responsable.nombre_completo if a.responsable else '—' }}</td>
+                <td class="px-4 py-3 {{ 'text-red-400 font-semibold' if a.vencida else 'text-slate-300' }}">
+                    {{ a.fecha_programada.strftime('%d/%m/%Y') if a.fecha_programada else '—' }}
+                    {% if a.vencida %}<i class="fa-solid fa-triangle-exclamation ml-1"></i>{% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    <select form="act-{{ a.id }}" name="estado" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs
+                        {% if a.estado == 'Ejecutada' %}text-emerald-300{% elif a.estado == 'En_Ejecucion' %}text-amber-300{% else %}text-slate-300{% endif %}">
+                        {% for e in ['Programada','En_Ejecucion','Ejecutada'] %}
+                        <option value="{{ e }}" {% if a.estado == e %}selected{% endif %}>{{ e.replace('_',' ') }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="px-4 py-3"><button form="act-{{ a.id }}" class="text-blue-400 hover:text-blue-300 text-xs font-semibold">Guardar</button></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">Sin actividades para {{ anio }}. El plan anual firmado es un estándar exigible (2.4.1).</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% for a in actividades %}
+    <form id="act-{{ a.id }}" method="POST" action="{{ url_for('sgsst.plan_estado', id=a.id) }}"></form>
+    {% endfor %}
+</div>
+{% endblock %}

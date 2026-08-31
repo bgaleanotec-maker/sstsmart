@@ -26,6 +26,20 @@ def main():
 
         db.create_all()
 
+        # Mini-migraciones aditivas: create_all no altera tablas existentes.
+        # (Hasta que Alembic esté formalizado, las columnas nuevas van aquí.)
+        columnas_nuevas = [
+            ("empresas", "unidad_agropecuaria", "BOOLEAN DEFAULT FALSE"),
+        ]
+        for tabla, col, tipo in columnas_nuevas:
+            try:
+                db.session.execute(text(
+                    f"ALTER TABLE {tabla} ADD COLUMN {col} {tipo}"))
+                db.session.commit()
+                print(f"Columna añadida: {tabla}.{col}")
+            except Exception:
+                db.session.rollback()  # ya existe
+
         # Empresa 1 (tenant por defecto para datos históricos)
         empresa = Empresa.query.first()
         if not empresa:
@@ -53,6 +67,7 @@ def main():
             'riesgo_matriz', 'controles', 'requisitos_legales',
             'consultas_juridicas', 'cursos', 'gestion_reportes',
             'autoevaluaciones', 'acciones_mejora', 'empresa_modulos',
+            'politicas_sst', 'plan_trabajo_actividades', 'entregas_epp',
         ]
         for tabla in tablas_tenant:
             try:

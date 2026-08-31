@@ -22,6 +22,9 @@ class Empresa(db.Model):
     regimen_estandares = db.Column(db.SmallInteger)           # 7 | 21 | 60 (derivado)
     num_vehiculos = db.Column(db.Integer, default=0)          # disparadores upsell PESV
     num_conductores = db.Column(db.Integer, default=0)
+    # Res. 0312/2019 art. 3 num. 8: las unidades de producción agropecuaria de
+    # <10 trabajadores riesgo I-III cumplen 21 estándares, NO 7
+    unidad_agropecuaria = db.Column(db.Boolean, default=False)
 
     plan = db.Column(db.String(30), default='beta')
     estado = db.Column(db.String(20), default='activa')
@@ -31,12 +34,13 @@ class Empresa(db.Model):
         """Régimen de estándares mínimos según Res. 0312/2019 (arts. 3, 9, 16):
         7  → ≤10 trabajadores y riesgo I-III
         21 → 11-50 trabajadores y riesgo I-III
+        21 → unidad agropecuaria de ≤10 trabajadores riesgo I-III (art. 3 num. 8)
         60 → >50 trabajadores o riesgo IV-V (cualquier tamaño)
         """
         if (self.clase_riesgo or 1) >= 4:
             self.regimen_estandares = 60
         elif (self.num_trabajadores or 1) <= 10:
-            self.regimen_estandares = 7
+            self.regimen_estandares = 21 if self.unidad_agropecuaria else 7
         elif self.num_trabajadores <= 50:
             self.regimen_estandares = 21
         else:

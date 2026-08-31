@@ -32,6 +32,7 @@ from .formacion import Curso, Examen, Pregunta, Opcion, IntentoExamen, ProgresoF
 from .notificacion import Notificacion
 from .autoevaluacion import Autoevaluacion, RespuestaAutoevaluacion, AccionMejora
 from .suscripcion import EmpresaModulo
+from .sgsst import PoliticaSST, PlanTrabajoActividad, EntregaEPP
 from .matriz_legal import RequisitoLegal, ValoracionJuridica, EvidenciaLegal, LogMatrizLegal
 
 __all__ = [
@@ -47,5 +48,6 @@ __all__ = [
     'Curso', 'Examen', 'Pregunta', 'Opcion', 'IntentoExamen', 'ProgresoFormacion',
     'Notificacion',
     'RequisitoLegal', 'ValoracionJuridica', 'EvidenciaLegal', 'LogMatrizLegal',
-    'Autoevaluacion', 'RespuestaAutoevaluacion', 'AccionMejora', 'EmpresaModulo'
+    'Autoevaluacion', 'RespuestaAutoevaluacion', 'AccionMejora', 'EmpresaModulo',
+    'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP'
 ]

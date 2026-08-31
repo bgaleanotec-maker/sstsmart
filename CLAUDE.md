@@ -1,7 +1,20 @@
-# SST Smart — notas para Claude
+# Justrabajo — notas para Claude
 
 App Flask (monolito modular) de gestión SG-SST para pymes colombianas.
-Python del proyecto: `venv/Scripts/python.exe` (Windows).
+Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
+`venv/Scripts/python.exe` (Windows).
+
+## Módulos SaaS (catálogo con precios)
+- Catálogo en `app/data/modulos.py` (9 módulos); contratación por empresa en
+  `EmpresaModulo` (precio pactado opcional); gating por blueprint en
+  `app/modulos.py`. Un blueprint comercial nuevo → entrada en el catálogo.
+- Guía estratégica de referencia (30 módulos, jurisprudencia culpa patronal,
+  modelo de negocio): `C:\Users\bgale\Downloads\Guia-SST-360deg-Colombia-ampliada.docx.md`.
+- Régimen Res. 0312: OJO art. 3 num. 8 — unidad agropecuaria ≤10 trabajadores
+  riesgo I-III cumple 21 estándares (campo `Empresa.unidad_agropecuaria`).
+- `scripts/init_prod_db.py` tiene una sección de "mini-migraciones aditivas"
+  (ALTER TABLE) porque create_all no altera tablas existentes: columna nueva
+  en tabla existente → añadirla ahí hasta formalizar Alembic.
 
 ## Reglas duras
 - Roles: usar SIEMPRE `current_user.tiene_rol(...)` + constantes de

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Indicadores SST {{ anio }} · Justrabajo{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <h1 class="text-2xl font-bold text-white">Indicadores mínimos {{ anio }}</h1>
+        <div class="flex gap-2">
+            {% for a in [anio_actual - 2, anio_actual - 1, anio_actual] %}
+            <a href="{{ url_for('sgsst.indicadores', anio=a) }}"
+               class="px-3 py-1.5 rounded-lg text-sm {{ 'bg-blue-600 text-white' if a == anio else 'text-slate-400 hover:text-white border border-slate-700' }}">{{ a }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <p class="text-slate-400 text-sm mb-8">Res. 0312/2019 art. 30 — calculados desde los eventos registrados en la plataforma ({{ ind.num_at }} AT, {{ ind.num_el }} EL, {{ ind.dias_incapacidad }} días de incapacidad, {{ ind.n_trabajadores }} trabajadores).</p>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <p class="text-slate-400 text-sm">Frecuencia de accidentalidad</p>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ ind.frecuencia if ind.frecuencia is not none else '—' }}</p>
+            <p class="text-xs text-slate-500 mt-1">(# AT / # trabajadores) × 100</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <p class="text-slate-400 text-sm">Severidad de accidentalidad</p>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ ind.severidad if ind.severidad is not none else '—' }}</p>
+            <p class="text-xs text-slate-500 mt-1">(# días de incapacidad / # trabajadores) × 100</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <p class="text-slate-400 text-sm">Mortalidad proporcional AT</p>
+            <p class="text-4xl font-extrabold {{ 'text-red-400' if ind.num_mortales else 'text-white' }} mt-2">{{ ind.mortalidad }}%</p>
+            <p class="text-xs text-slate-500 mt-1">(# AT mortales / # AT) × 100</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <p class="text-slate-400 text-sm">Prevalencia de enfermedad laboral</p>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ ind.prevalencia_el if ind.prevalencia_el is not none else '—' }}</p>
+            <p class="text-xs text-slate-500 mt-1">(# casos EL / # trabajadores) × 100.000</p>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <p class="text-slate-400 text-sm">Ausentismo por causa médica</p>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ (ind.ausentismo ~ '%') if ind.ausentismo is not none else '—' }}</p>
+            <p class="text-xs text-slate-500 mt-1">días de ausencia / días programados × 100 (aprox. 300 días/año por trabajador)</p>
+        </div>
+        <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6 text-sm text-blue-100">
+            <i class="fa-solid fa-circle-info mr-1"></i>
+            Los indicadores se calculan con los eventos que registres (tipo "Accidente"/"AT" o "Enfermedad"/"EL" y sus días de incapacidad). La medición mínima es anual; frecuencia, severidad y ausentismo se recomiendan mensuales.
+        </div>
+    </div>
+</div>
+{% endblock %}

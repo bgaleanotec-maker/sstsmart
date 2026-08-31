@@ -56,6 +56,7 @@ def perfil_empresa():
         empresa.ciiu = request.form.get('ciiu')
         empresa.num_trabajadores = int(request.form.get('num_trabajadores') or 1)
         empresa.clase_riesgo = int(request.form.get('clase_riesgo') or 1)
+        empresa.unidad_agropecuaria = request.form.get('unidad_agropecuaria') == 'on'
         empresa.calcular_regimen()
         db.session.flush()
         if not current_user.empresa_id:

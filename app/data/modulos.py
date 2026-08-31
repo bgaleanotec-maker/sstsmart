@@ -14,6 +14,20 @@ controles) = $540.000 − 10% = $486.000/mes ≈ el "4 módulos ~ $500 mil".
 
 # codigo: (nombre, precio_lista_mensual, blueprint, icono FontAwesome, descripcion corta)
 MODULOS = {
+    'sgsst': {
+        'nombre': 'Política y plan de trabajo',
+        'precio': 130_000,
+        'blueprint': 'sgsst',
+        'icono': 'fa-file-signature',
+        'descripcion': 'Política SST versionada y firmada, plan anual con semáforo e indicadores del art. 30.',
+    },
+    'epp': {
+        'nombre': 'EPP y dotación',
+        'precio': 100_000,
+        'blueprint': 'epp',
+        'icono': 'fa-helmet-safety',
+        'descripcion': 'Kardex de entregas con constancia, certificaciones y alertas de reposición: tu prueba de defensa.',
+    },
     'autoevaluacion': {
         'nombre': 'Autoevaluación 0312',
         'precio': 150_000,
@@ -70,7 +84,7 @@ BLUEPRINT_A_MODULO = {v['blueprint']: k for k, v in MODULOS.items()}
 
 
 def descuento_por_volumen(n_modulos):
-    if n_modulos >= 7:
+    if n_modulos >= 8:
         return 0.20
     if n_modulos >= 5:
         return 0.15

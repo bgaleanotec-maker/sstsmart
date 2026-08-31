@@ -69,9 +69,11 @@ def create_app(config='development'):
             juridico_bp, admin_bp, controles_bp, formacion_bp, matriz_legal_bp
         )
         from app.routes.autoevaluacion import autoevaluacion_bp
+        from app.routes.sgsst import sgsst_bp
+        from app.routes.epp import epp_bp
         for bp in (auth_bp, dashboard_bp, reportes_bp, ia_bp, juridico_bp,
                    admin_bp, controles_bp, formacion_bp, matriz_legal_bp,
-                   autoevaluacion_bp):
+                   autoevaluacion_bp, sgsst_bp, epp_bp):
             app.register_blueprint(bp)
 
         @app.route('/')

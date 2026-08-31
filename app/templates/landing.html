@@ -64,6 +64,7 @@
             <div class="hidden md:flex items-center gap-7 text-sm text-slate-300">
                 <a href="#modulos" class="hover:text-white">Módulos</a>
                 <a href="#plan" class="hover:text-white">Arma tu plan</a>
+                <a href="#sanciones" class="hover:text-white">Simulador de multas</a>
                 <a href="#porque" class="hover:text-white">Por qué</a>
             </div>
             <div class="flex items-center gap-3">
@@ -137,7 +138,7 @@
     <!-- MÓDULOS -->
     <section id="modulos" class="border-y border-white/5 bg-slate-900/30">
         <div class="max-w-6xl mx-auto px-5 py-20">
-            <h2 class="display text-3xl md:text-4xl font-extrabold text-white text-center">Siete módulos. Pagas solo los que usas.</h2>
+            <h2 class="display text-3xl md:text-4xl font-extrabold text-white text-center">Nueve módulos. Pagas solo los que usas.</h2>
             <p class="text-slate-400 text-center mt-3">Sin planes rígidos: tu empresa contrata lo que su SG-SST necesita hoy y crece cuando quiera.</p>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
                 {% for codigo, m in MODULOS.items() %}
@@ -199,6 +200,47 @@
         </div>
     </section>
 
+    <!-- SIMULADOR DE SANCIONES -->
+    <section id="sanciones" class="border-t border-white/5">
+        <div class="max-w-4xl mx-auto px-5 py-20">
+            <h2 class="display text-3xl md:text-4xl font-extrabold text-white text-center" style="text-wrap: balance;">¿Cuánto te costaría incumplir?</h2>
+            <p class="text-slate-400 text-center mt-3 max-w-2xl mx-auto">Multas del Decreto 1072/2015 (cap. 2.2.4.11) según el tamaño de tu empresa — y eso sin contar la indemnización plena por culpa patronal del art. 216 del CST, que en casos graves supera los $500 millones.</p>
+
+            <div class="card rounded-3xl p-6 md:p-8 mt-9">
+                <div class="grid sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Tamaño de tu empresa</label>
+                        <select id="s-tam" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white">
+                            <option value="micro">Microempresa (≤10 trabajadores)</option>
+                            <option value="pequena" selected>Pequeña (11–50)</option>
+                            <option value="mediana">Mediana (51–200)</option>
+                            <option value="grande">Grande (201+)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Escenario</label>
+                        <select id="s-tipo" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white">
+                            <option value="normas" selected>Incumplir normas de SST</option>
+                            <option value="reporte">No reportar un accidente grave o mortal</option>
+                            <option value="mortal">Accidente mortal por incumplimiento</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-7 pt-6 border-t border-white/10 flex flex-wrap items-end justify-between gap-6">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Multa estimada (SMMLV 2026: $1.750.905)</p>
+                        <p class="display text-3xl md:text-4xl font-black text-red-400 mt-1" id="s-multa">—</p>
+                        <p class="text-xs text-slate-500 mt-1" id="s-extra"></p>
+                    </div>
+                    <a href="#plan" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors">
+                        Prevenir cuesta menos <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <p class="text-center text-xs text-slate-600 mt-4">Estimación orientativa con los rangos del régimen sancionatorio; la graduación concreta la hace el inspector. No constituye asesoría jurídica.</p>
+        </div>
+    </section>
+
     <!-- POR QUÉ -->
     <section id="porque" class="border-y border-white/5 bg-slate-900/30">
         <div class="max-w-6xl mx-auto px-5 py-20">
@@ -257,7 +299,7 @@
             var checks = document.querySelectorAll('.calc-mod:checked');
             var sub = 0; checks.forEach(function (c) { sub += parseInt(c.value); });
             var n = checks.length;
-            var d = n >= 7 ? 0.20 : n >= 5 ? 0.15 : n >= 3 ? 0.10 : 0;
+            var d = n >= 8 ? 0.20 : n >= 5 ? 0.15 : n >= 3 ? 0.10 : 0;
             document.getElementById('c-sub').textContent = fmt(sub);
             document.getElementById('c-desc').textContent = Math.round(d * 100) + '%';
             var total = Math.round(sub * (1 - d));
@@ -270,6 +312,30 @@
         }
         document.querySelectorAll('.calc-mod').forEach(function (c) { c.addEventListener('change', calc); });
         calc();
+
+        // Simulador de sanciones (Decreto 1072/2015 cap. 2.2.4.11, en SMMLV)
+        var SMMLV = 1750905;
+        var RANGOS = {
+            micro:   { normas: [1, 5],    reporte: [1, 20],    mortal: [20, 24] },
+            pequena: { normas: [6, 20],   reporte: [21, 50],   mortal: [25, 150] },
+            mediana: { normas: [21, 100], reporte: [51, 100],  mortal: [151, 400] },
+            grande:  { normas: [101, 500], reporte: [101, 1000], mortal: [401, 1000] }
+        };
+        function fmtCop(n) {
+            if (n >= 1e9) return '$' + (n / 1e9).toFixed(1).replace('.', ',') + ' mil millones';
+            return '$' + Math.round(n / 1e6) + ' millones';
+        }
+        function simular() {
+            var r = RANGOS[document.getElementById('s-tam').value][document.getElementById('s-tipo').value];
+            document.getElementById('s-multa').textContent = fmtCop(r[0] * SMMLV) + ' — ' + fmtCop(r[1] * SMMLV);
+            var tipo = document.getElementById('s-tipo').value;
+            document.getElementById('s-extra').textContent = tipo === 'mortal'
+                ? 'Más cierre temporal o definitivo, y la indemnización plena del art. 216 CST a la familia (condenas típicas de $600 a $1.500 millones).'
+                : 'Más la eventual indemnización plena por culpa patronal (art. 216 CST) si hay un accidente asociado.';
+        }
+        document.getElementById('s-tam').addEventListener('change', simular);
+        document.getElementById('s-tipo').addEventListener('change', simular);
+        simular();
 
         // Reveal on scroll (con fallback por rect: funciona aunque el
         // IntersectionObserver esté throttled en pestañas en segundo plano)

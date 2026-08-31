@@ -70,6 +70,8 @@
     <h2 class="text-lg font-bold text-white mb-4">Tus módulos</h2>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {% set destinos = {
+            'sgsst': url_for('sgsst.panel'),
+            'epp': url_for('epp.kardex'),
             'autoevaluacion': url_for('autoevaluacion.lista'),
             'reportes': url_for('reportes.nuevo'),
             'matriz_legal': url_for('matriz_legal.dashboard'),
@@ -78,6 +80,8 @@
             'juridico': url_for('juridico.listar'),
         } %}
         {% set acciones_mod = {
+            'sgsst': 'Política, plan anual e indicadores',
+            'epp': 'Registrar entregas de EPP y dotación',
             'autoevaluacion': 'Diligenciar la vigencia actual',
             'reportes': 'Reportar una condición insegura',
             'matriz_legal': 'Revisar cumplimiento normativo',

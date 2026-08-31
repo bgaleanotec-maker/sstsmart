@@ -43,7 +43,8 @@ def _fabricas():
     from app.models import (Usuario, Empleado, CondicionInsegura, Evento,
                             RiesgoMatriz, Control, RequisitoLegal,
                             ConsultaJuridica, Curso, GestionReporte,
-                            Autoevaluacion, AccionMejora, EmpresaModulo)
+                            Autoevaluacion, AccionMejora, EmpresaModulo,
+                            PoliticaSST, PlanTrabajoActividad, EntregaEPP)
 
     def usuario(i):
         u = Usuario(email=f'u{i}@t.local', nombre_completo=f'U{i}', rol='Empleado')
@@ -86,12 +87,16 @@ def _fabricas():
             autoevaluacion=Autoevaluacion(anio=2025, regimen=7),
             item_codigo='1.1.1', descripcion='d'),
         'EmpresaModulo': lambda i: EmpresaModulo(modulo=f'mod{i}'),
+        'PoliticaSST': lambda i: PoliticaSST(anio=2020 + int(str(i)[-1] or 0), contenido='p'),
+        'PlanTrabajoActividad': lambda i: PlanTrabajoActividad(anio=2026, objetivo='o', actividad='a'),
+        'EntregaEPP': lambda i: EntregaEPP(trabajador=usuario(f'epp{i}'), elemento='Casco'),
     }
 
 
 MODELOS = ['Usuario', 'Empleado', 'CondicionInsegura', 'Evento', 'RiesgoMatriz',
            'Control', 'RequisitoLegal', 'ConsultaJuridica', 'Curso',
-           'GestionReporte', 'Autoevaluacion', 'AccionMejora', 'EmpresaModulo']
+           'GestionReporte', 'Autoevaluacion', 'AccionMejora', 'EmpresaModulo',
+           'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP']
 
 
 @pytest.mark.parametrize('nombre', MODELOS)

@@ -200,6 +200,55 @@ REQUISITOS = [
      "Formulario Único de Afiliación y Reporte de Novedades al Sistema General "
      "de Riesgos Laborales. [Verificación parcial: confirmar alcance.]",
      "Ministerio del Trabajo", 2024),
+
+    # ---------- Sistema de riesgos: fundamentos y prestaciones ----------
+    ("Decreto-Ley 1295 de 1994", "Toda la norma",
+     "Organización y administración del Sistema General de Riesgos Laborales. "
+     "Su art. 91 (mod. Ley 1562/2012) es la fuente del régimen sancionatorio: "
+     "multas hasta 500 SMLMV por incumplir normas SST y hasta 1.000 SMLMV por "
+     "no reportar AT grave/mortal o por muerte del trabajador.",
+     "Presidencia de la República", 1994),
+
+    ("Ley 776 de 2002", "Toda la norma",
+     "Prestaciones económicas y asistenciales del Sistema General de Riesgos "
+     "Laborales: incapacidad temporal, incapacidad permanente parcial, pensión "
+     "de invalidez y de sobrevivientes de origen laboral.",
+     "Congreso de la República", 2002),
+
+    ("Decreto 1477 de 2014", "Toda la norma",
+     "Tabla de Enfermedades Laborales (base para la calificación de origen). "
+     "Clave en reclasificación de origen común→laboral de patologías como "
+     "túnel del carpo, lumbalgias, hipoacusia y trastornos por riesgo "
+     "psicosocial.",
+     "Ministerio del Trabajo", 2014),
+
+    ("Código Sustantivo del Trabajo", "Arts. 56, 57, 216 y 34",
+     "Deberes de protección y seguridad del empleador (56-57); indemnización "
+     "plena y ordinaria de perjuicios por culpa patronal comprobada en AT/EL "
+     "(216, jurisprudencia SL2040-2023, SL5154-2020: la carga de probar "
+     "diligencia puede invertirse contra el empleador); responsabilidad "
+     "solidaria del contratante frente a trabajadores de contratistas (34).",
+     "Congreso de la República", 1950),
+
+    # ---------- Novedades 2025-2026 de la guía estratégica ----------
+    ("Resolución 1890 de 2025", "Toda la norma",
+     "Lineamientos generales de implementación del SG-SST. [Verificación "
+     "parcial: confirmar alcance frente a la Res. 0312/2019.]",
+     "Ministerio del Trabajo", 2025),
+
+    ("Ley 2452 de 2025", "Toda la norma",
+     "Nuevo Código Procesal del Trabajo y de la Seguridad Social (vigente "
+     "desde el 2-abr-2026): conciliación previa obligatoria, doble instancia "
+     "universal, sentencia anticipada y medidas cautelares. Eleva el valor "
+     "probatorio de la documentación digital del SG-SST en litigio.",
+     "Congreso de la República", 2025),
+
+    ("Ley 2356 de 2024", "Toda la norma",
+     "Prevención y atención integral de la violencia y el acoso en el mundo "
+     "del trabajo (armonización con el Convenio 190 OIT). Se articula con la "
+     "Ley 1010/2006 y el Comité de Convivencia (Res. 3461/2025). "
+     "[Verificación parcial: confirmar número y alcance en fuente oficial.]",
+     "Congreso de la República", 2024),
 ]
 
 

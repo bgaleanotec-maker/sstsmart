@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Política SST {{ politica.anio }} — {{ empresa.razon_social if empresa }}</title>
+    <style>
+        body { font-family: Georgia, 'Times New Roman', serif; color: #111; max-width: 720px;
+               margin: 40px auto; line-height: 1.7; padding: 0 24px; background: #fff; }
+        h1 { font-size: 20px; text-align: center; text-transform: uppercase; letter-spacing: .05em; }
+        .meta { text-align: center; color: #555; font-size: 13px; margin-bottom: 32px; }
+        pre { white-space: pre-wrap; font-family: inherit; font-size: 15px; }
+        .firma { margin-top: 70px; }
+        .linea { border-top: 1px solid #111; width: 300px; padding-top: 6px; font-size: 14px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <p class="no-print" style="text-align:right"><button onclick="window.print()">Imprimir / PDF</button></p>
+    <h1>{{ empresa.razon_social if empresa else '' }}</h1>
+    <p class="meta">NIT {{ empresa.nit if empresa else '' }} · Política de Seguridad y Salud en el Trabajo · Vigencia {{ politica.anio }} · Versión {{ politica.version }}</p>
+    <pre>{{ politica.contenido }}</pre>
+    <div class="firma">
+        <p class="linea">{{ politica.firmada_por or '________________________' }}<br>
+        {{ politica.cargo_firmante or 'Representante Legal' }}<br>
+        {% if politica.fecha_firma %}Fecha: {{ politica.fecha_firma.strftime('%d/%m/%Y') }}{% else %}Fecha: ______________{% endif %}</p>
+    </div>
+</body>
+</html>
