@@ -47,5 +47,26 @@ class Empresa(db.Model):
             self.regimen_estandares = 60
         return self.regimen_estandares
 
+    @property
+    def ultima_actualizacion(self):
+        """Fecha más reciente entre la autoevaluación, los reportes y los
+        requisitos legales (propiedad calculada, sin columna nueva)."""
+        from app import db
+        from app.models.autoevaluacion import Autoevaluacion
+        from app.models.condicion_insegura import CondicionInsegura
+        from app.models.matriz_legal import RequisitoLegal
+        fechas = [
+            db.session.query(db.func.max(Autoevaluacion.fecha_creacion))
+              .filter(Autoevaluacion.empresa_id == self.id).scalar(),
+            db.session.query(db.func.max(Autoevaluacion.fecha_cierre))
+              .filter(Autoevaluacion.empresa_id == self.id).scalar(),
+            db.session.query(db.func.max(CondicionInsegura.fecha_creacion))
+              .filter(CondicionInsegura.empresa_id == self.id).scalar(),
+            db.session.query(db.func.max(RequisitoLegal.fecha_actualizacion))
+              .filter(RequisitoLegal.empresa_id == self.id).scalar(),
+        ]
+        fechas = [f for f in fechas if f]
+        return max(fechas) if fechas else self.creada_en
+
     def __repr__(self):
         return f'<Empresa {self.nit} {self.razon_social}>'

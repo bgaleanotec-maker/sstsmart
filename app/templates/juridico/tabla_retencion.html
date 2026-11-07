@@ -2,17 +2,17 @@
 
 {% block content %}
 <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">📋 Tabla de Retención Documental</h1>
+    <h1 class="text-3xl font-bold mb-6"> Tabla de Retención Documental</h1>
     
-    <div class="bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
+    <div class="bg-amarillo-suave border border-amarillo rounded p-4 mb-6">
         <p class="text-sm">
-            <strong>ℹ️ Información:</strong> Esta tabla define cuánto tiempo se conservan los documentos 
+            <strong>ℹ Información:</strong> Esta tabla define cuánto tiempo se conservan los documentos 
             según el Decreto 1072/2015 Art 2.2.3.1. Los documentos se destruyen automáticamente al vencer.
         </p>
     </div>
     
     <!-- Tabla de Retención -->
-    <div class="bg-white rounded shadow overflow-hidden">
+    <div class="bg-superficie rounded overflow-hidden">
         <table class="w-full">
             <thead class="bg-gray-100 border-b">
                 <tr>
@@ -37,25 +37,25 @@
                         {{ tabla.descripcion or '-' }}
                     </td>
                     <td class="px-6 py-3 text-sm">
-                        <span class="px-3 py-1 rounded bg-blue-100 text-blue-800 font-semibold">
+                        <span class="px-3 py-1 rounded bg-azul-suave text-azul font-semibold">
                             {{ tabla.tiempo_retencion_anos }} años
                         </span>
                     </td>
                     <td class="px-6 py-3 text-sm">
                         {% if tabla.disposicion_final == 'Destrucción' %}
-                        <span class="px-3 py-1 rounded bg-red-100 text-red-800 text-xs font-semibold">
-                            🗑️ Destrucción
+                        <span class="px-3 py-1 rounded bg-rojo text-rojo text-xs font-semibold">
+                             Destrucción
                         </span>
                         {% else %}
-                        <span class="px-3 py-1 rounded bg-green-100 text-green-800 text-xs font-semibold">
-                            📚 Conservación Permanente
+                        <span class="px-3 py-1 rounded bg-verde text-verde text-xs font-semibold">
+                             Conservación Permanente
                         </span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-3 text-sm">
                         {% if tabla.normativa_aplicable %}
                         <details class="cursor-pointer">
-                            <summary class="text-blue-600 hover:underline">Ver</summary>
+                            <summary class="text-azul hover:underline">Ver</summary>
                             <div class="mt-2 p-2 bg-gray-100 rounded text-xs">
                                 {% for norma in tabla.normativa_aplicable %}
                                 <p>• {{ norma }}</p>
@@ -74,16 +74,16 @@
     
     <!-- Leyenda -->
     <div class="grid grid-cols-2 gap-6 mt-8">
-        <div class="bg-blue-50 p-6 rounded">
-            <h3 class="font-bold mb-3">📚 Conservación Permanente</h3>
+        <div class="bg-azul-suave p-6 rounded">
+            <h3 class="font-bold mb-3"> Conservación Permanente</h3>
             <p class="text-sm text-gray-700">
                 Documentos que se conservan indefinidamente por su importancia histórica, 
                 legal o estratégica para la organización.
             </p>
         </div>
         
-        <div class="bg-red-50 p-6 rounded">
-            <h3 class="font-bold mb-3">🗑️ Destrucción Programada</h3>
+        <div class="bg-rojo p-6 rounded">
+            <h3 class="font-bold mb-3"> Destrucción Programada</h3>
             <p class="text-sm text-gray-700">
                 Documentos que se destruyen automáticamente después del período de retención 
                 especificado. La destrucción se registra en auditoría.
@@ -92,14 +92,14 @@
     </div>
     
     <!-- Información Adicional -->
-    <div class="bg-white rounded shadow p-6 mt-6">
-        <h2 class="text-xl font-bold mb-4">ℹ️ Información Importante</h2>
+    <div class="bg-superficie rounded p-6 mt-6">
+        <h2 class="text-xl font-bold mb-4">ℹ Información Importante</h2>
         <ul class="space-y-2 text-sm text-gray-700">
-            <li>✓ Los documentos se clasifican automáticamente según su tipo</li>
-            <li>✓ La fecha de destrucción se calcula automáticamente al crear el documento</li>
-            <li>✓ Antes de destruir, se envía notificación al Responsable de Confiabilidad</li>
-            <li>✓ Toda destrucción queda registrada en auditoría</li>
-            <li>✓ Los plazos cumplen con normativa SST Colombia 2025</li>
+            <li> Los documentos se clasifican automáticamente según su tipo</li>
+            <li> La fecha de destrucción se calcula automáticamente al crear el documento</li>
+            <li> Antes de destruir, se envía notificación al Responsable de Confiabilidad</li>
+            <li> Toda destrucción queda registrada en auditoría</li>
+            <li> Los plazos cumplen con normativa SST Colombia 2025</li>
         </ul>
     </div>
 </div>

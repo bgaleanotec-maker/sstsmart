@@ -64,6 +64,9 @@ def create_app(config='development'):
         from app.modulos import init_modulos
         init_modulos(app)
 
+        from app.ui import init_ui
+        init_ui(app)
+
         from app.routes import (
             auth_bp, dashboard_bp, reportes_bp, ia_bp,
             juridico_bp, admin_bp, controles_bp, formacion_bp, matriz_legal_bp

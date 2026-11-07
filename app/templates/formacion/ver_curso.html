@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="animate-fade-in pb-12">
+<div class="pb-12">
 
     <!-- Player Section (Full Width / Theatre Mode) -->
     <div class="bg-black w-full relative">
         <div class="max-w-7xl mx-auto">
             <!-- Back Button -->
             <a href="{{ url_for('formacion.catalogo') }}"
-                class="absolute top-4 left-4 z-20 px-4 py-2 bg-black/50 backdrop-blur text-white rounded-full hover:bg-white/20 transition-all text-sm font-bold flex items-center gap-2">
+                class="absolute top-4 left-4 z-20 px-4 py-2 bg-fondo text-grafito-900 rounded-full hover:bg-fondo transition-all text-sm font-bold flex items-center gap-2">
                 <i class="fas fa-arrow-left"></i> Volver al Catálogo
             </a>
 
@@ -16,7 +16,7 @@
             <!-- Use optimized height for PDF, aspect-ratio for Video -->
             <div
                 class="w-full bg-black flex items-center justify-center relative overflow-hidden group 
-                {{ 'h-[85vh]' if curso.tipo_contenido == 'pdf' or (curso.pdf_url and not curso.video_url) else 'aspect-video' }}">
+ {{ 'h-[85vh]' if curso.tipo_contenido == 'pdf' or (curso.pdf_url and not curso.video_url) else 'aspect-video' }}">
 
                 {% if curso.tipo_contenido == 'video' and video_embed_url %}
                 <!-- VIDEO PLAYER (Universal) -->
@@ -35,7 +35,7 @@
 
                 {% elif curso.tipo_contenido == 'pdf' or (curso.pdf_url and not curso.video_url) %}
                 <!-- PDF VIEWER (Iframe) -->
-                <iframe src="{{ curso.pdf_url }}" width="100%" height="100%" class="bg-white">
+                <iframe src="{{ curso.pdf_url }}" width="100%" height="100%" class="bg-superficie">
                     <p>Tu navegador no tiene un plugin para PDF.
                         <a href="{{ curso.pdf_url }}">Descarga el archivo PDF.</a>
                     </p>
@@ -44,10 +44,10 @@
                 {% else %}
                 <!-- FALLBACK (HTML Content) -->
                 <div
-                    class="bg-slate-900 p-12 overflow-y-auto h-full w-full custom-scrollbar text-center flex flex-col items-center justify-center">
-                    <i class="fas fa-book-open text-6xl text-slate-700 mb-4"></i>
-                    <h2 class="text-2xl text-white font-bold">Material de Lectura</h2>
-                    <p class="text-slate-400">Revisa el contenido detallado abajo.</p>
+                    class="bg-fondo p-12 overflow-y-auto h-full w-full custom-scrollbar text-center flex flex-col items-center justify-center">
+                    <i class="fas fa-book-open text-6xl text-grafito-500 mb-4"></i>
+                    <h2 class="text-2xl text-grafito-900 font-bold">Material de Lectura</h2>
+                    <p class="text-grafito-500">Revisa el contenido detallado abajo.</p>
                 </div>
                 {% endif %}
             </div>
@@ -61,24 +61,24 @@
             <!-- Left: Description -->
             <div class="flex-1 space-y-6">
                 <div>
-                    <h1 class="text-3xl font-bold text-white mb-2">{{ curso.titulo }}</h1>
-                    <div class="flex items-center gap-4 text-sm text-slate-400 mb-4">
-                        <span class="px-2 py-0.5 border border-slate-600 rounded text-xs uppercase">{{ curso.categoria
+                    <h1 class="text-3xl font-bold text-grafito-900 mb-2">{{ curso.titulo }}</h1>
+                    <div class="flex items-center gap-4 text-sm text-grafito-500 mb-4">
+                        <span class="px-2 py-0.5 border border-linea rounded text-xs">{{ curso.categoria
                             }}</span>
                         <span>{{ curso.duracion_horas }}h Duración</span>
-                        <span class="flex items-center gap-1"><i class="fas fa-star text-yellow-500 text-xs"></i>
+                        <span class="flex items-center gap-1"><i class="fas fa-star text-amarillo-texto text-xs"></i>
                             5.0</span>
                     </div>
                 </div>
 
-                <div class="prose prose-invert max-w-none text-slate-300">
-                    <h3 class="text-white font-bold text-lg mb-2">Descripción</h3>
+                <div class="prose prose-invert max-w-none text-grafito-700">
+                    <h3 class="text-grafito-900 font-bold text-lg mb-2">Descripción</h3>
                     <p>{{ curso.descripcion }}</p>
 
                     {% if curso.contenido_html %}
-                    <div class="mt-8 pt-8 border-t border-white/10">
-                        <h3 class="text-white font-bold text-lg mb-4">Contenido del Curso</h3>
-                        <div class="bg-slate-900/50 p-6 rounded-lg">
+                    <div class="mt-8 pt-8 border-t border-linea">
+                        <h3 class="text-grafito-900 font-bold text-lg mb-4">Contenido del Curso</h3>
+                        <div class="bg-fondo p-6 rounded-lg">
                             {{ curso.contenido_html | safe }}
                         </div>
                     </div>
@@ -88,32 +88,32 @@
 
             <!-- Right: Action Card -->
             <div class="w-full md:w-80 shrink-0">
-                <div class="glass-card p-6 sticky top-24 space-y-6">
+                <div class="panel p-6 sticky top-24 space-y-6">
                     <div class="text-center">
-                        <h3 class="text-white font-bold text-lg mb-1">Evaluación Final</h3>
-                        <p class="text-xs text-slate-400">Completa la prueba para certificar este curso.</p>
+                        <h3 class="text-grafito-900 font-bold text-lg mb-1">Evaluación Final</h3>
+                        <p class="text-xs text-grafito-500">Completa la prueba para certificar este curso.</p>
                     </div>
 
                     {% if curso.examenes %}
                     {% for examen in curso.examenes %}
                     <div class="space-y-4">
-                        <div class="bg-slate-800/50 p-3 rounded flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Preguntas</span>
-                            <span class="text-white font-bold">{{ examen.preguntas|length }}</span>
+                        <div class="bg-superficie p-3 rounded flex justify-between items-center text-sm">
+                            <span class="text-grafito-500">Preguntas</span>
+                            <span class="text-grafito-900 font-bold">{{ examen.preguntas|length }}</span>
                         </div>
-                        <div class="bg-slate-800/50 p-3 rounded flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Aprobación</span>
-                            <span class="text-white font-bold">{{ examen.porcentaje_aprobacion }}%</span>
+                        <div class="bg-superficie p-3 rounded flex justify-between items-center text-sm">
+                            <span class="text-grafito-500">Aprobación</span>
+                            <span class="text-grafito-900 font-bold">{{ examen.porcentaje_aprobacion }}%</span>
                         </div>
 
                         <a href="{{ url_for('formacion.tomar_examen', examen_id=examen.id) }}"
-                            class="block w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-lg shadow-lg shadow-blue-500/20 text-center transition-all transform hover:scale-105">
+                            class="block w-full py-3 hover: hover: text-grafito-900 font-bold rounded-lg text-center transition-all transform hover:scale-105">
                             <i class="fas fa-pen-alt mr-2"></i> Presentar Examen
                         </a>
                     </div>
                     {% endfor %}
                     {% else %}
-                    <div class="bg-slate-800/50 p-4 rounded text-center text-slate-500 text-sm">
+                    <div class="bg-superficie p-4 rounded text-center text-grafito-500 text-sm">
                         <i class="fas fa-clock mb-2 text-xl block"></i>
                         Evaluación no disponible aún.
                     </div>
@@ -121,7 +121,7 @@
 
                     {% if curso.pdf_url %}
                     <a href="{{ curso.pdf_url }}" target="_blank"
-                        class="block w-full py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded text-center transition-colors">
+                        class="block w-full py-2 bg-fondo hover:bg-fondo text-grafito-900 text-sm font-medium rounded text-center transition-colors">
                         <i class="fas fa-download mr-2"></i> Descargar Material
                     </a>
                     {% endif %}

@@ -3,25 +3,25 @@
 {% block title %}Metodologías - Admin SST{% endblock %}
 {% block page_title %}Metodologías de Investigación{% endblock %}
 
-{% block content %}
-<div class="animate-fade-in space-y-6">
+{% block admin_content %}
+<div class="space-y-6">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-white">Metodologías de Investigación</h1>
-            <p class="text-slate-400 text-sm">Define los métodos para investigar incidentes.</p>
+            <h1 class="text-2xl font-bold text-grafito-900">Metodologías de Investigación</h1>
+            <p class="text-grafito-500 text-sm">Define los métodos para investigar incidentes.</p>
         </div>
         <a href="{{ url_for('admin.crear_metodologia') }}"
-            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 shadow-lg shadow-red-500/20 font-medium transition-all transform active:scale-95 flex items-center gap-2">
+            class="bg-rojo text-white px-4 py-2 rounded-lg hover:bg-rojo font-medium transition-all transform active:scale-95 flex items-center gap-2">
             <i class="fas fa-plus"></i> Nueva Metodología
         </a>
     </div>
 
     {% if metodologias %}
-    <div class="glass-card overflow-hidden">
+    <div class="panel overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr
-                    class="bg-slate-800/50 text-slate-300 text-sm uppercase tracking-wider border-b border-slate-700/50">
+                    class="bg-superficie text-grafito-700 text-sm border-b border-linea">
                     <th class="p-4 font-semibold">Nombre</th>
                     <th class="p-4 font-semibold">Descripción</th>
                     <th class="p-4 font-semibold">Estado</th>
@@ -30,23 +30,23 @@
             </thead>
             <tbody class="divide-y divide-slate-700/50">
                 {% for met in metodologias %}
-                <tr class="hover:bg-slate-700/30 transition-colors">
-                    <td class="p-4 font-bold text-white">{{ met.nombre }}</td>
-                    <td class="p-4 text-sm text-slate-400">{{ met.descripcion[:50] or 'N/A' }}</td>
+                <tr class="hover:bg-fondo transition-colors">
+                    <td class="p-4 font-bold text-grafito-900">{{ met.nombre }}</td>
+                    <td class="p-4 text-sm text-grafito-500">{{ met.descripcion[:50] or 'N/A' }}</td>
                     <td class="p-4">
                         {% if met.activa %}
-                        <span class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div> Activa
+                        <span class="flex items-center gap-1 text-verde text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-verde"></div> Activa
                         </span>
                         {% else %}
-                        <span class="flex items-center gap-1 text-slate-500 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Inactiva
+                        <span class="flex items-center gap-1 text-grafito-500 text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-fondo"></div> Inactiva
                         </span>
                         {% endif %}
                     </td>
                     <td class="p-4 text-right">
                         <a href="#"
-                            class="text-slate-400 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-slate-700">
+                            class="text-grafito-500 hover:text-azul transition-colors p-2 rounded-full hover:bg-fondo">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>
@@ -56,10 +56,10 @@
         </table>
     </div>
     {% else %}
-    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-12 text-center text-slate-400">
+    <div class="bg-superficie border border-linea rounded-lg p-12 text-center text-grafito-500">
         <i class="fas fa-search-plus text-4xl mb-4 opacity-50"></i>
         <p>No hay metodologías. <a href="{{ url_for('admin.crear_metodologia') }}"
-                class="text-red-400 hover:underline font-semibold">Crear una ahora</a></p>
+                class="text-rojo hover:underline font-semibold">Crear una ahora</a></p>
     </div>
     {% endif %}
 </div>

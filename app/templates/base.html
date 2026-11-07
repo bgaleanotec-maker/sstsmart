@@ -1,43 +1,47 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Justrabajo{% endblock %}</title>
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind por CDN con los tokens del rediseño v2 (rediseno-ui/README.md §2.2).
+         Deuda anotada: compilar con el binario standalone cuando se formalice el build. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            corePlugins: { preflight: true },
             theme: {
                 extend: {
                     colors: {
-                        slate: { 850: '#151f32' }
+                        'grafito-900': '#1d2125', 'grafito-700': '#33393f', 'grafito-500': '#5a636c',
+                        'linea': '#dde1e5', 'fondo': '#f3f4f6', 'superficie': '#ffffff',
+                        'azul': '#1b4f91', 'azul-hover': '#163f74', 'azul-suave': '#e8eef7',
+                        'rojo': '#c62828', 'rojo-suave': '#fbe9e7',
+                        'amarillo': '#f2b705', 'amarillo-texto': '#7a5600', 'amarillo-suave': '#fef6dc',
+                        'verde': '#1e7b46', 'verde-suave': '#e3f1e8'
+                    },
+                    fontFamily: {
+                        sans: ['Barlow', 'system-ui', 'sans-serif'],
+                        display: ['"Barlow Semi Condensed"', 'Barlow', 'sans-serif']
                     }
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom Modern CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <!-- CSRF: token para formularios y fetch (Flask-WTF) -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         (function () {
             var token = document.querySelector('meta[name="csrf-token"]').content;
-            // 1. Inyectar el token en todo formulario POST clásico
             document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll('form').forEach(function (f) {
                     if ((f.method || '').toLowerCase() === 'post' && !f.querySelector('input[name="csrf_token"]')) {
@@ -47,7 +51,6 @@
                     }
                 });
             });
-            // 2. Añadir cabecera a los fetch same-origin con método de escritura
             var _fetch = window.fetch;
             window.fetch = function (url, opts) {
                 opts = opts || {};
@@ -60,122 +63,114 @@
             };
         })();
     </script>
+    {% block head %}{% endblock %}
 </head>
 
-<body class="antialiased text-slate-200 selection:bg-blue-500 selection:text-white">
-
-    <!-- Modern Navbar -->
-    <nav class="glass-header w-full">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Logo -->
-            <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-3 group">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-blue-600 flex items-center justify-center shadow-lg group-hover:shadow-amber-500/40 transition-all duration-300">
-                    <i class="fa-solid fa-scale-balanced text-slate-900 text-lg"></i>
-                </div>
-                <span class="text-xl font-extrabold text-white tracking-tight"><span
-                        class="text-amber-400">Jus</span>trabajo</span>
-            </a>
-
-            <!-- Navigation Links (según módulos contratados) -->
-            <div class="hidden md:flex items-center gap-7">
-                <a href="{{ url_for('dashboard.index') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Dashboard</a>
-                {% if 'reportes' in modulos_activos %}
-                <a href="{{ url_for('reportes.listar') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Reportes</a>
-                {% endif %}
-                {% if 'autoevaluacion' in modulos_activos %}
-                <a href="{{ url_for('autoevaluacion.lista') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Autoevaluación</a>
-                {% endif %}
-                {% if 'sgsst' in modulos_activos %}
-                <a href="{{ url_for('sgsst.panel') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">SG-SST</a>
-                {% endif %}
-                {% if 'epp' in modulos_activos %}
-                <a href="{{ url_for('epp.kardex') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">EPP</a>
-                {% endif %}
-                {% if 'matriz_legal' in modulos_activos %}
-                <a href="{{ url_for('matriz_legal.dashboard') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Matriz legal</a>
-                {% endif %}
-                {% if 'controles' in modulos_activos %}
-                <a href="{{ url_for('controles.listar_controles') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Controles</a>
-                {% endif %}
-                {% if 'juridico' in modulos_activos %}
-                <a href="{{ url_for('juridico.listar') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Jurídico</a>
-                {% endif %}
-                {% if 'formacion' in modulos_activos %}
-                <a href="{{ url_for('formacion.catalogo') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Formación</a>
-                {% endif %}
-                {% if current_user.is_authenticated and current_user.tiene_rol('Admin') %}
-                <a href="{{ url_for('admin.dashboard') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Admin</a>
-                <a href="{{ url_for('admin.suscripcion') }}"
-                    class="text-sm font-medium text-amber-400/90 hover:text-amber-300 transition-colors"><i
-                        class="fa-solid fa-cubes mr-1"></i>Plan</a>
-                {% endif %}
-            </div>
-
-            <!-- User Profile & Action -->
-            <div class="flex items-center gap-4">
-                {% if current_user.is_authenticated %}
-                <div class="hidden md:flex flex-col items-end mr-2">
-                    <span class="text-sm font-semibold text-white">{{ current_user.nombre_completo }}</span>
-                    <span class="text-xs text-blue-400">{{ current_user.rol }}</span>
-                </div>
-                <a href="{{ url_for('auth.logout') }}"
-                    class="p-2 rounded-full hover:bg-white/10 transition-colors text-slate-400 hover:text-red-400"
-                    title="Cerrar Sesión">
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                </a>
-                {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn-primary text-sm px-6 py-2">Iniciar Sesión</a>
-                {% endif %}
-            </div>
+<body>
+{% from 'components/nav_item.html' import nav_item with context %}
+<div class="app">
+    <aside class="lateral" id="lateral" aria-label="Navegación principal">
+        <a class="marca" href="{{ url_for('dashboard.index') }}">
+            <div class="disco" aria-hidden="true">J</div>
+            <strong>Justrabajo</strong>
+        </a>
+        {% if current_user.is_authenticated %}
+        <div class="usuario">
+            <b>{{ current_user.nombre_completo }}</b>{{ current_user.rol.replace('_', ' ') }}
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="container mx-auto p-6 min-h-[calc(100vh-80px)]">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="mb-8 flex flex-col gap-3 animate-fade-in">
-            {% for category, message in messages %}
-            <div class="p-4 rounded-xl border flex items-center gap-3 backdrop-blur-md shadow-lg
-                            {% if category == 'error' %}
-                                bg-red-500/10 border-red-500/20 text-red-200
-                            {% elif category == 'success' %}
-                                bg-emerald-500/10 border-emerald-500/20 text-emerald-200
-                            {% else %}
-                                bg-blue-500/10 border-blue-500/20 text-blue-200
-                            {% endif %}">
-                <i class="fa-solid 
-                                {% if category == 'error' %}fa-circle-exclamation text-red-400
-                                {% elif category == 'success' %}fa-circle-check text-emerald-400
-                                {% else %}fa-circle-info text-blue-400{% endif %} 
-                                text-xl"></i>
-                <span>{{ message }}</span>
-            </div>
-            {% endfor %}
+        <div class="plan">
+            {% if current_user.tiene_rol('Admin') %}
+            <a href="{{ url_for('admin.suscripcion') }}" title="Gestionar módulos del plan">{{ modulos_activos|length }} módulo{{ 's' if modulos_activos|length != 1 }} activo{{ 's' if modulos_activos|length != 1 }}</a>
+            {% else %}
+            {{ modulos_activos|length }} módulo{{ 's' if modulos_activos|length != 1 }} activo{{ 's' if modulos_activos|length != 1 }}
+            {% endif %}
         </div>
+        <nav>
+            {{ nav_item('dashboard.index', 'Cumplimiento') }}
+            {{ nav_item('autoevaluacion.lista', 'Autoevaluación 0312', 'autoevaluacion', por_blueprint=True) }}
+            {{ nav_item('sgsst.plan', 'Plan anual', 'sgsst') }}
+            {{ nav_item('sgsst.politica', 'Política SST', 'sgsst') }}
+            {% if ['reportes','epp','matriz_legal','controles','juridico','formacion'] | select('in', modulos_activos) | list %}
+            <h3>Gestión</h3>
+            {% endif %}
+            {{ nav_item('reportes.listar', 'Reportes de condiciones', 'reportes', por_blueprint=True) }}
+            {{ nav_item('epp.kardex', 'EPP y dotación', 'epp', por_blueprint=True) }}
+            {{ nav_item('matriz_legal.dashboard', 'Matriz legal', 'matriz_legal', por_blueprint=True) }}
+            {{ nav_item('controles.listar_controles', 'Controles y riesgos', 'controles', por_blueprint=True) }}
+            {{ nav_item('juridico.listar', 'Jurídico', 'juridico', por_blueprint=True) }}
+            {{ nav_item('formacion.catalogo', 'Formación', 'formacion', por_blueprint=True) }}
+            {% if current_user.tiene_rol('Admin') %}
+            <h3>Administración</h3>
+            {{ nav_item('admin.dashboard', 'Usuarios y catálogos') }}
+            {{ nav_item('admin.suscripcion', 'Plan y módulos') }}
+            {% endif %}
+        </nav>
+        <div class="salir">
+            <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        </div>
+        {% else %}
+        <div class="salir"><a href="{{ url_for('auth.login') }}">Iniciar sesión</a></div>
         {% endif %}
-        {% endwith %}
+    </aside>
+    <div class="velo" id="velo" hidden></div>
 
-        {% block content %}{% endblock %}
-    </main>
+    <section>
+        <header class="cabecera">
+            <button class="menu-movil" id="abrir-menu" aria-label="Abrir menú" aria-controls="lateral" aria-expanded="false">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+            {% if empresa_actual %}
+            <div class="empresa">
+                <b>{{ empresa_actual.razon_social }}</b>
+                <span>NIT {{ empresa_actual.nit }}, {{ empresa_actual.num_trabajadores }} trabajador{{ 'es' if empresa_actual.num_trabajadores != 1 }}{% if empresa_actual.clase_riesgo %}, riesgo {{ ['I','II','III','IV','V'][empresa_actual.clase_riesgo - 1] }}{% endif %}</span>
+            </div>
+            {% else %}
+            <div class="empresa"><b>Justrabajo</b><span>Gestión del SG-SST</span></div>
+            {% endif %}
+            {% if proximo_hito %}
+            <span class="hito" title="{{ proximo_hito.norma }}">Próximo hito: {{ proximo_hito.corto }}, {{ proximo_hito.fecha | fecha_corta }}</span>
+            {% endif %}
+            {% if empresa_actual %}
+            <div class="corte">Datos al {{ empresa_actual.ultima_actualizacion | fecha_larga }}</div>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+            <div class="avatar" aria-hidden="true">{{ iniciales(current_user.nombre_completo) }}</div>
+            {% endif %}
+        </header>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-800 mt-12 py-8 text-center text-slate-500 text-sm">
-        <p>&copy; 2026 Justrabajo. Todos los derechos reservados.</p>
-    </footer>
+        <main class="contenido">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-6 flex flex-col gap-2">
+                {% for category, message in messages %}
+                <div class="aviso {% if category == 'error' %}aviso-error{% elif category == 'success' %}aviso-exito{% elif category == 'warning' %}aviso-alerta{% else %}aviso-info{% endif %}" role="status">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
+            {% block content %}{% endblock %}
+        </main>
+    </section>
+</div>
+
+<script>
+    // Drawer de navegación en celular: botón, velo, Esc.
+    (function () {
+        var lateral = document.getElementById('lateral');
+        var velo = document.getElementById('velo');
+        var boton = document.getElementById('abrir-menu');
+        if (!lateral || !velo || !boton) return;
+        function abrir() { lateral.classList.add('abierta'); velo.hidden = false; velo.classList.add('visible'); boton.setAttribute('aria-expanded', 'true'); }
+        function cerrar() { lateral.classList.remove('abierta'); velo.classList.remove('visible'); velo.hidden = true; boton.setAttribute('aria-expanded', 'false'); }
+        boton.addEventListener('click', function () { lateral.classList.contains('abierta') ? cerrar() : abrir(); });
+        velo.addEventListener('click', cerrar);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrar(); });
+    })();
+</script>
+{% block scripts %}{% endblock %}
 </body>
 
 </html>

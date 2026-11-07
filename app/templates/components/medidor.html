@@ -1,0 +1,37 @@
+{#
+  Medidor semicircular del puntaje de la autoevaluación (rediseno-ui/README.md §4.2).
+  viewBox 220x130, centro (110,115), arco r=90; tramos fijos: crítico <60,
+  moderadamente aceptable 60-85, aceptable >85. La aguja la calcula Python
+  (puntos_arco) para que el mismo dibujo sirva en PDF y correo.
+  puntaje=None → medidor gris con "—" (estado vacío).
+#}
+{% macro medidor(puntaje, nivel=None, anio=None, provisional=False) %}
+{% set aguja = puntos_arco(puntaje) if puntaje is not none else none %}
+<div class="medidor">
+    <svg viewBox="0 0 220 130" role="img"
+         aria-label="{% if puntaje is not none %}Puntaje {{ '%.0f' % puntaje }} de 100, nivel {{ nivel.texto }}{% else %}Sin puntaje todavía{% endif %}">
+        {% if puntaje is not none %}
+        <path d="M20 115 A90 90 0 0 1 137.8 29.4" fill="none" stroke="var(--rojo)" stroke-width="16"/>
+        <path d="M137.8 29.4 A90 90 0 0 1 190.2 74.1" fill="none" stroke="var(--amarillo)" stroke-width="16"/>
+        <path d="M190.2 74.1 A90 90 0 0 1 200 115" fill="none" stroke="var(--verde)" stroke-width="16"/>
+        <line x1="110" y1="115" x2="{{ aguja.x }}" y2="{{ aguja.y }}" stroke="var(--grafito-900)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="110" cy="115" r="7" fill="var(--grafito-900)"/>
+        {% else %}
+        <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="var(--linea)" stroke-width="16"/>
+        {% endif %}
+        <text x="20" y="128" font-size="8" fill="var(--grafito-500)" text-anchor="middle" font-family="Barlow">0</text>
+        <text x="137.8" y="17" font-size="8" fill="var(--grafito-500)" text-anchor="middle" font-family="Barlow">60</text>
+        <text x="203" y="70" font-size="8" fill="var(--grafito-500)" text-anchor="middle" font-family="Barlow">85</text>
+        <text x="200" y="128" font-size="8" fill="var(--grafito-500)" text-anchor="middle" font-family="Barlow">100</text>
+    </svg>
+    <div class="cifra">
+        <b>{% if puntaje is not none %}{{ '%.0f' % puntaje }}{% else %}—{% endif %}</b>
+        <small>{% if puntaje is not none %}de 100 puntos{% if anio %}, autoevaluación {{ anio }}{% endif %}{% else %}sin autoevaluación{% endif %}</small>
+    </div>
+    {% if puntaje is not none %}
+    <div class="nivel-actual n-{{ nivel.color }}">{{ nivel.texto }}{% if provisional %} (provisional){% endif %}</div>
+    {% else %}
+    <div class="nivel-actual n-gris">Aún no tienes puntaje</div>
+    {% endif %}
+</div>
+{% endmacro %}

@@ -1,0 +1,8 @@
+{# Una cifra de la franja .cifras: texto, número grande, subtexto. alerta=True pinta el subtexto en rojo. #}
+{% macro kpi(texto, cifra, sub, href=None, alerta=False) %}
+{% if href %}<a href="{{ href }}" class="{{ 'alerta' if alerta }}">{% else %}<div class="kpi {{ 'alerta' if alerta }}">{% endif %}
+    <span>{{ texto }}</span>
+    <b class="tabular">{{ cifra }}</b>
+    <small>{{ sub }}</small>
+{% if href %}</a>{% else %}</div>{% endif %}
+{% endmacro %}

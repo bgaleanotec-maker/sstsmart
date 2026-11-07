@@ -3,29 +3,29 @@
 {% block content %}
 <div class="max-w-4xl mx-auto">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
-        <h1 class="text-2xl font-bold text-white">Plan de {{ empresa.razon_social }}</h1>
-        <span class="text-sm text-slate-400">NIT {{ empresa.nit }}</span>
+        <h1 class="text-2xl font-bold text-grafito-900">Plan de {{ empresa.razon_social }}</h1>
+        <span class="text-sm text-grafito-500">NIT {{ empresa.nit }}</span>
     </div>
-    <p class="text-slate-400 text-sm mb-8">Activa los módulos contratados. El precio se puede pactar por módulo; el descuento por volumen se aplica automático: 3-4 módulos −10% · 5-6 −15% · todos −20%.</p>
+    <p class="text-grafito-500 text-sm mb-8">Activa los módulos contratados. El precio se puede pactar por módulo; el descuento por volumen se aplica automático: 3-4 módulos −10% · 5-6 −15% · todos −20%.</p>
 
     <form method="POST">
         <div class="grid md:grid-cols-2 gap-4 mb-8">
             {% for it in items %}
-            <label class="flex gap-4 items-start bg-slate-800/60 border rounded-xl p-5 cursor-pointer transition-colors
-                          {{ 'border-blue-500/60' if it.activo else 'border-slate-700 opacity-80' }}">
+            <label class="flex gap-4 items-start bg-superficie border rounded-lg p-5 cursor-pointer transition-colors
+ {{ 'border-azul' if it.activo else 'border-linea opacity-80' }}">
                 <input type="checkbox" name="mod_{{ it.codigo }}" {% if it.activo %}checked{% endif %}
-                       class="mt-1 w-5 h-5 accent-blue-500 modulo-check" data-precio-input="precio_{{ it.codigo }}">
+                       class="mt-1 w-5 h-5 accent-azul modulo-check" data-precio-input="precio_{{ it.codigo }}">
                 <div class="flex-1">
                     <div class="flex items-center justify-between gap-3">
-                        <p class="text-white font-semibold"><i class="fa-solid {{ it.info.icono }} text-blue-400 mr-2"></i>{{ it.info.nombre }}</p>
+                        <p class="text-grafito-900 font-semibold"><i class="fa-solid {{ it.info.icono }} text-azul mr-2"></i>{{ it.info.nombre }}</p>
                     </div>
-                    <p class="text-slate-400 text-xs mt-1">{{ it.info.descripcion }}</p>
+                    <p class="text-grafito-500 text-xs mt-1">{{ it.info.descripcion }}</p>
                     <div class="mt-3 flex items-center gap-2">
-                        <span class="text-xs text-slate-500">$/mes</span>
+                        <span class="text-xs text-grafito-500">$/mes</span>
                         <input name="precio_{{ it.codigo }}" id="precio_{{ it.codigo }}" value="{{ it.precio }}"
-                               class="w-28 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white text-right precio-input">
+                               class="w-28 bg-fondo border border-linea rounded-lg px-2 py-1 text-sm text-grafito-900 text-right precio-input">
                         {% if it.precio != it.info.precio %}
-                        <span class="text-xs text-amber-400">pactado (lista: ${{ '{:,}'.format(it.info.precio).replace(',','.') }})</span>
+                        <span class="text-xs text-amarillo-texto">pactado (lista: ${{ '{:,}'.format(it.info.precio).replace(',','.') }})</span>
                         {% endif %}
                     </div>
                 </div>
@@ -33,14 +33,14 @@
             {% endfor %}
         </div>
 
-        <div class="sticky bottom-4 bg-slate-900/95 backdrop-blur border border-slate-700 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="sticky bottom-4 bg-fondo border border-linea rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
             <div class="flex gap-8 text-sm">
-                <div><p class="text-slate-500 text-xs uppercase">Módulos</p><p class="text-white font-bold text-lg" id="res-n">{{ n_activos }}</p></div>
-                <div><p class="text-slate-500 text-xs uppercase">Subtotal</p><p class="text-white font-bold text-lg" id="res-sub">${{ '{:,}'.format(subtotal).replace(',','.') }}</p></div>
-                <div><p class="text-slate-500 text-xs uppercase">Descuento</p><p class="text-emerald-400 font-bold text-lg" id="res-desc">{{ (descuento * 100) | int }}%</p></div>
-                <div><p class="text-slate-500 text-xs uppercase">Total mensual</p><p class="text-blue-400 font-bold text-2xl" id="res-total">${{ '{:,}'.format(total).replace(',','.') }}</p></div>
+                <div><p class="text-grafito-500 text-xs">Módulos</p><p class="text-grafito-900 font-bold text-lg" id="res-n">{{ n_activos }}</p></div>
+                <div><p class="text-grafito-500 text-xs">Subtotal</p><p class="text-grafito-900 font-bold text-lg" id="res-sub">${{ '{:,}'.format(subtotal).replace(',','.') }}</p></div>
+                <div><p class="text-grafito-500 text-xs">Descuento</p><p class="text-verde font-bold text-lg" id="res-desc">{{ (descuento * 100) | int }}%</p></div>
+                <div><p class="text-grafito-500 text-xs">Total mensual</p><p class="text-azul font-bold text-2xl" id="res-total">${{ '{:,}'.format(total).replace(',','.') }}</p></div>
             </div>
-            <button class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-2.5 rounded-lg text-sm">
+            <button class="bg-azul hover:bg-azul text-white font-semibold px-6 py-2.5 rounded-lg text-sm">
                 <i class="fa-solid fa-floppy-disk mr-1"></i>Guardar plan
             </button>
         </div>

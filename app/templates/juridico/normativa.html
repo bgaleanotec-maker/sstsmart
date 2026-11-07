@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Normativa · Justrabajo{% endblock %}
+{% block content %}
+<div class="max-w-4xl">
+    <h1>Normativa SST registrada</h1>
+    <p class="text-grafito-500 mt-1 mb-6">Entradas de normativa cargadas desde el módulo jurídico. La fuente de verdad de la normatividad vigente es la <a href="{{ url_for('matriz_legal.dashboard') }}" class="text-azul underline">matriz legal</a>.</p>
+
+    {% if normativas %}
+    <div class="tabla">
+        <table>
+            <thead><tr><th>Número</th><th>Título</th><th>Tipo</th><th>Fecha</th></tr></thead>
+            <tbody>
+                {% for n in normativas %}
+                <tr>
+                    <td class="font-mono text-sm">{{ n.numero_consulta }}</td>
+                    <td><a href="{{ url_for('juridico.detalle', id=n.id) }}">{{ n.titulo }}</a></td>
+                    <td>{{ n.tipo_consulta or '—' }}</td>
+                    <td class="fecha">{{ n.fecha_creacion | fecha_corta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="panel"><p class="vacio">No hay entradas de normativa en el módulo jurídico. Consulta la matriz legal para ver las normas vigentes aplicables a tu empresa.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,13 @@
 # Justrabajo — notas para Claude
 
+> **Visión ampliada (oct-2026):** este repo es la base de una **plataforma de apps legales de nicho**
+> (SST, PESV, peticiones y tutelas, impuestos, laboral, tránsito…) de una S.A.S. de software, separada de
+> la práctica de Brian como abogado persona natural. Antes de construir algo nuevo, leer
+> `plataforma/README.md`, `plataforma/04-arquitectura-plataforma.md` (ADR-P1 a P7), las 12 reglas de
+> producto de `plataforma/01-estructura-legal-dos-entidades.md` §9 y el backlog
+> `plataforma/06-backlog-claude-code.md`. Las decisiones D1-D8 de `plataforma/00-tesis-y-decisiones.md`
+> las toma Brian: si una bloquea, preguntar.
+
 App Flask (monolito modular) de gestión SG-SST para pymes colombianas.
 Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 `venv/Scripts/python.exe` (Windows).
@@ -15,6 +23,18 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 - `scripts/init_prod_db.py` tiene una sección de "mini-migraciones aditivas"
   (ALTER TABLE) porque create_all no altera tablas existentes: columna nueva
   en tabla existente → añadirla ahí hasta formalizar Alembic.
+
+## Interfaz (rediseño 23-oct-2026 — leer antes de tocar plantillas)
+- Especificación completa en `rediseno-ui/README.md`; la maqueta `rediseno-ui/mockup-panel.html` es la fuente de verdad visual.
+- Tema claro v2: colores de seguridad NTC 1461 (azul obligación = marca; rojo, amarillo y verde solo como estado) + grafito; Barlow / Barlow Semi Condensed. Tokens en `rediseno-ui/README.md` §2. Nada de colores sueltos en plantillas. El CRM Legal tiene tema propio (verde botella + latón).
+- Componentes Jinja en `app/templates/components/` (medidor, nav_item, kpi, chip, tarjeta). Importarlos `with context`; lo que una macro necesite de Python va como *global* de Jinja en `app/ui.py`, no solo en el context processor.
+- Heurísticas de Jakob Nielsen: lo útil primero, cada cifra con su explicación, estados vacíos siempre.
+- Estado: UI-0 a UI-2 hechos el 7-nov-2026 (rama `ui/rediseno-panel`); UI-3 pendiente. Plantillas de `admin/` definen `block admin_content` (no `content`). Tema por CDN de Tailwind con tokens inline (deuda: compilar con binario standalone).
+- QA de interfaz: `SCHEDULER_ENABLED=0 venv/Scripts/python.exe rediseno-ui/qa_rutas.py` (recorre todas las rutas GET como admin; falla ante 500 o restos del tema oscuro) y `scripts/seed_demo.py` para datos de demostración (solo desarrollo).
+
+## Vertical CRM Legal (23-oct-2026)
+- Especificación y backlog en `../crm_legal/README.md` y `../crm_legal/BACKLOG.md` (épicas C0-C7). Va en `app/verticales/crm_legal/`; el motor de plazos en `app/nucleo/plazos/` (portado de `Apis/radar_judicial`).
+- Prerrequisito: UI-0 y UI-1 de `rediseno-ui/README.md`.
 
 ## Reglas duras
 - Roles: usar SIEMPRE `current_user.tiene_rol(...)` + constantes de
@@ -32,7 +52,7 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 
 ## Verificación
 - Boot: `SCHEDULER_ENABLED=0 venv/Scripts/python.exe -c "from app import create_app; create_app('development')"`
-- Tests: `venv/Scripts/python.exe -m pytest tests/ -q` (10 tests jurídico)
+- Tests: `venv/Scripts/python.exe -m pytest tests/ -q` (aislamiento, autoevaluación, jurídico, seguridad, sgsst/epp, panel)
 - Seed matriz legal: `venv/Scripts/python.exe scripts/seed_matriz_legal.py` (idempotente)
 
 ## Normatividad (estado ago-2026)

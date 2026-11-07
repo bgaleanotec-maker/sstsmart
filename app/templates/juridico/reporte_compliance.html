@@ -1,30 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto p-6 animate-fade-in">
+<div class="container mx-auto p-6">
     <h1
-        class="text-3xl font-bold mb-6 text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
-        📊 Reporte de Cumplimiento - Decreto 1072/2015
+        class="text-3xl font-bold mb-6 text-grafito-900 bg-clip-text text-transparent">
+         Reporte de Cumplimiento - Decreto 1072/2015
     </h1>
 
     <!-- Encabezado -->
-    <div class="glass-card p-8 mb-6 bg-gradient-to-r from-blue-900/50 to-blue-800/50 border-blue-500/30">
+    <div class="panel p-8 mb-6 border-azul">
         <div class="grid grid-cols-4 gap-8">
             <div>
-                <p class="text-sm text-blue-300 uppercase tracking-wider mb-1">Decreto</p>
-                <p class="text-2xl font-bold text-white">1072/2015</p>
+                <p class="text-sm text-azul mb-1">Decreto</p>
+                <p class="text-2xl font-bold text-grafito-900">1072/2015</p>
             </div>
             <div>
-                <p class="text-sm text-blue-300 uppercase tracking-wider mb-1">Artículo</p>
-                <p class="text-2xl font-bold text-white">2.2.3.1</p>
+                <p class="text-sm text-azul mb-1">Artículo</p>
+                <p class="text-2xl font-bold text-grafito-900">2.2.3.1</p>
             </div>
             <div>
-                <p class="text-sm text-blue-300 uppercase tracking-wider mb-1">Fecha de Evaluación</p>
-                <p class="text-xl font-bold text-white">{{ 'now'|strftime('%Y-%m-%d') }}</p>
+                <p class="text-sm text-azul mb-1">Fecha de Evaluación</p>
+                <p class="text-xl font-bold text-grafito-900">{{ 'now'|strftime('%Y-%m-%d') }}</p>
             </div>
             <div>
-                <p class="text-sm text-blue-300 uppercase tracking-wider mb-1">Estado General</p>
-                <p class="text-2xl font-bold text-emerald-400 flex items-center gap-2">
+                <p class="text-sm text-azul mb-1">Estado General</p>
+                <p class="text-2xl font-bold text-verde flex items-center gap-2">
                     <i class="fa-solid fa-circle-check"></i> CONFORME
                 </p>
             </div>
@@ -32,14 +32,14 @@
     </div>
 
     <!-- Score de Cumplimiento -->
-    <div class="glass-card p-8 mb-6">
-        <h2 class="text-2xl font-bold mb-6 text-white">Puntuación de Cumplimiento</h2>
+    <div class="panel p-8 mb-6">
+        <h2 class="text-2xl font-bold mb-6 text-grafito-900">Puntuación de Cumplimiento</h2>
 
         <div class="grid grid-cols-3 gap-6 mb-8">
             <!-- Puntuación General -->
             <div
-                class="rounded-xl p-6 text-center bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-500/20">
-                <p class="text-emerald-300 text-sm font-bold mb-4 tracking-wider">CUMPLIMIENTO GENERAL</p>
+                class="rounded-lg p-6 text-center border border-verde">
+                <p class="text-verde text-sm font-bold mb-4">CUMPLIMIENTO GENERAL</p>
                 <div class="relative w-32 h-32 mx-auto">
                     <svg class="w-full h-full" viewBox="0 0 120 120">
                         <!-- Círculo de fondo -->
@@ -51,45 +51,45 @@
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
                         <span
-                            class="text-3xl font-bold text-emerald-400 shadow-emerald-500/50 drop-shadow-lg">95%</span>
+                            class="text-3xl font-bold text-verde drop-shadow-lg">95%</span>
                     </div>
                 </div>
-                <p class="text-sm text-emerald-300 mt-4 font-semibold">EXCELENTE</p>
+                <p class="text-sm text-verde mt-4 font-semibold">EXCELENTE</p>
             </div>
 
             <!-- Trazabilidad -->
-            <div class="rounded-xl p-6 bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/20">
-                <h3 class="font-bold text-blue-300 mb-4 flex items-center gap-2">
+            <div class="rounded-lg p-6 border border-azul">
+                <h3 class="font-bold text-azul mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-list-check"></i> Trazabilidad
                 </h3>
                 <div class="space-y-4">
                     <div>
-                        <p class="text-sm text-slate-300 mb-1">Consultas Auditadas</p>
-                        <p class="text-2xl font-bold text-blue-400">100%</p>
+                        <p class="text-sm text-grafito-700 mb-1">Consultas Auditadas</p>
+                        <p class="text-2xl font-bold text-azul">100%</p>
                     </div>
-                    <div class="w-full bg-blue-900/50 rounded-full h-3 border border-blue-500/20">
-                        <div class="bg-blue-500 h-3 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    <div class="w-full bg-azul-suave rounded-full h-3 border border-azul">
+                        <div class="bg-azul h-3 rounded-full"
                             style="width: 100%"></div>
                     </div>
                 </div>
-                <p class="text-xs text-blue-300/80 mt-4 flex items-center gap-1">
+                <p class="text-xs text-grafito-500 mt-4 flex items-center gap-1">
                     <i class="fa-solid fa-check"></i> Todas las acciones registradas
                 </p>
             </div>
 
             <!-- Clasificación -->
             <div
-                class="rounded-xl p-6 bg-gradient-to-br from-purple-900/40 to-purple-800/20 border border-purple-500/20">
-                <h3 class="font-bold text-purple-300 mb-4 flex items-center gap-2">
+                class="rounded-lg p-6 border border-linea">
+                <h3 class="font-bold text-azul mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-tags"></i> Clasificación
                 </h3>
                 <div class="space-y-4">
                     <div>
-                        <p class="text-sm text-slate-300 mb-1">Documentos Clasificados</p>
-                        <p class="text-2xl font-bold text-purple-400">100%</p>
+                        <p class="text-sm text-grafito-700 mb-1">Documentos Clasificados</p>
+                        <p class="text-2xl font-bold text-azul">100%</p>
                     </div>
-                    <div class="w-full bg-purple-900/50 rounded-full h-3 border border-purple-500/20">
-                        <div class="bg-purple-500 h-3 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                    <div class="w-full bg-azul-suave rounded-full h-3 border border-linea">
+                        <div class="bg-azul-suave h-3 rounded-full"
                             style="width: 100%"></div>
                     </div>
                 </div>
@@ -100,17 +100,17 @@
         </div>
 
         <!-- Retención -->
-        <div class="p-6 rounded-xl border-l-4 border-l-orange-500 bg-orange-900/20 border border-orange-500/20">
-            <h3 class="font-bold text-orange-300 mb-4 flex items-center gap-2">
+        <div class="p-6 rounded-lg border-l-4 border-l-orange-500 bg-rojo-suave border border-orange-500/20">
+            <h3 class="font-bold text-rojo mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-box-archive"></i> Retención Documental
             </h3>
             <div class="space-y-3">
                 <div class="flex justify-between text-sm">
-                    <span class="text-slate-300">Documentos con Retención Configurada</span>
-                    <span class="font-bold text-orange-400">100%</span>
+                    <span class="text-grafito-700">Documentos con Retención Configurada</span>
+                    <span class="font-bold text-rojo">100%</span>
                 </div>
-                <div class="w-full bg-orange-900/50 rounded-full h-3 border border-orange-500/20">
-                    <div class="bg-orange-500 h-3 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                <div class="w-full bg-rojo-suave rounded-full h-3 border border-orange-500/20">
+                    <div class="bg-rojo-suave h-3 rounded-full"
                         style="width: 100%"></div>
                 </div>
             </div>
@@ -123,107 +123,107 @@
     <!-- Detalles de Cumplimiento -->
     <div class="grid grid-cols-2 gap-6 mb-6">
         <!-- Artículos Cumplidos -->
-        <div class="glass-card p-6">
-            <h3 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Artículos Cumplidos
+        <div class="panel p-6">
+            <h3 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-check text-verde"></i> Artículos Cumplidos
             </h3>
             <ul class="space-y-3 text-sm">
-                <li class="flex items-start p-2 rounded hover:bg-white/5 transition-colors">
-                    <span class="text-emerald-400 mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-slate-300">2.2.3.1.1 - Política de documentación SST</span>
+                <li class="flex items-start p-2 rounded hover:bg-fondo transition-colors">
+                    <span class="text-verde mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
+                    <span class="text-grafito-700">2.2.3.1.1 - Política de documentación SST</span>
                 </li>
-                <li class="flex items-start p-2 rounded hover:bg-white/5 transition-colors">
-                    <span class="text-emerald-400 mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-slate-300">2.2.3.1.2 - Identificación de documentos</span>
+                <li class="flex items-start p-2 rounded hover:bg-fondo transition-colors">
+                    <span class="text-verde mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
+                    <span class="text-grafito-700">2.2.3.1.2 - Identificación de documentos</span>
                 </li>
-                <li class="flex items-start p-2 rounded hover:bg-white/5 transition-colors">
-                    <span class="text-emerald-400 mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-slate-300">2.2.3.1.3 - Clasificación de información</span>
+                <li class="flex items-start p-2 rounded hover:bg-fondo transition-colors">
+                    <span class="text-verde mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
+                    <span class="text-grafito-700">2.2.3.1.3 - Clasificación de información</span>
                 </li>
-                <li class="flex items-start p-2 rounded hover:bg-white/5 transition-colors">
-                    <span class="text-emerald-400 mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-slate-300">2.2.3.1.4 - Control de cambios</span>
+                <li class="flex items-start p-2 rounded hover:bg-fondo transition-colors">
+                    <span class="text-verde mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
+                    <span class="text-grafito-700">2.2.3.1.4 - Control de cambios</span>
                 </li>
-                <li class="flex items-start p-2 rounded hover:bg-white/5 transition-colors">
-                    <span class="text-emerald-400 mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
-                    <span class="text-slate-300">2.2.3.1.5 - Revisión y aprobación</span>
+                <li class="flex items-start p-2 rounded hover:bg-fondo transition-colors">
+                    <span class="text-verde mr-3 mt-1"><i class="fa-solid fa-check"></i></span>
+                    <span class="text-grafito-700">2.2.3.1.5 - Revisión y aprobación</span>
                 </li>
             </ul>
         </div>
 
         <!-- Métricas Clave -->
-        <div class="glass-card p-6">
-            <h3 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                <i class="fa-solid fa-chart-pie text-blue-400"></i> Métricas Clave
+        <div class="panel p-6">
+            <h3 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-azul"></i> Métricas Clave
             </h3>
             <div class="space-y-4">
                 <div
-                    class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors">
-                    <span class="text-slate-300">Total Consultas</span>
-                    <span class="text-2xl font-bold text-blue-400">142</span>
+                    class="flex justify-between items-center p-4 bg-superficie rounded-lg border border-linea hover:border-linea transition-colors">
+                    <span class="text-grafito-700">Total Consultas</span>
+                    <span class="text-2xl font-bold text-azul">142</span>
                 </div>
                 <div
-                    class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors">
-                    <span class="text-slate-300">Documentos Almacenados</span>
-                    <span class="text-2xl font-bold text-purple-400">487</span>
+                    class="flex justify-between items-center p-4 bg-superficie rounded-lg border border-linea hover:border-linea transition-colors">
+                    <span class="text-grafito-700">Documentos Almacenados</span>
+                    <span class="text-2xl font-bold text-azul">487</span>
                 </div>
                 <div
-                    class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors">
-                    <span class="text-slate-300">Acciones Auditadas</span>
-                    <span class="text-2xl font-bold text-emerald-400">2,341</span>
+                    class="flex justify-between items-center p-4 bg-superficie rounded-lg border border-linea hover:border-linea transition-colors">
+                    <span class="text-grafito-700">Acciones Auditadas</span>
+                    <span class="text-2xl font-bold text-verde">2,341</span>
                 </div>
                 <div
-                    class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors">
-                    <span class="text-slate-300">Tiempo Promedio Resolución</span>
-                    <span class="text-2xl font-bold text-orange-400">18 días</span>
+                    class="flex justify-between items-center p-4 bg-superficie rounded-lg border border-linea hover:border-linea transition-colors">
+                    <span class="text-grafito-700">Tiempo Promedio Resolución</span>
+                    <span class="text-2xl font-bold text-rojo">18 días</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Documentos Próximos a Vencer -->
-    <div class="glass-card p-6 mb-6">
-        <h3 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-clock text-yellow-400"></i> Documentos Próximos a Vencer
+    <div class="panel p-6 mb-6">
+        <h3 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock text-amarillo-texto"></i> Documentos Próximos a Vencer
         </h3>
 
         <div class="space-y-3">
             <div
-                class="flex items-center justify-between p-4 bg-red-900/20 border border-red-500/30 rounded-lg hover:bg-red-900/30 transition-colors">
+                class="flex items-center justify-between p-4 bg-rojo-suave border border-rojo rounded-lg hover:bg-rojo-suave transition-colors">
                 <div>
-                    <p class="font-semibold text-red-300">Concepto_001_2024</p>
+                    <p class="font-semibold text-rojo">Concepto_001_2024</p>
                     <p class="text-sm text-red-400/80">Vence en 30 días</p>
                 </div>
                 <span
-                    class="px-3 py-1 rounded text-sm font-bold bg-red-500/20 text-red-400 border border-red-500/30">CRÍTICO</span>
+                    class="px-3 py-1 rounded text-sm font-bold bg-rojo-suave text-rojo border border-rojo">CRÍTICO</span>
             </div>
             <div
-                class="flex items-center justify-between p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg hover:bg-yellow-900/30 transition-colors">
+                class="flex items-center justify-between p-4 bg-amarillo-suave border border-amarillo rounded-lg hover:bg-amarillo-suave transition-colors">
                 <div>
-                    <p class="font-semibold text-yellow-300">Dictamen_042_2024</p>
+                    <p class="font-semibold text-amarillo-texto">Dictamen_042_2024</p>
                     <p class="text-sm text-yellow-400/80">Vence en 60 días</p>
                 </div>
                 <span
-                    class="px-3 py-1 rounded text-sm font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">PRÓXIMO</span>
+                    class="px-3 py-1 rounded text-sm font-bold bg-amarillo-suave text-amarillo-texto border border-amarillo">PRÓXIMO</span>
             </div>
         </div>
     </div>
 
     <!-- Recomendaciones -->
-    <div class="glass-card p-6 border-l-4 border-l-blue-500 bg-blue-900/10">
-        <h3 class="text-xl font-bold text-blue-300 mb-4 flex items-center gap-2">
+    <div class="panel p-6 border-l-4 border-l-blue-500 bg-azul-suave">
+        <h3 class="text-xl font-bold text-azul mb-4 flex items-center gap-2">
             <i class="fa-solid fa-lightbulb"></i> Recomendaciones
         </h3>
-        <ul class="space-y-2 text-sm text-slate-300">
-            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-blue-500"></i> Continuar con
+        <ul class="space-y-2 text-sm text-grafito-700">
+            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-azul"></i> Continuar con
                 auditoría regular de documentos</li>
-            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-blue-500"></i> Mantener
+            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-azul"></i> Mantener
                 trazabilidad completa de todas las acciones</li>
-            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-blue-500"></i> Revisar documentos
+            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-azul"></i> Revisar documentos
                 próximos a vencer antes de destrucción</li>
-            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-blue-500"></i> Realizar backups
+            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-azul"></i> Realizar backups
                 mensuales de documentación crítica</li>
-            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-blue-500"></i> Capacitar nuevos
+            <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-azul"></i> Capacitar nuevos
                 usuarios en políticas de retención</li>
         </ul>
     </div>

@@ -3,40 +3,40 @@
 {% block title %}Nuevo Tipo Reporte - Admin SST{% endblock %}
 {% block page_title %}Nuevo Tipo de Reporte{% endblock %}
 
-{% block content %}
-<div class="max-w-2xl animate-fade-in">
-    <div class="glass-card p-8">
+{% block admin_content %}
+<div class="max-w-2xl">
+    <div class="panel p-8">
         <form method="POST" class="space-y-6">
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Nombre *</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Nombre *</label>
                 <input type="text" name="nombre" required
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-linea focus:outline-none transition-colors"
                     placeholder="Ej: Incidente de trabajo">
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Descripción</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Descripción</label>
                 <textarea name="descripcion"
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-linea focus:outline-none transition-colors"
                     rows="3" placeholder="Describe este tipo de reporte"></textarea>
             </div>
 
             <div>
                 <label
-                    class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors">
+                    class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-linea bg-superficie hover:bg-superficie transition-colors">
                     <input type="checkbox" name="requiere_investigacion"
-                        class="form-checkbox h-5 w-5 text-purple-600 rounded bg-slate-700 border-slate-600 focus:ring-purple-500">
-                    <span class="text-white font-medium">Este tipo de reporte requiere investigación</span>
+                        class="form-checkbox h-5 w-5 text-azul rounded bg-fondo border-linea focus:ring-purple-500">
+                    <span class="text-grafito-900 font-medium">Este tipo de reporte requiere investigación</span>
                 </label>
             </div>
 
-            <div class="flex gap-4 pt-4 border-t border-white/10">
+            <div class="flex gap-4 pt-4 border-t border-linea">
                 <button type="submit"
-                    class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-500 shadow-lg shadow-purple-500/20 font-medium transition-all transform active:scale-95 flex items-center">
+                    class="bg-azul-suave text-grafito-900 px-6 py-2 rounded-lg hover:bg-azul-suave font-medium transition-all transform active:scale-95 flex items-center">
                     <i class="fas fa-save mr-2"></i> Crear Tipo
                 </button>
                 <a href="{{ url_for('admin.listar_tipos_reporte') }}"
-                    class="px-6 py-2 rounded-lg text-slate-400 hover:text-white transition-colors">
+                    class="px-6 py-2 rounded-lg text-grafito-500 hover:text-grafito-900 transition-colors">
                     Cancelar
                 </a>
             </div>

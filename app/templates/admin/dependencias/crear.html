@@ -3,24 +3,24 @@
 {% block title %}Nueva Dependencia - Admin SST{% endblock %}
 {% block page_title %}Nueva Dependencia{% endblock %}
 
-{% block content %}
-<div class="max-w-4xl animate-fade-in">
-    <div class="glass-card p-8">
+{% block admin_content %}
+<div class="max-w-4xl">
+    <div class="panel p-8">
         <form method="POST" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Nombre *</label>
+                    <label class="block text-sm font-bold text-grafito-500 mb-2">Nombre *</label>
                     <input type="text" name="nombre" required
-                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                        class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors"
                         placeholder="Ej: Oficina Calle 15">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Categoría *</label>
+                    <label class="block text-sm font-bold text-grafito-500 mb-2">Categoría *</label>
                     <select name="categoria_id" required
-                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors">
-                        <option value="" class="bg-slate-900 text-slate-500">-- Selecciona categoría --</option>
+                        class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors">
+                        <option value="" class="bg-fondo text-grafito-500">-- Selecciona categoría --</option>
                         {% for cat in categorias %}
-                        <option value="{{ cat.id }}" class="bg-slate-900">{{ cat.icono or '' }} {{ cat.nombre }}
+                        <option value="{{ cat.id }}" class="bg-fondo">{{ cat.icono or '' }} {{ cat.nombre }}
                         </option>
                         {% endfor %}
                     </select>
@@ -28,58 +28,58 @@
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Descripción</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Descripción</label>
                 <textarea name="descripcion"
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors"
                     rows="3" placeholder="Describe esta dependencia"></textarea>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Dirección</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Dirección</label>
                 <input type="text" name="direccion"
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors"
                     placeholder="Ej: Calle 15 #45-67, Bogotá">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Latitud</label>
+                    <label class="block text-sm font-bold text-grafito-500 mb-2">Latitud</label>
                     <input type="number" name="latitud" step="0.000001"
-                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                        class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors"
                         placeholder="4.7110">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Longitud</label>
+                    <label class="block text-sm font-bold text-grafito-500 mb-2">Longitud</label>
                     <input type="number" name="longitud" step="0.000001"
-                        class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                        class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-verde focus:outline-none transition-colors"
                         placeholder="-74.0721">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Roles Vinculados</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Roles Vinculados</label>
                 <div
-                    class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-superficie rounded-lg border border-linea">
                     {% for rol in roles %}
                     <label
-                        class="flex items-center space-x-2 cursor-pointer hover:bg-slate-700/50 p-2 rounded transition-colors">
+                        class="flex items-center space-x-2 cursor-pointer hover:bg-fondo p-2 rounded transition-colors">
                         <input type="checkbox" name="roles" value="{{ rol.id }}"
-                            class="form-checkbox h-4 w-4 text-green-600 rounded bg-slate-700 border-slate-600 focus:ring-green-500">
-                        <span class="text-sm text-slate-200">{{ rol.nombre }}</span>
+                            class="form-checkbox h-4 w-4 text-verde rounded bg-fondo border-linea focus:ring-green-500">
+                        <span class="text-sm text-grafito-700">{{ rol.nombre }}</span>
                     </label>
                     {% endfor %}
                 </div>
-                <p class="text-slate-500 text-xs mt-2 pl-1"><i class="fas fa-info-circle mr-1"></i> Los roles
+                <p class="text-grafito-500 text-xs mt-2 pl-1"><i class="fas fa-info-circle mr-1"></i> Los roles
                     seleccionados verán esta dependencia al reportar</p>
             </div>
 
-            <div class="flex gap-4 pt-4 border-t border-white/10">
+            <div class="flex gap-4 pt-4 border-t border-linea">
                 <button type="submit"
-                    class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 shadow-lg shadow-green-500/20 font-medium transition-all transform active:scale-95 flex items-center">
+                    class="bg-verde text-white px-6 py-2 rounded-lg hover:bg-verde font-medium transition-all transform active:scale-95 flex items-center">
                     <i class="fas fa-save mr-2"></i> Crear Dependencia
                 </button>
                 <a href="{{ url_for('admin.listar_dependencias') }}"
-                    class="px-6 py-2 rounded-lg text-slate-400 hover:text-white transition-colors">
+                    class="px-6 py-2 rounded-lg text-grafito-500 hover:text-grafito-900 transition-colors">
                     Cancelar
                 </a>
             </div>

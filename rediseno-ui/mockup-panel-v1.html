@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justrabajo · Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tokens del sistema de diseño (propuesta). Paleta propia de Justrabajo: azul noche + ámbar. */
+:root{
+  --marca-900:#14213d; --marca-800:#1d2f57; --marca-700:#27407a;
+  --acento:#f5a524; --acento-suave:#fff4dc;
+  --fondo:#f4f6fa; --superficie:#ffffff; --borde:#e3e8f0;
+  --texto:#16203a; --texto-2:#5b6680;
+  --critico:#d64545; --moderado:#f0a020; --aceptable:#2e9e5b;
+  --radio:14px; --sombra:0 6px 24px rgba(20,33,61,.08);
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--fondo);color:var(--texto)}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+/* Barra lateral */
+.lateral{background:var(--marca-900);color:#dfe6f5;padding:20px 14px;display:flex;flex-direction:column;gap:18px}
+.logo{font-weight:800;font-size:20px;color:#fff;padding:0 8px}.logo b{color:var(--acento)}
+.logo small{display:block;font-weight:500;font-size:11px;color:#9fb0d3;margin-top:2px}
+.plan{align-self:flex-start;margin-left:8px;background:rgba(245,165,36,.15);color:var(--acento);font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
+.selector{background:var(--marca-800);border-radius:10px;padding:10px 12px;font-size:12px;color:#9fb0d3}
+.selector strong{display:block;color:#fff;font-size:13px;margin-top:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#c9d3ea;text-decoration:none;font-size:14px;font-weight:500}
+.nav a.activo{background:var(--acento);color:var(--marca-900);font-weight:700}
+.nav a:not(.activo):hover{background:var(--marca-800)}
+.nav .grupo{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7e8fb4;margin:14px 12px 6px}
+/* Contenido */
+.franja{height:44px;background:linear-gradient(90deg,var(--marca-800),var(--marca-700));color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px}
+.franja span{opacity:.85}
+.datos{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:16px;align-items:center;background:var(--superficie);border-bottom:1px solid var(--borde);padding:14px 28px}
+.datos small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--texto-2)}
+.datos b{font-size:14px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--marca-900);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+main{padding:24px 28px;max-width:1100px}
+h1{font-size:26px;margin:0;color:var(--marca-900)} .sub{color:var(--texto-2);margin:6px 0 20px;font-size:14px}
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}
+.tarjeta{background:var(--superficie);border:1px solid var(--borde);border-radius:var(--radio);box-shadow:var(--sombra);padding:20px}
+.tarjeta h2{font-size:15px;margin:0 0 12px}
+.medidor{display:flex;flex-direction:column;align-items:center}
+.arco{position:relative;width:280px;height:166px}
+.arco svg{position:absolute;inset:0}
+.medidor .cifra{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:52px;font-weight:800;line-height:1;color:var(--marca-900)}
+.medidor .nivel{font-weight:700;color:#a86a00;font-size:15px;margin-top:10px}
+.medidor .escala{font-size:12px;color:var(--texto-2);margin:2px 0 14px}
+.cta{display:inline-block;margin-top:6px;background:var(--marca-900);color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px}
+.defs{background:var(--fondo);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--texto-2);line-height:1.5;margin-top:16px}
+.defs b{color:var(--texto)}
+.niveles{display:grid;gap:12px}
+.nv{display:flex;gap:10px;font-size:13px;line-height:1.45;padding:10px;border-radius:10px}
+.nv.tu{background:var(--acento-suave);outline:1px solid #f5d59a}
+.punto{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none}
+.nv strong{display:block}.nv em{white-space:nowrap;font-style:normal;font-size:11px;font-weight:700;background:var(--acento);color:var(--marca-900);padding:1px 8px;border-radius:99px;margin-left:6px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+.kpi small{color:var(--texto-2);font-size:12px}.kpi b{display:block;font-size:26px;margin-top:4px}
+.kpi span{font-size:12px;color:var(--texto-2)}
+.lista{margin-top:20px}
+.fila{display:grid;grid-template-columns:100px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--borde);font-size:14px;align-items:center}
+.fila:first-of-type{border-top:0}
+.chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+.chip.r{background:#fde8e8;color:var(--critico)}.chip.a{background:#fff1d6;color:#a86a00}.chip.v{background:#e3f5ea;color:var(--aceptable)}
+@media (max-width:860px){.app{grid-template-columns:1fr}.lateral{display:none}.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.datos{grid-template-columns:1fr 1fr}.franja span:last-child{display:none}main{padding:18px 16px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="lateral">
+    <div class="logo"><b>Jus</b>trabajo<small>Consola de Ana Rojas · Consultora SST</small></div>
+    <div class="plan">Plan Consultor · 12/15 empresas</div>
+    <div class="selector">Empresa activa ▾<strong>Transportes El Recreo S.A.S.</strong></div>
+    <nav class="nav">
+      <a class="activo" href="#">▦ Puntaje de cumplimiento</a>
+      <a href="#">☑ Autoevaluación 0312</a>
+      <a href="#">◷ Plan anual y vencimientos</a>
+      <div class="grupo">Gestión</div>
+      <a href="#">⚠ Reportes</a><a href="#">⛑ EPP y dotación</a><a href="#">§ Matriz legal</a><a href="#">🚚 PESV</a>
+      <div class="grupo">Mis empresas</div>
+      <a href="#">▤ Todas mis empresas (12)</a>
+    </nav>
+  </aside>
+  <section>
+    <div class="franja"><span>Mis módulos ▾</span><span>Próximo hito: reporte PESV · 6-31 de enero</span><span>Ayuda</span></div>
+    <div class="datos">
+      <div><small>Empresa</small><b>Transportes El Recreo S.A.S.</b></div>
+      <div><small>NIT</small><b>900.123.456-7</b></div>
+      <div><small>Última actualización</small><b>22/10/2026</b></div>
+      <div class="avatar">AR</div>
+    </div>
+    <main>
+      <h1>Así va tu SG-SST</h1>
+      <p class="sub">Tu puntaje sale de la autoevaluación de la Res. 0312 de 2019 (60 estándares). Mejóralo cerrando las acciones pendientes.</p>
+      <div class="grid">
+        <div class="tarjeta">
+          <h2>Tu puntaje</h2>
+          <div class="medidor">
+            <div class="arco"><svg viewBox="0 0 220 130" width="280" height="166" aria-label="Puntaje 72 de 100, moderadamente aceptable">
+              <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#edf0f6" stroke-width="18" stroke-linecap="round"/>
+              <path d="M20 115 A90 90 0 0 1 137.8 29.4" fill="none" stroke="var(--critico)" stroke-width="18" stroke-linecap="round"/>
+              <path d="M137.8 29.4 A90 90 0 0 1 190.2 74.1" fill="none" stroke="var(--moderado)" stroke-width="18"/>
+              <path d="M190.2 74.1 A90 90 0 0 1 200 115" fill="none" stroke="var(--aceptable)" stroke-width="18" stroke-linecap="round"/>
+              <circle cx="167.3" cy="45.7" r="9" fill="#fff" stroke="var(--marca-900)" stroke-width="4"/>
+            </svg>
+            <div class="cifra">72</div></div>
+            <div class="nivel">Moderadamente aceptable</div>
+            <div class="escala">de 100 · autoevaluación 2026</div>
+            <a class="cta" href="#">Ver las 9 acciones que más suben tu puntaje →</a>
+          </div>
+          <div class="defs"><b>Puntaje de cumplimiento:</b> porcentaje de estándares mínimos que cumples según la Res. 0312.<br><b>Nivel:</b> la misma norma clasifica el resultado y define qué plan debes presentar.</div>
+        </div>
+        <div class="tarjeta">
+          <h2>Nivel de cumplimiento</h2>
+          <div class="niveles">
+            <div class="nv"><span class="punto" style="background:var(--critico)"></span><div><strong>Crítico · menos de 60</strong>Plan de mejoramiento inmediato y seguimiento de la ARL. Riesgo alto de sanción.</div></div>
+            <div class="nv tu"><span class="punto" style="background:var(--moderado)"></span><div><strong>Moderadamente aceptable · 60 a 85 <em>Tu nivel</em></strong>Plan de mejoramiento con seguimiento. Te faltan 14 puntos para "aceptable".</div></div>
+            <div class="nv"><span class="punto" style="background:var(--aceptable)"></span><div><strong>Aceptable · más de 85</strong>Mantén la calificación e incluye mejoras en el plan anual.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="tarjeta kpi"><small>Acciones abiertas</small><b>9</b><span>3 vencidas</span></div>
+        <div class="tarjeta kpi"><small>Reportes abiertos</small><b>4</b><span>de 31 este año</span></div>
+        <div class="tarjeta kpi"><small>Requisitos legales</small><b>58</b><span>2 cambiaron este mes</span></div>
+        <div class="tarjeta kpi"><small>Trabajadores</small><b>46</b><span>Régimen de 60 estándares</span></div>
+      </div>
+      <div class="tarjeta lista">
+        <h2>Lo que vence pronto</h2>
+        <div class="fila"><span class="chip r">Vencida</span><span>Entrega de dotación del segundo cuatrimestre</span><span>30/08</span></div>
+        <div class="fila"><span class="chip a">En 12 días</span><span>Simulacro de evacuación (plan de emergencias)</span><span>04/11</span></div>
+        <div class="fila"><span class="chip v">En 75 días</span><span>Reporte anual del PESV</span><span>06/01</span></div>
+      </div>
+    </main>
+  </section>
+</div>
+</body>
+</html>

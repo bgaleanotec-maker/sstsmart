@@ -1,56 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-6 animate-fade-in">
+<div class="space-y-6">
 
     <!-- Header & KPIs -->
-    <div class="glass-card p-6 relative overflow-hidden">
-        <div class="absolute right-0 top-0 p-4 opacity-10">
-            <i class="fa-solid fa-scale-balanced text-9xl text-slate-500"></i>
+    <div class="panel p-6 relative overflow-hidden">
+        <div class="absolute right-0 top-0 p-4">
+            <i class="fa-solid fa-scale-balanced text-9xl text-grafito-500"></i>
         </div>
         <div class="flex justify-between items-end relative z-10">
             <div>
                 <h1
-                    class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+                    class="text-3xl font-bold bg-clip-text text-transparent">
                     Matriz de Requisitos Legales
                 </h1>
-                <p class="text-slate-400 mt-2">Gestión Forense de Cumplimiento Normativo (SST 2026)</p>
+                <p class="text-grafito-500 mt-2">Gestión Forense de Cumplimiento Normativo (SST 2026)</p>
             </div>
             <a href="{{ url_for('matriz_legal.crear_requisito') }}"
-                class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1">
+                class="bg-azul hover:bg-azul text-white px-6 py-2 rounded-lg hover: transition-all transform hover:-translate-y-1">
                 <i class="fas fa-plus mr-2"></i> Nueva Norma
             </a>
         </div>
 
         <!-- KPI Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
-            <div class="p-4 rounded-lg bg-slate-800/50 border border-slate-700">
-                <span class="text-slate-400 text-sm">Total Normas</span>
-                <p class="text-3xl font-bold text-white">{{ total }}</p>
+            <div class="p-4 rounded-lg bg-superficie border border-linea">
+                <span class="text-grafito-500 text-sm">Total Normas</span>
+                <p class="text-3xl font-bold text-grafito-900">{{ total }}</p>
             </div>
-            <div class="p-4 rounded-lg bg-emerald-900/20 border border-emerald-500/30">
-                <span class="text-emerald-400 text-sm">Cumplimiento</span>
-                <p class="text-3xl font-bold text-emerald-300">{{ cumplen }} <span
+            <div class="p-4 rounded-lg bg-verde-suave border border-verde">
+                <span class="text-verde text-sm">Cumplimiento</span>
+                <p class="text-3xl font-bold text-verde">{{ cumplen }} <span
                         class="text-xs opacity-70">Normas</span></p>
             </div>
-            <div class="p-4 rounded-lg bg-yellow-900/20 border border-yellow-500/30">
-                <span class="text-yellow-400 text-sm">Pendientes</span>
-                <p class="text-3xl font-bold text-yellow-300">{{ pendientes }}</p>
+            <div class="p-4 rounded-lg bg-amarillo-suave border border-amarillo">
+                <span class="text-amarillo-texto text-sm">Pendientes</span>
+                <p class="text-3xl font-bold text-amarillo-texto">{{ pendientes }}</p>
             </div>
-            <div class="p-4 rounded-lg bg-slate-800/50 border border-slate-700">
-                <span class="text-slate-400 text-sm">Próximas Evaluaciones</span>
-                <p class="text-xl font-bold text-white mt-1">2026</p>
+            <div class="p-4 rounded-lg bg-superficie border border-linea">
+                <span class="text-grafito-500 text-sm">Próximas Evaluaciones</span>
+                <p class="text-xl font-bold text-grafito-900 mt-1">2026</p>
             </div>
         </div>
     </div>
 
     <!-- Legal Matrix Table -->
-    <div class="glass-card overflow-hidden">
+    <div class="panel overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr
-                        class="bg-slate-900/50 text-slate-400 text-sm uppercase tracking-wider border-b border-slate-700">
+                        class="bg-fondo text-grafito-500 text-sm border-b border-linea">
                         <th class="p-4 font-semibold">Norma / Artículo</th>
                         <th class="p-4 font-semibold">Entidad / Año</th>
                         <th class="p-4 font-semibold text-center">Riesgo Forense</th>
@@ -60,15 +60,15 @@
                 </thead>
                 <tbody class="divide-y divide-slate-700/50">
                     {% for req in requisitos %}
-                    <tr class="hover:bg-slate-800/30 transition-colors group">
+                    <tr class="hover:bg-superficie transition-colors group">
                         <td class="p-4">
-                            <div class="font-bold text-white text-lg">{{ req.norma }}</div>
-                            <div class="text-sm text-slate-400">{{ req.articulo }}</div>
-                            <div class="text-xs text-slate-500 mt-1 line-clamp-1">{{ req.descripcion }}</div>
+                            <div class="font-bold text-grafito-900 text-lg">{{ req.norma }}</div>
+                            <div class="text-sm text-grafito-500">{{ req.articulo }}</div>
+                            <div class="text-xs text-grafito-500 mt-1 line-clamp-1">{{ req.descripcion }}</div>
                         </td>
                         <td class="p-4">
-                            <div class="text-slate-300">{{ req.entidad }}</div>
-                            <div class="text-xs text-slate-500 bg-slate-800 rounded px-2 w-fit">{{ req.anio }}</div>
+                            <div class="text-grafito-700">{{ req.entidad }}</div>
+                            <div class="text-xs text-grafito-500 bg-superficie rounded px-2 w-fit">{{ req.anio }}</div>
                         </td>
                         <td class="p-4 text-center">
                             {% set val = req.valoraciones|last %}
@@ -76,26 +76,26 @@
                             {% set color = val.color_semaforo %}
                             <div class="flex flex-col items-center">
                                 <div class="w-4 h-4 rounded-full 
-                                        {% if color == 'red' %}bg-red-500 shadow-lg shadow-red-500/50 animate-pulse
-                                        {% elif color == 'yellow' %}bg-yellow-500 shadow-lg shadow-yellow-500/50
-                                        {% else %}bg-emerald-500 shadow-lg shadow-emerald-500/50
-                                        {% endif %}">
+ {% if color == 'red' %}bg-rojo animate-pulse
+ {% elif color == 'yellow' %}bg-amarillo-suave 
+ {% else %}bg-verde 
+ {% endif %}">
                                 </div>
-                                <span class="text-xs mt-1 text-slate-400 font-mono">
+                                <span class="text-xs mt-1 text-grafito-500 font-mono">
                                     Riesgo: {{ "${:,.0f}".format(val.nivel_riesgo_total) }}
                                 </span>
                             </div>
                             {% else %}
-                            <span class="text-xs text-slate-600">Sin evaluar</span>
+                            <span class="text-xs text-grafito-500">Sin evaluar</span>
                             {% endif %}
                         </td>
                         <td class="p-4 text-center">
                             <span class="px-3 py-1 rounded-full text-xs font-bold border 
-                                {% if req.estado.value == 'Cumple' %}bg-emerald-500/10 text-emerald-400 border-emerald-500/30
-                                {% elif req.estado.value == 'No Cumple' %}bg-red-500/10 text-red-400 border-red-500/30
-                                {% elif req.estado.value == 'En Proceso' %}bg-blue-500/10 text-blue-400 border-blue-500/30
-                                {% else %}bg-slate-700/50 text-slate-400 border-slate-600
-                                {% endif %}">
+ {% if req.estado.value == 'Cumple' %}bg-verde-suave text-verde border-verde
+ {% elif req.estado.value == 'No Cumple' %}bg-rojo-suave text-rojo border-rojo
+ {% elif req.estado.value == 'En Proceso' %}bg-azul-suave text-azul border-azul
+ {% else %}bg-fondo text-grafito-500 border-linea
+ {% endif %}">
                                 {{ req.estado.value }}
                             </span>
                         </td>
@@ -103,12 +103,12 @@
                             <div
                                 class="flex justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                 <a href="{{ url_for('matriz_legal.detalle', id=req.id) }}"
-                                    class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                                    class="p-2 rounded-lg bg-superficie hover:bg-fondo text-grafito-700 hover:text-grafito-900 transition-colors"
                                     title="Ver Detalle / Evidencias">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ url_for('matriz_legal.evaluar_requisito', id=req.id) }}"
-                                    class="p-2 rounded-lg bg-indigo-900/50 hover:bg-indigo-700 text-indigo-300 hover:text-white transition-colors border border-indigo-500/30"
+                                    class="p-2 rounded-lg bg-azul-suave hover:bg-azul-suave text-azul hover:text-grafito-900 transition-colors border border-linea"
                                     title="Evaluar (Jurídico)">
                                     <i class="fas fa-gavel"></i>
                                 </a>
@@ -121,8 +121,8 @@
         </div>
 
         {% if not requisitos %}
-        <div class="p-12 text-center text-slate-500">
-            <i class="fas fa-book-open text-6xl mb-4 opacity-20"></i>
+        <div class="p-12 text-center text-grafito-500">
+            <i class="fas fa-book-open text-6xl mb-4"></i>
             <p>No se han registrado requisitos legales.</p>
         </div>
         {% endif %}

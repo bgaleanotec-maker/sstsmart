@@ -4,54 +4,54 @@
 <div class="max-w-5xl mx-auto">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-white">Autoevaluación de Estándares Mínimos</h1>
-            <p class="text-slate-400 text-sm mt-1">Resolución 0312 de 2019 · registro anual en la plataforma SGRL del Fondo de Riesgos Laborales</p>
+            <h1 class="text-2xl font-bold text-grafito-900">Autoevaluación de Estándares Mínimos</h1>
+            <p class="text-grafito-500 text-sm mt-1">Resolución 0312 de 2019 · registro anual en la plataforma SGRL del Fondo de Riesgos Laborales</p>
         </div>
         <a href="{{ url_for('autoevaluacion.perfil_empresa') }}"
-           class="text-sm text-blue-400 hover:text-blue-300"><i class="fa-solid fa-building mr-1"></i>Datos de la empresa</a>
+           class="text-sm text-azul hover:text-azul"><i class="fa-solid fa-building mr-1"></i>Datos de la empresa</a>
     </div>
 
     {% if empresa %}
-    <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 mb-8 flex flex-wrap gap-8 items-center">
+    <div class="bg-superficie border border-linea rounded-lg p-5 mb-8 flex flex-wrap gap-8 items-center">
         <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500">Empresa</p>
-            <p class="text-white font-semibold">{{ empresa.razon_social }} <span class="text-slate-500 text-sm">NIT {{ empresa.nit }}</span></p>
+            <p class="text-xs text-grafito-500">Empresa</p>
+            <p class="text-grafito-900 font-semibold">{{ empresa.razon_social }} <span class="text-grafito-500 text-sm">NIT {{ empresa.nit }}</span></p>
         </div>
         <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500">Trabajadores</p>
-            <p class="text-white font-semibold">{{ empresa.num_trabajadores }}</p>
+            <p class="text-xs text-grafito-500">Trabajadores</p>
+            <p class="text-grafito-900 font-semibold">{{ empresa.num_trabajadores }}</p>
         </div>
         <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500">Clase de riesgo</p>
-            <p class="text-white font-semibold">{{ empresa.clase_riesgo }}</p>
+            <p class="text-xs text-grafito-500">Clase de riesgo</p>
+            <p class="text-grafito-900 font-semibold">{{ empresa.clase_riesgo }}</p>
         </div>
         <div>
-            <p class="text-xs uppercase tracking-wide text-slate-500">Régimen aplicable</p>
-            <p class="text-blue-400 font-bold text-lg">{{ empresa.regimen_estandares or '—' }} estándares</p>
+            <p class="text-xs text-grafito-500">Régimen aplicable</p>
+            <p class="text-azul font-bold text-lg">{{ empresa.regimen_estandares or '—' }} estándares</p>
         </div>
         <form method="POST" action="{{ url_for('autoevaluacion.nueva') }}" class="ml-auto flex items-center gap-2">
-            <select name="anio" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+            <select name="anio" class="bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900 text-sm">
                 {% for a in range(anio_actual, anio_actual - 4, -1) %}
                 <option value="{{ a }}">Vigencia {{ a }}</option>
                 {% endfor %}
             </select>
-            <button class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg">
+            <button class="bg-azul hover:bg-azul text-white text-sm font-semibold px-4 py-2 rounded-lg">
                 <i class="fa-solid fa-plus mr-1"></i>Nueva autoevaluación
             </button>
         </form>
     </div>
     {% else %}
-    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5 mb-8 text-amber-200">
+    <div class="bg-amarillo-suave border border-amarillo rounded-lg p-5 mb-8 text-amarillo-texto">
         <i class="fa-solid fa-triangle-exclamation mr-2"></i>
         Configura primero los <a class="underline" href="{{ url_for('autoevaluacion.perfil_empresa') }}">datos de la empresa</a>
         (número de trabajadores y clase de riesgo) para determinar si aplican 7, 21 o 60 estándares.
     </div>
     {% endif %}
 
-    <div class="bg-slate-800/60 border border-slate-700 rounded-xl overflow-hidden">
+    <div class="bg-superficie border border-linea rounded-lg overflow-hidden">
         <table class="w-full text-sm">
             <thead>
-                <tr class="text-left text-slate-400 border-b border-slate-700">
+                <tr class="text-left text-grafito-500 border-b border-linea">
                     <th class="px-5 py-3">Vigencia</th>
                     <th class="px-5 py-3">Régimen</th>
                     <th class="px-5 py-3">Estado</th>
@@ -62,33 +62,33 @@
             </thead>
             <tbody>
                 {% for a in autoevaluaciones %}
-                <tr class="border-b border-slate-800 hover:bg-slate-800/40">
-                    <td class="px-5 py-3 text-white font-semibold">{{ a.anio }}</td>
-                    <td class="px-5 py-3 text-slate-300">{{ a.regimen }} estándares</td>
+                <tr class="border-b border-linea hover:bg-superficie">
+                    <td class="px-5 py-3 text-grafito-900 font-semibold">{{ a.anio }}</td>
+                    <td class="px-5 py-3 text-grafito-700">{{ a.regimen }} estándares</td>
                     <td class="px-5 py-3">
                         {% if a.estado == 'CERRADA' %}
-                        <span class="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-emerald-300">Cerrada</span>
+                        <span class="px-2 py-0.5 rounded text-xs bg-verde-suave text-verde">Cerrada</span>
                         {% else %}
-                        <span class="px-2 py-0.5 rounded text-xs bg-blue-500/15 text-blue-300">En curso</span>
+                        <span class="px-2 py-0.5 rounded text-xs bg-azul-suave text-azul">En curso</span>
                         {% endif %}
                     </td>
-                    <td class="px-5 py-3 text-white">{{ '%.1f' % a.puntaje_total if a.puntaje_total is not none else '—' }}</td>
+                    <td class="px-5 py-3 text-grafito-900">{{ '%.1f' % a.puntaje_total if a.puntaje_total is not none else '—' }}</td>
                     <td class="px-5 py-3">
-                        {% if a.clasificacion == 'ACEPTABLE' %}<span class="text-emerald-400 font-semibold">Aceptable</span>
-                        {% elif a.clasificacion == 'MODERADO' %}<span class="text-amber-400 font-semibold">Moderadamente aceptable</span>
-                        {% elif a.clasificacion == 'CRITICO' %}<span class="text-red-400 font-semibold">Crítico</span>
-                        {% else %}<span class="text-slate-500">—</span>{% endif %}
+                        {% if a.clasificacion == 'ACEPTABLE' %}<span class="text-verde font-semibold">Aceptable</span>
+                        {% elif a.clasificacion == 'MODERADO' %}<span class="text-amarillo-texto font-semibold">Moderadamente aceptable</span>
+                        {% elif a.clasificacion == 'CRITICO' %}<span class="text-rojo font-semibold">Crítico</span>
+                        {% else %}<span class="text-grafito-500">—</span>{% endif %}
                     </td>
                     <td class="px-5 py-3 text-right">
                         {% if a.estado == 'CERRADA' %}
-                        <a href="{{ url_for('autoevaluacion.resultado', id=a.id) }}" class="text-blue-400 hover:text-blue-300 text-sm">Ver resultado</a>
+                        <a href="{{ url_for('autoevaluacion.resultado', id=a.id) }}" class="text-azul hover:text-azul text-sm">Ver resultado</a>
                         {% else %}
-                        <a href="{{ url_for('autoevaluacion.diligenciar', id=a.id) }}" class="text-blue-400 hover:text-blue-300 text-sm">Continuar</a>
+                        <a href="{{ url_for('autoevaluacion.diligenciar', id=a.id) }}" class="text-azul hover:text-azul text-sm">Continuar</a>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="6" class="px-5 py-8 text-center text-slate-500">
+                <tr><td colspan="6" class="px-5 py-8 text-center text-grafito-500">
                     Sin autoevaluaciones todavía. La Res. 0312/2019 exige realizarla cada diciembre y registrarla en la plataforma SGRL.
                 </td></tr>
                 {% endfor %}
