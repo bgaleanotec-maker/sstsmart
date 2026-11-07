@@ -1,0 +1,11 @@
+{#
+  Ítem de la barra lateral. Respeta el gating de módulos: si `modulo` no está
+  en `modulos_activos`, no se pinta. Activo por endpoint exacto o, con
+  por_blueprint=True, por blueprint (para módulos con una sola entrada).
+#}
+{% macro nav_item(endpoint, texto, modulo=None, por_blueprint=False) %}
+{% if modulo is none or modulo in modulos_activos %}
+{% set activo = (request.endpoint == endpoint) or (por_blueprint and request.blueprint == endpoint.split('.')[0]) %}
+<a href="{{ url_for(endpoint) }}"{% if activo %} aria-current="page"{% endif %}>{{ texto }}</a>
+{% endif %}
+{% endmacro %}

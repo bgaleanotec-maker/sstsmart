@@ -8,7 +8,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
         <div>
             <h1 style="margin: 0 0 10px 0; color: #333; font-size: 28px;">
-                👤 Mis Controles
+                 Mis Controles
             </h1>
             <p style="margin: 0; color: #666; font-size: 13px;">
                 Controles asignados a tu responsabilidad
@@ -16,7 +16,7 @@
         </div>
         <a href="{{ url_for('controles.listar_controles') }}" 
            style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            📋 Ver Todos
+             Ver Todos
         </a>
     </div>
 
@@ -133,24 +133,24 @@
                                             <div style="display: flex; gap: 5px; justify-content: center;">
                                                 <a href="{{ url_for('controles.editar_control', id=control.id) }}" 
                                                    style="padding: 6px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">
-                                                    ✏️
+                                                    
                                                 </a>
 
                                                 {% if estado == 'Asignado' or estado == 'En Proceso' or estado == 'Planificado' %}
                                                     <form method="POST" action="{{ url_for('controles.marcar_implementado', id=control.id) }}" style="display: inline;">
                                                         <button type="submit" style="padding: 6px 10px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">
-                                                            ✅
+                                                            
                                                         </button>
                                                     </form>
                                                 {% elif estado == 'Implementado' %}
                                                     <button type="button" onclick="openVerifyModal({{ control.id }}, '{{ control.nombre }}')" 
                                                             style="padding: 6px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">
-                                                        📋
+                                                        
                                                     </button>
                                                 {% elif estado == 'Requiere Ajuste' %}
                                                     <form method="POST" action="{{ url_for('controles.marcar_implementado', id=control.id) }}" style="display: inline;">
                                                         <button type="submit" style="padding: 6px 10px; background: #ffc107; color: #333; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">
-                                                            🔄
+                                                            
                                                         </button>
                                                     </form>
                                                 {% endif %}
@@ -166,7 +166,7 @@
         {% endfor %}
     {% else %}
         <div style="background: white; padding: 60px; border-radius: 8px; border: 1px solid #ddd; text-align: center;">
-            <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+            <div style="font-size: 48px; margin-bottom: 20px;"></div>
             <h3 style="color: #666; margin: 0 0 10px 0;">No tienes controles asignados</h3>
             <p style="color: #999; margin: 0;">Solicita a un gestor que te asigne controles para comenzar</p>
         </div>
@@ -199,10 +199,10 @@
 
             <div style="display: flex; gap: 10px;">
                 <button type="submit" style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    ✅ Verificar
+                     Verificar
                 </button>
                 <button type="button" onclick="closeVerifyModal()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    ❌ Cancelar
+                     Cancelar
                 </button>
             </div>
         </form>
@@ -214,7 +214,7 @@
 
     function openVerifyModal(controlId, controlName) {
         currentControlId = controlId;
-        document.getElementById('modalTitle').textContent = '📋 Verificar Control: ' + controlName;
+        document.getElementById('modalTitle').textContent = ' Verificar Control: ' + controlName;
         document.getElementById('verifyForm').action = '/controles/' + controlId + '/verificar';
         document.getElementById('verifyModal').style.display = 'flex';
     }

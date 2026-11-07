@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justrabajo · Cumplimiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Paleta derivada de los colores de seguridad (NTC 1461 / ISO 3864): cada color conserva el
+   significado que el usuario SST ya conoce. Azul = obligación (marca y acciones), rojo = peligro,
+   amarillo = advertencia, verde = condición segura. El resto es grafito neutro. */
+:root{
+  --grafito-900:#1d2125; --grafito-700:#33393f; --grafito-500:#5a636c;
+  --linea:#dde1e5; --fondo:#f3f4f6; --superficie:#ffffff;
+  --azul:#1b4f91; --azul-hover:#163f74; --azul-suave:#e8eef7;
+  --rojo:#c62828;
+  --amarillo:#f2b705; --amarillo-texto:#7a5600; --amarillo-suave:#fef6dc;
+  --verde:#1e7b46;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--grafito-900);font:400 15px/1.5 Barlow,system-ui,sans-serif}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+
+.lateral{background:var(--grafito-900);color:#c9cfd5;display:flex;flex-direction:column;padding:18px 0}
+.marca{display:flex;align-items:center;gap:10px;padding:0 20px 18px;border-bottom:1px solid #2c3238}
+.disco{width:30px;height:30px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;font:700 17px "Barlow Semi Condensed"}
+.marca strong{font:600 20px "Barlow Semi Condensed";color:#fff}
+.lateral nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.lateral nav a{display:block;padding:9px 12px;border-radius:6px;text-decoration:none;font-weight:500;color:#c9cfd5}
+.lateral nav a:hover{background:#272c31;color:#fff}
+.lateral nav a[aria-current]{background:#272c31;color:#fff;box-shadow:inset 3px 0 0 #5b8fd6}
+.lateral h3{font:500 13px Barlow;color:#7d8790;margin:16px 12px 4px}
+.cuenta{margin-top:auto;padding:14px 20px 0;border-top:1px solid #2c3238;font-size:13px;color:#8d969e}
+.cuenta b{display:block;color:#e6e9ec;font-weight:600}
+
+header{background:var(--superficie);border-bottom:1px solid var(--linea);padding:12px 32px;display:flex;align-items:center;gap:24px}
+.empresa{display:flex;flex-direction:column}
+.empresa button{all:unset;cursor:pointer;font:600 18px "Barlow Semi Condensed";display:flex;align-items:center;gap:10px}
+.empresa button::after{content:"";width:6px;height:6px;border-right:2px solid var(--grafito-500);border-bottom:2px solid var(--grafito-500);transform:rotate(45deg) translateY(-3px)}
+.empresa span{font-size:13px;color:var(--grafito-500)}
+.corte{margin-left:auto;font-size:13px;color:var(--grafito-500)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--azul-suave);color:var(--azul);display:grid;place-items:center;font-weight:600;font-size:14px}
+
+main{padding:28px 32px 48px;max-width:1120px}
+h1{font:600 30px/1.15 "Barlow Semi Condensed";margin:0}
+.intro{color:var(--grafito-500);margin:6px 0 24px;max-width:68ch}
+
+.puntaje{background:var(--superficie);border:1px solid var(--linea);border-radius:8px;display:grid;grid-template-columns:minmax(300px,1fr) 1.15fr}
+.medidor{padding:28px 24px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--linea)}
+.medidor svg{width:300px;height:176px}
+.cifra{text-align:center;margin-top:-4px}
+.cifra b{display:block;font:700 76px/1 "Barlow Semi Condensed";letter-spacing:-1px}
+.cifra small{font-size:13px;color:var(--grafito-500)}
+.nivel-actual{margin-top:14px;font:600 17px "Barlow Semi Condensed";color:var(--amarillo-texto);background:var(--amarillo-suave);padding:4px 12px;border-radius:4px}
+.lectura{padding:28px 32px}
+.lectura h2{font:600 19px "Barlow Semi Condensed";margin:0 0 4px}
+.lectura p{margin:0 0 16px;color:var(--grafito-700)}
+.escala{list-style:none;margin:0 0 20px;padding:0;border:1px solid var(--linea);border-radius:6px}
+.escala li{display:grid;grid-template-columns:12px 160px 1fr;gap:12px;align-items:start;padding:11px 14px;border-top:1px solid var(--linea);font-size:14px}
+.escala li:first-child{border-top:0}
+.escala i{width:12px;height:12px;border-radius:2px;margin-top:5px}
+.escala strong{font-weight:600}
+.escala .tu{background:var(--amarillo-suave)}
+.escala .tu strong::after{content:"Tu empresa está aquí";display:block;font-size:12px;font-weight:600;color:var(--amarillo-texto)}
+.boton{display:inline-block;background:var(--azul);color:#fff;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:6px}
+.boton:hover{background:var(--azul-hover)}
+.nota{font-size:13px;color:var(--grafito-500);margin:10px 0 0}
+
+.cifras{display:grid;grid-template-columns:repeat(4,1fr);margin:24px 0;background:var(--superficie);border:1px solid var(--linea);border-radius:8px}
+.cifras a{padding:16px 20px;text-decoration:none;border-left:1px solid var(--linea)}
+.cifras a:first-child{border-left:0}
+.cifras a:hover{background:#fafbfc}
+.cifras span{display:block;font-size:14px;color:var(--grafito-500)}
+.cifras b{display:block;font:600 34px/1.1 "Barlow Semi Condensed";margin:4px 0 2px}
+.cifras small{font-size:13px;color:var(--grafito-500)}
+.cifras .alerta small{color:var(--rojo);font-weight:600}
+
+.tabla{background:var(--superficie);border:1px solid var(--linea);border-radius:8px}
+.tabla h2{font:600 19px "Barlow Semi Condensed";margin:0;padding:16px 20px;border-bottom:1px solid var(--linea)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--grafito-500);padding:10px 20px;border-bottom:1px solid var(--linea)}
+td{padding:12px 20px;border-bottom:1px solid var(--linea)}
+tr:last-child td{border-bottom:0}
+td.fecha{font-variant-numeric:tabular-nums;white-space:nowrap}
+.estado{display:inline-flex;align-items:center;gap:7px;font-weight:600;white-space:nowrap}
+.estado::before{content:"";width:9px;height:9px;border-radius:50%}
+.e-rojo{color:var(--rojo)}.e-rojo::before{background:var(--rojo)}
+.e-amarillo{color:var(--amarillo-texto)}.e-amarillo::before{background:var(--amarillo)}
+.e-verde{color:var(--verde)}.e-verde::before{background:var(--verde)}
+
+.menu-movil{display:none}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}.lateral{display:none}
+  header{padding:12px 16px;gap:12px}.menu-movil{display:block;background:none;border:0;font-size:22px;cursor:pointer;padding:0}
+  .corte{display:none}main{padding:20px 16px 40px}
+  .puntaje{grid-template-columns:1fr}.medidor{border-right:0;border-bottom:1px solid var(--linea)}
+  .lectura{padding:20px 16px}.escala li{grid-template-columns:12px 1fr}.escala li span{grid-column:2}
+  .cifras{grid-template-columns:1fr 1fr}.cifras a:nth-child(3){border-left:0}.cifras a:nth-child(n+3){border-top:1px solid var(--linea)}
+  th.mod,td.mod{display:none}td,th{padding:10px 14px}
+  .medidor svg{width:260px;height:153px}.cifra b{font-size:64px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="lateral" aria-label="Navegación">
+    <div class="marca"><div class="disco" aria-hidden="true">J</div><strong>Justrabajo</strong></div>
+    <nav>
+      <a href="#" aria-current="page">Cumplimiento</a>
+      <a href="#">Autoevaluación 0312</a>
+      <a href="#">Plan anual</a>
+      <h3>Gestión</h3>
+      <a href="#">Reportes de condiciones</a>
+      <a href="#">EPP y dotación</a>
+      <a href="#">Matriz legal</a>
+      <a href="#">PESV</a>
+      <h3>Consultoría</h3>
+      <a href="#">Mis empresas (12 de 15)</a>
+    </nav>
+    <div class="cuenta"><b>Ana Rojas</b>Consultora SST, plan Consultor</div>
+  </aside>
+
+  <section>
+    <header>
+      <button class="menu-movil" aria-label="Abrir menú">☰</button>
+      <div class="empresa">
+        <button aria-haspopup="listbox">Transportes El Recreo S.A.S.</button>
+        <span>NIT 900.123.456-7, 46 trabajadores, riesgo IV</span>
+      </div>
+      <div class="corte">Datos al 22 de octubre de 2026</div>
+      <div class="avatar" aria-hidden="true">AR</div>
+    </header>
+
+    <main>
+      <h1>Cumplimiento SG-SST</h1>
+      <p class="intro">Resultado de la autoevaluación 2026 frente a los 60 estándares mínimos de la Resolución 0312 de 2019.</p>
+
+      <div class="puntaje">
+        <div class="medidor">
+          <svg viewBox="0 0 220 130" role="img" aria-label="72 de 100 puntos, nivel moderadamente aceptable">
+            <path d="M20 115 A90 90 0 0 1 137.8 29.4" fill="none" stroke="#c62828" stroke-width="16"/>
+            <path d="M137.8 29.4 A90 90 0 0 1 190.2 74.1" fill="none" stroke="#f2b705" stroke-width="16"/>
+            <path d="M190.2 74.1 A90 90 0 0 1 200 115" fill="none" stroke="#1e7b46" stroke-width="16"/>
+            <line x1="110" y1="115" x2="161" y2="53.4" stroke="#1d2125" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="110" cy="115" r="7" fill="#1d2125"/>
+            <text x="20" y="128" font-size="8" fill="#5a636c" text-anchor="middle" font-family="Barlow">0</text>
+            <text x="137.8" y="17" font-size="8" fill="#5a636c" text-anchor="middle" font-family="Barlow">60</text>
+            <text x="203" y="70" font-size="8" fill="#5a636c" text-anchor="middle" font-family="Barlow">85</text>
+            <text x="200" y="128" font-size="8" fill="#5a636c" text-anchor="middle" font-family="Barlow">100</text>
+          </svg>
+          <div class="cifra"><b>72</b><small>de 100 puntos</small></div>
+          <div class="nivel-actual">Moderadamente aceptable</div>
+        </div>
+
+        <div class="lectura">
+          <h2>Qué significa este resultado</h2>
+          <p>La empresa debe presentar un plan de mejoramiento. Con 14 puntos más pasa a nivel aceptable.</p>
+          <ul class="escala">
+            <li><i style="background:var(--rojo)"></i><strong>Crítico</strong><span>Menos de 60 puntos. Plan de mejoramiento inmediato y seguimiento de la ARL.</span></li>
+            <li class="tu"><i style="background:var(--amarillo)"></i><strong>Moderadamente aceptable</strong><span>De 60 a 85 puntos. Plan de mejoramiento con seguimiento.</span></li>
+            <li><i style="background:var(--verde)"></i><strong>Aceptable</strong><span>Más de 85 puntos. Mantener y registrar mejoras en el plan anual.</span></li>
+          </ul>
+          <a class="boton" href="#">Ver las 9 acciones pendientes</a>
+          <p class="nota">Ordenadas por los puntos que suma cada una.</p>
+        </div>
+      </div>
+
+      <div class="cifras">
+        <a href="#" class="alerta"><span>Acciones de mejora abiertas</span><b>9</b><small>3 vencidas</small></a>
+        <a href="#"><span>Reportes de condiciones abiertos</span><b>4</b><small>de 31 en 2026</small></a>
+        <a href="#"><span>Requisitos legales</span><b>58</b><small>2 actualizados este mes</small></a>
+        <a href="#"><span>Trabajadores</span><b>46</b><small>Régimen de 60 estándares</small></a>
+      </div>
+
+      <div class="tabla">
+        <h2>Próximos vencimientos</h2>
+        <table>
+          <thead><tr><th>Estado</th><th>Actividad</th><th class="mod">Módulo</th><th>Fecha</th></tr></thead>
+          <tbody>
+            <tr><td><span class="estado e-rojo">Vencida</span></td><td>Entrega de dotación del segundo cuatrimestre</td><td class="mod">EPP y dotación</td><td class="fecha">30 ago 2026</td></tr>
+            <tr><td><span class="estado e-amarillo">En 12 días</span></td><td>Simulacro de evacuación del plan de emergencias</td><td class="mod">Plan anual</td><td class="fecha">4 nov 2026</td></tr>
+            <tr><td><span class="estado e-verde">En 75 días</span></td><td>Reporte anual del PESV</td><td class="mod">PESV</td><td class="fecha">6 ene 2027</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+</div>
+</body>
+</html>

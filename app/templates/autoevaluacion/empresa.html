@@ -2,50 +2,50 @@
 {% block title %}Datos de la empresa · Justrabajo{% endblock %}
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-white mb-2">Datos de la empresa</h1>
-    <p class="text-slate-400 text-sm mb-8">Determinan el régimen de estándares mínimos (7, 21 o 60) según los arts. 3, 9 y 16 de la Res. 0312/2019: número de trabajadores y clase de riesgo (I a V).</p>
+    <h1 class="text-2xl font-bold text-grafito-900 mb-2">Datos de la empresa</h1>
+    <p class="text-grafito-500 text-sm mb-8">Determinan el régimen de estándares mínimos (7, 21 o 60) según los arts. 3, 9 y 16 de la Res. 0312/2019: número de trabajadores y clase de riesgo (I a V).</p>
 
-    <form method="POST" class="bg-slate-800/60 border border-slate-700 rounded-xl p-6 space-y-5">
+    <form method="POST" class="bg-superficie border border-linea rounded-lg p-6 space-y-5">
         <div class="grid md:grid-cols-2 gap-5">
             <div>
-                <label class="block text-sm text-slate-300 mb-1">NIT</label>
+                <label class="block text-sm text-grafito-700 mb-1">NIT</label>
                 <input name="nit" value="{{ empresa.nit if empresa else '' }}" required
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                       class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900">
             </div>
             <div>
-                <label class="block text-sm text-slate-300 mb-1">Razón social</label>
+                <label class="block text-sm text-grafito-700 mb-1">Razón social</label>
                 <input name="razon_social" value="{{ empresa.razon_social if empresa else '' }}" required
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                       class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900">
             </div>
             <div>
-                <label class="block text-sm text-slate-300 mb-1">Código CIIU (actividad principal)</label>
+                <label class="block text-sm text-grafito-700 mb-1">Código CIIU (actividad principal)</label>
                 <input name="ciiu" value="{{ empresa.ciiu or '' if empresa else '' }}"
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                       class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900">
             </div>
             <div>
-                <label class="block text-sm text-slate-300 mb-1">Número de trabajadores</label>
+                <label class="block text-sm text-grafito-700 mb-1">Número de trabajadores</label>
                 <input type="number" min="1" name="num_trabajadores" value="{{ empresa.num_trabajadores if empresa else 1 }}" required
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                       class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900">
             </div>
             <div>
-                <label class="block text-sm text-slate-300 mb-1">Clase de riesgo (Decreto 1607/2002)</label>
-                <select name="clase_riesgo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <label class="block text-sm text-grafito-700 mb-1">Clase de riesgo (Decreto 1607/2002)</label>
+                <select name="clase_riesgo" class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900">
                     {% for c in [1,2,3,4,5] %}
                     <option value="{{ c }}" {% if empresa and empresa.clase_riesgo == c %}selected{% endif %}>Clase {{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
-        <label class="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
-            <input type="checkbox" name="unidad_agropecuaria" class="w-4 h-4 accent-amber-500"
+        <label class="flex items-center gap-3 text-sm text-grafito-700 cursor-pointer">
+            <input type="checkbox" name="unidad_agropecuaria" class="w-4 h-4 accent-azul"
                    {% if empresa and empresa.unidad_agropecuaria %}checked{% endif %}>
             Unidad de producción agropecuaria
-            <span class="text-xs text-slate-500">(art. 3 num. 8 Res. 0312: con ≤10 trabajadores aplican 21 estándares, no 7)</span>
+            <span class="text-xs text-grafito-500">(art. 3 num. 8 Res. 0312: con ≤10 trabajadores aplican 21 estándares, no 7)</span>
         </label>
-        <p class="text-xs text-slate-500">Nota: el Decreto 957/2019 clasifica el tamaño empresarial por ingresos; el régimen de estándares de la Res. 0312 se determina por trabajadores y riesgo. Son clasificaciones distintas.</p>
+        <p class="text-xs text-grafito-500">Nota: el Decreto 957/2019 clasifica el tamaño empresarial por ingresos; el régimen de estándares de la Res. 0312 se determina por trabajadores y riesgo. Son clasificaciones distintas.</p>
         <div class="flex justify-end gap-3">
-            <a href="{{ url_for('autoevaluacion.lista') }}" class="px-4 py-2 text-slate-300 hover:text-white text-sm">Cancelar</a>
-            <button class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-5 py-2 rounded-lg text-sm">Guardar</button>
+            <a href="{{ url_for('autoevaluacion.lista') }}" class="px-4 py-2 text-grafito-700 hover:text-grafito-900 text-sm">Cancelar</a>
+            <button class="bg-azul hover:bg-azul text-white font-semibold px-5 py-2 rounded-lg text-sm">Guardar</button>
         </div>
     </form>
 </div>

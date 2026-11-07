@@ -8,7 +8,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
         <div>
             <h1 style="margin: 0; color: #333; font-size: 28px;">
-                🛡️ Gestión de Controles
+                 Gestión de Controles
             </h1>
             <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">
                 Decreto 1072/2015 - Resolución 0312/2019
@@ -16,10 +16,10 @@
         </div>
         <div style="display: flex; gap: 10px;">
             <a href="{{ url_for('controles.crear_control') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                ➕ Nuevo Control
+                 Nuevo Control
             </a>
             <a href="{{ url_for('controles.mis_controles') }}" style="padding: 10px 20px; background: #17a2b8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                👤 Mis Controles
+                 Mis Controles
             </a>
         </div>
     </div>
@@ -55,7 +55,7 @@
 
     <!-- Filtros -->
     <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 30px;">
-        <h3 style="margin-top: 0; color: #333;">🔍 Filtros</h3>
+        <h3 style="margin-top: 0; color: #333;"> Filtros</h3>
         <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Estado</label>
@@ -81,10 +81,10 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: flex-end;">
                 <button type="submit" style="flex: 1; padding: 8px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    🔎 Filtrar
+                     Filtrar
                 </button>
                 <a href="{{ url_for('controles.listar_controles') }}" style="padding: 8px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    🔄
+                    
                 </a>
             </div>
         </form>
@@ -93,7 +93,7 @@
     <!-- Tabla -->
     <div style="background: white; border-radius: 8px; border: 1px solid #ddd; overflow-x: auto;">
         <h3 style="padding: 20px 20px 0 20px; margin: 0; color: #333;">
-            📋 Listado de Controles ({{ controles|length }} registros)
+             Listado de Controles ({{ controles|length }} registros)
         </h3>
 
         {% if controles %}
@@ -187,11 +187,11 @@
                                 <div style="display: flex; gap: 5px; justify-content: center;">
                                     <a href="{{ url_for('controles.editar_control', id=control.id) }}" 
                                        style="padding: 5px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">
-                                        ✏️ Editar
+                                         Editar
                                     </a>
                                     <button onclick="alert('Detalles de {{ control.nombre }}\n\nCódigo: {{ control.codigo }}\nTipo: {{ control.tipo_control }}\nNivel: {{ control.nivel_control }}\nResponsable: {{ control.responsable.nombre_completo if control.responsable else 'No asignado' }}\nEstado: {{ control.estado }}\nEfectividad: {{ control.efectividad_porcentaje or 'N/A' }}%')" 
                                             style="padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">
-                                        👁️ Ver
+                                         Ver
                                     </button>
                                 </div>
                             </td>
@@ -201,12 +201,12 @@
             </table>
         {% else %}
             <div style="padding: 40px; text-align: center; color: #666;">
-                <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+                <div style="font-size: 48px; margin-bottom: 20px;"></div>
                 <h3>No hay controles registrados</h3>
                 <p>Crea tu primer control para empezar</p>
                 <a href="{{ url_for('controles.crear_control') }}" 
                    style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">
-                    ➕ Crear Control
+                     Crear Control
                 </a>
             </div>
         {% endif %}

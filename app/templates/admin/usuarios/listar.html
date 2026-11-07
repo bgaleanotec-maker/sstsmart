@@ -2,33 +2,33 @@
 
 {% block page_title %}Gestión de Usuarios{% endblock %}
 
-{% block content %}
-<div class="animate-fade-in space-y-6">
+{% block admin_content %}
+<div class="space-y-6">
 
     <!-- Header & Action -->
     <div
-        class="flex justify-between items-center bg-slate-900/50 p-4 rounded-xl border border-slate-800 backdrop-blur-sm">
+        class="flex justify-between items-center bg-fondo p-4 rounded-lg border border-linea">
         <div>
-            <h2 class="text-2xl font-bold text-white">Directorio de Usuarios</h2>
-            <p class="text-slate-400 text-sm">Administra el acceso y roles del personal.</p>
+            <h2 class="text-2xl font-bold text-grafito-900">Directorio de Usuarios</h2>
+            <p class="text-grafito-500 text-sm">Administra el acceso y roles del personal.</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ url_for('admin.prueba_notificacion') }}"
-                class="px-4 py-2 border border-blue-500 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all flex items-center gap-2">
+                class="px-4 py-2 border border-azul text-azul hover:bg-azul-suave rounded-lg transition-all flex items-center gap-2">
                 <i class="fas fa-paper-plane"></i> Probar Email
             </a>
             <a href="{{ url_for('admin.crear_usuario') }}"
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg shadow-blue-500/20 transition-all transform active:scale-95 flex items-center gap-2">
+                class="px-4 py-2 bg-azul hover:bg-azul text-white rounded-lg transition-all transform active:scale-95 flex items-center gap-2">
                 <i class="fas fa-user-plus"></i> Nuevo Usuario
             </a>
         </div>
     </div>
 
     <!-- Users Table -->
-    <div class="glass-card overflow-hidden">
+    <div class="panel overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-slate-800/50 text-slate-300 text-sm uppercase tracking-wider">
+                <tr class="bg-superficie text-grafito-700 text-sm">
                     <th class="p-4 font-semibold">Usuario</th>
                     <th class="p-4 font-semibold">Rol</th>
                     <th class="p-4 font-semibold">Estado</th>
@@ -37,48 +37,48 @@
             </thead>
             <tbody class="divide-y divide-slate-700/50">
                 {% for usuario in usuarios %}
-                <tr class="hover:bg-slate-700/30 transition-colors group">
+                <tr class="hover:bg-fondo transition-colors group">
                     <td class="p-4">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-grafito-900 font-bold text-sm">
                                 {{ usuario.nombre_completo[:2].upper() }}
                             </div>
                             <div>
-                                <div class="font-bold text-white">{{ usuario.nombre_completo }}</div>
-                                <div class="text-xs text-slate-400">{{ usuario.email }}</div>
+                                <div class="font-bold text-grafito-900">{{ usuario.nombre_completo }}</div>
+                                <div class="text-xs text-grafito-500">{{ usuario.email }}</div>
                             </div>
                         </div>
                     </td>
                     <td class="p-4">
                         {% if usuario.rol == 'Admin' %}
                         <span
-                            class="px-2 py-1 rounded bg-red-500/20 text-red-300 text-xs font-bold border border-red-500/30">Admin</span>
+                            class="px-2 py-1 rounded bg-rojo-suave text-rojo text-xs font-bold border border-rojo">Admin</span>
                         {% elif usuario.rol == 'Juridico' %}
                         <span
-                            class="px-2 py-1 rounded bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">Jurídico</span>
+                            class="px-2 py-1 rounded bg-azul-suave text-azul text-xs font-bold border border-linea">Jurídico</span>
                         {% elif usuario.rol == 'ResponsableSST' %}
                         <span
-                            class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">SST</span>
+                            class="px-2 py-1 rounded bg-verde-suave text-verde text-xs font-bold border border-verde">SST</span>
                         {% else %}
                         <span
-                            class="px-2 py-1 rounded bg-slate-700 text-slate-300 text-xs font-bold border border-slate-600">Empleado</span>
+                            class="px-2 py-1 rounded bg-fondo text-grafito-700 text-xs font-bold border border-linea">Empleado</span>
                         {% endif %}
                     </td>
                     <td class="p-4">
                         {% if usuario.activo %}
-                        <span class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div> Activo
+                        <span class="flex items-center gap-1 text-verde text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-verde"></div> Activo
                         </span>
                         {% else %}
-                        <span class="flex items-center gap-1 text-slate-500 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Inactivo
+                        <span class="flex items-center gap-1 text-grafito-500 text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-fondo"></div> Inactivo
                         </span>
                         {% endif %}
                     </td>
                     <td class="p-4 text-right">
                         <a href="{{ url_for('admin.editar_usuario', user_id=usuario.id) }}"
-                            class="text-slate-400 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-slate-700">
+                            class="text-grafito-500 hover:text-azul transition-colors p-2 rounded-full hover:bg-fondo">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>
@@ -88,7 +88,7 @@
         </table>
 
         {% if not usuarios %}
-        <div class="p-12 text-center text-slate-500">
+        <div class="p-12 text-center text-grafito-500">
             <i class="fas fa-users-slash text-4xl mb-3 opacity-50"></i>
             <p>No se encontraron usuarios.</p>
         </div>

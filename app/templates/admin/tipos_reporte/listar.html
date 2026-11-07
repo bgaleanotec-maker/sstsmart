@@ -3,25 +3,25 @@
 {% block title %}Tipos de Reporte - Admin SST{% endblock %}
 {% block page_title %}Tipos de Reporte{% endblock %}
 
-{% block content %}
-<div class="animate-fade-in space-y-6">
+{% block admin_content %}
+<div class="space-y-6">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-white">Tipos de Reporte</h1>
-            <p class="text-slate-400 text-sm">Clasifica los incidentes y condiciones reportadas.</p>
+            <h1 class="text-2xl font-bold text-grafito-900">Tipos de Reporte</h1>
+            <p class="text-grafito-500 text-sm">Clasifica los incidentes y condiciones reportadas.</p>
         </div>
         <a href="{{ url_for('admin.crear_tipo_reporte') }}"
-            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-500 shadow-lg shadow-purple-500/20 font-medium transition-all transform active:scale-95 flex items-center gap-2">
+            class="bg-azul-suave text-grafito-900 px-4 py-2 rounded-lg hover:bg-azul-suave font-medium transition-all transform active:scale-95 flex items-center gap-2">
             <i class="fas fa-plus"></i> Nuevo Tipo
         </a>
     </div>
 
     {% if tipos %}
-    <div class="glass-card overflow-hidden">
+    <div class="panel overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr
-                    class="bg-slate-800/50 text-slate-300 text-sm uppercase tracking-wider border-b border-slate-700/50">
+                    class="bg-superficie text-grafito-700 text-sm border-b border-linea">
                     <th class="p-4 font-semibold">Nombre</th>
                     <th class="p-4 font-semibold">Descripción</th>
                     <th class="p-4 font-semibold">Investigación</th>
@@ -31,32 +31,32 @@
             </thead>
             <tbody class="divide-y divide-slate-700/50">
                 {% for tipo in tipos %}
-                <tr class="hover:bg-slate-700/30 transition-colors">
-                    <td class="p-4 font-bold text-white">{{ tipo.nombre }}</td>
-                    <td class="p-4 text-sm text-slate-400">{{ tipo.descripcion[:50] or 'N/A' }}</td>
+                <tr class="hover:bg-fondo transition-colors">
+                    <td class="p-4 font-bold text-grafito-900">{{ tipo.nombre }}</td>
+                    <td class="p-4 text-sm text-grafito-500">{{ tipo.descripcion[:50] or 'N/A' }}</td>
                     <td class="p-4">
                         {% if tipo.requiere_investigacion %}
                         <span
-                            class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold border border-blue-500/30">Requerida</span>
+                            class="px-3 py-1 bg-azul-suave text-azul rounded-full text-xs font-bold border border-azul">Requerida</span>
                         {% else %}
                         <span
-                            class="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs font-bold border border-slate-600">Opcional</span>
+                            class="px-3 py-1 bg-fondo text-grafito-700 rounded-full text-xs font-bold border border-linea">Opcional</span>
                         {% endif %}
                     </td>
                     <td class="p-4">
                         {% if tipo.activo %}
-                        <span class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div> Activo
+                        <span class="flex items-center gap-1 text-verde text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-verde"></div> Activo
                         </span>
                         {% else %}
-                        <span class="flex items-center gap-1 text-slate-500 text-xs font-bold">
-                            <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Inactivo
+                        <span class="flex items-center gap-1 text-grafito-500 text-xs font-bold">
+                            <div class="w-1.5 h-1.5 rounded-full bg-fondo"></div> Inactivo
                         </span>
                         {% endif %}
                     </td>
                     <td class="p-4 text-right">
                         <a href="{{ url_for('admin.editar_tipo_reporte', id=tipo.id) }}"
-                            class="text-slate-400 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-slate-700">
+                            class="text-grafito-500 hover:text-azul transition-colors p-2 rounded-full hover:bg-fondo">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>
@@ -66,10 +66,10 @@
         </table>
     </div>
     {% else %}
-    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-12 text-center text-slate-400">
+    <div class="bg-superficie border border-linea rounded-lg p-12 text-center text-grafito-500">
         <i class="fas fa-file-invoice-dollar text-4xl mb-4 opacity-50"></i>
         <p>No hay tipos de reporte. <a href="{{ url_for('admin.crear_tipo_reporte') }}"
-                class="text-purple-400 hover:underline font-semibold">Crear uno ahora</a></p>
+                class="text-azul hover:underline font-semibold">Crear uno ahora</a></p>
     </div>
     {% endif %}
 </div>

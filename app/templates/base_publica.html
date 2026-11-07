@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Justrabajo{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: {
+            'grafito-900': '#1d2125', 'grafito-700': '#33393f', 'grafito-500': '#5a636c',
+            'linea': '#dde1e5', 'fondo': '#f3f4f6', 'superficie': '#ffffff',
+            'azul': '#1b4f91', 'azul-hover': '#163f74', 'azul-suave': '#e8eef7',
+            'rojo': '#c62828', 'rojo-suave': '#fbe9e7', 'amarillo': '#f2b705',
+            'amarillo-texto': '#7a5600', 'amarillo-suave': '#fef6dc', 'verde': '#1e7b46', 'verde-suave': '#e3f1e8'
+        }, fontFamily: { sans: ['Barlow', 'system-ui', 'sans-serif'], display: ['"Barlow Semi Condensed"', 'Barlow', 'sans-serif'] } } } }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body>
+    <main class="contenido" style="max-width:none;padding:0">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="max-w-md mx-auto mt-6 flex flex-col gap-2 px-4">
+            {% for category, message in messages %}
+            <div class="aviso {% if category == 'error' %}aviso-error{% elif category == 'success' %}aviso-exito{% else %}aviso-info{% endif %}" role="status"><span>{{ message }}</span></div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Configuración de IA · Justrabajo{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+    <h1>Asistente de IA</h1>
+    <p class="text-grafito-500 mt-1 mb-6">Modelo y comportamiento del experto SST. La clave de la API se configura solo por variable de entorno (GEMINI_API_KEY), nunca aquí.</p>
+
+    <form method="POST" class="panel p-6 space-y-5" id="form-ia">
+        <div>
+            <label class="block text-sm text-grafito-700 mb-1" for="nombre_modelo">Modelo</label>
+            <input id="nombre_modelo" name="nombre_modelo" class="campo" value="{{ config.nombre_modelo if config else 'gemini-2.0-flash' }}">
+        </div>
+        <div>
+            <label class="block text-sm text-grafito-700 mb-1" for="prompt_sistema">Instrucciones del sistema (opcional)</label>
+            <textarea id="prompt_sistema" name="prompt_sistema" rows="8" class="campo">{{ config.prompt_sistema or '' if config else '' }}</textarea>
+            <p class="text-xs text-grafito-500 mt-1">Si se deja vacío se usa el prompt base de análisis de condiciones inseguras.</p>
+        </div>
+        <div>
+            <label class="block text-sm text-grafito-700 mb-1" for="umbral_confianza">Umbral de confianza (0 a 1)</label>
+            <input id="umbral_confianza" name="umbral_confianza" type="number" step="0.05" min="0" max="1" class="campo w-40"
+                   value="{{ config.umbral_confianza if config else 0.75 }}">
+        </div>
+        <div class="flex justify-end">
+            <button class="boton" type="submit">Guardar configuración</button>
+        </div>
+    </form>
+</div>
+<script>
+    // La ruta responde JSON; mostramos el resultado sin salir de la página.
+    document.getElementById('form-ia').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const r = await fetch(this.action || window.location.href, { method: 'POST', body: new FormData(this) });
+        alert(r.ok ? 'Configuración guardada' : 'No se pudo guardar la configuración');
+    });
+</script>
+{% endblock %}

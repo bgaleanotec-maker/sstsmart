@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 animate-fade-in">
+<div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-white">{{ consulta.numero_consulta }}</h1>
-            <p class="text-slate-300">{{ consulta.titulo }}</p>
+            <h1 class="text-3xl font-bold text-grafito-900">{{ consulta.numero_consulta }}</h1>
+            <p class="text-grafito-700">{{ consulta.titulo }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ url_for('juridico.listar') }}"
-                class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors border border-slate-600">
+                class="px-4 py-2 rounded-lg bg-fondo text-grafito-700 hover:bg-fondo transition-colors border border-linea">
                 ← Volver
             </a>
             <a href="{{ url_for('juridico.descargar_reporte', id=consulta.id) }}"
@@ -21,64 +21,64 @@
     </div>
 
     <!-- Estado y Badges -->
-    <div class="glass-card p-6 mb-6">
+    <div class="panel p-6 mb-6">
         <div class="flex flex-wrap gap-3 mb-4">
             <span class="px-3 py-1 rounded-full text-sm font-semibold border
-                {% if consulta.estado == 'Abierta' %}bg-yellow-500/20 text-yellow-300 border-yellow-500/30
-                {% elif consulta.estado == 'En revisión' %}bg-blue-500/20 text-blue-300 border-blue-500/30
-                {% elif consulta.estado == 'Resuelta' %}bg-emerald-500/20 text-emerald-300 border-emerald-500/30
-                {% else %}bg-slate-500/20 text-slate-300 border-slate-500/30{% endif %}">
+ {% if consulta.estado == 'Abierta' %}bg-amarillo-suave text-amarillo-texto border-amarillo
+ {% elif consulta.estado == 'En revisión' %}bg-azul-suave text-azul border-azul
+ {% elif consulta.estado == 'Resuelta' %}bg-verde-suave text-verde border-verde
+ {% else %}bg-fondo text-grafito-700 border-linea{% endif %}">
                 {{ consulta.estado }}
             </span>
             <span class="px-3 py-1 rounded-full text-sm font-semibold border
-                {% if consulta.prioridad == 'Crítica' %}bg-red-500/20 text-red-300 border-red-500/30
-                {% elif consulta.prioridad == 'Alta' %}bg-orange-500/20 text-orange-300 border-orange-500/30
-                {% elif consulta.prioridad == 'Normal' %}bg-blue-500/20 text-blue-300 border-blue-500/30
-                {% else %}bg-slate-500/20 text-slate-300 border-slate-500/30{% endif %}">
+ {% if consulta.prioridad == 'Crítica' %}bg-rojo-suave text-rojo border-rojo
+ {% elif consulta.prioridad == 'Alta' %}bg-rojo-suave text-rojo border-orange-500/30
+ {% elif consulta.prioridad == 'Normal' %}bg-azul-suave text-azul border-azul
+ {% else %}bg-fondo text-grafito-700 border-linea{% endif %}">
                 Prioridad: {{ consulta.prioridad }}
             </span>
             <span class="px-3 py-1 rounded-full text-sm font-semibold border
-                {% if consulta.riesgo_legal == 'Crítico' %}bg-red-500/20 text-red-300 border-red-500/30
-                {% elif consulta.riesgo_legal == 'Alto' %}bg-orange-500/20 text-orange-300 border-orange-500/30
-                {% elif consulta.riesgo_legal == 'Medio' %}bg-yellow-500/20 text-yellow-300 border-yellow-500/30
-                {% else %}bg-emerald-500/20 text-emerald-300 border-emerald-500/30{% endif %}">
+ {% if consulta.riesgo_legal == 'Crítico' %}bg-rojo-suave text-rojo border-rojo
+ {% elif consulta.riesgo_legal == 'Alto' %}bg-rojo-suave text-rojo border-orange-500/30
+ {% elif consulta.riesgo_legal == 'Medio' %}bg-amarillo-suave text-amarillo-texto border-amarillo
+ {% else %}bg-verde-suave text-verde border-verde{% endif %}">
                 Riesgo: {{ consulta.riesgo_legal }}
             </span>
         </div>
 
         {% if sla_excedido %}
-        <div class="bg-red-900/30 border-l-4 border-red-500 p-4 mb-4 rounded-r">
-            <p class="text-red-300 font-semibold flex items-center gap-2">
+        <div class="bg-rojo-suave border-l-4 border-rojo p-4 mb-4 rounded-r">
+            <p class="text-rojo font-semibold flex items-center gap-2">
                 <i class="fa-solid fa-triangle-exclamation"></i> SLA Excedido - {{ sla_dias }} días transcurridos
             </p>
         </div>
         {% endif %}
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-700/50">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-linea">
             <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Tipo</p>
-                <p class="font-semibold text-white">{{ consulta.tipo_consulta }}</p>
+                <p class="text-xs text-grafito-500">Tipo</p>
+                <p class="font-semibold text-grafito-900">{{ consulta.tipo_consulta }}</p>
             </div>
             <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Creado por</p>
-                <p class="font-semibold text-white">{{ consulta.responsable_creador.nombre_completo if
+                <p class="text-xs text-grafito-500">Creado por</p>
+                <p class="font-semibold text-grafito-900">{{ consulta.responsable_creador.nombre_completo if
                     consulta.responsable_creador else 'N/A' }}</p>
             </div>
             <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Fecha creación</p>
-                <p class="font-semibold text-white">{{ consulta.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</p>
+                <p class="text-xs text-grafito-500">Fecha creación</p>
+                <p class="font-semibold text-grafito-900">{{ consulta.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</p>
             </div>
             <div>
-                <p class="text-xs text-slate-400 uppercase tracking-wider">Abogado asignado</p>
-                <p class="font-semibold text-white flex items-center gap-2">
+                <p class="text-xs text-grafito-500">Abogado asignado</p>
+                <p class="font-semibold text-grafito-900 flex items-center gap-2">
                     {% if consulta.abogado %}
                     <span
-                        class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-300">
+                        class="w-6 h-6 rounded-full bg-azul-suave flex items-center justify-center text-xs text-azul">
                         {{ consulta.abogado.nombre_completo[:1] }}
                     </span>
                     {{ consulta.abogado.nombre_completo }}
                     {% else %}
-                    <span class="text-slate-500 italic">Sin asignar</span>
+                    <span class="text-grafito-500 italic">Sin asignar</span>
                     {% endif %}
                 </p>
             </div>
@@ -87,20 +87,20 @@
 
     <!-- Asignar Abogado -->
     {% if puede_asignar and consulta.estado == 'Abierta' %}
-    <div class="glass-card p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-scale-balanced text-purple-400"></i> Asignar Abogado
+    <div class="panel p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-scale-balanced text-azul"></i> Asignar Abogado
         </h2>
         <form method="POST" action="{{ url_for('juridico.detalle', id=consulta.id) }}" class="flex gap-4">
             <input type="hidden" name="accion" value="asignar">
             <select name="abogado_id" required class="flex-1 modern-input">
-                <option value="" class="bg-slate-800">Seleccionar abogado...</option>
+                <option value="" class="bg-superficie">Seleccionar abogado...</option>
                 {% for abogado in abogados %}
-                <option value="{{ abogado.id }}" class="bg-slate-800">{{ abogado.nombre_completo }}</option>
+                <option value="{{ abogado.id }}" class="bg-superficie">{{ abogado.nombre_completo }}</option>
                 {% endfor %}
             </select>
             <button type="submit"
-                class="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-lg shadow-purple-900/20">
+                class="px-6 py-2 rounded-lg bg-azul-suave text-grafito-900 hover:bg-azul-suave transition-colors">
                 Asignar
             </button>
         </form>
@@ -108,39 +108,39 @@
     {% endif %}
 
     <!-- Descripción -->
-    <div class="glass-card p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-align-left text-blue-400"></i> Descripción
+    <div class="panel p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-align-left text-azul"></i> Descripción
         </h2>
-        <div class="p-4 rounded-lg bg-slate-900/30 border border-slate-700/50">
-            <p class="text-slate-300 whitespace-pre-wrap leading-relaxed">{{ consulta.descripcion }}</p>
+        <div class="p-4 rounded-lg bg-fondo border border-linea">
+            <p class="text-grafito-700 whitespace-pre-wrap leading-relaxed">{{ consulta.descripcion }}</p>
         </div>
     </div>
 
     <!-- Resolver Consulta -->
     {% if puede_resolver and consulta.estado in ['Abierta', 'En revisión'] %}
-    <div class="glass-card p-6 mb-6 border-l-4 border-l-emerald-500">
-        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-check-circle text-emerald-400"></i> Resolver Consulta
+    <div class="panel p-6 mb-6 border-l-4 border-l-emerald-500">
+        <h2 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-check-circle text-verde"></i> Resolver Consulta
         </h2>
         <form method="POST" action="{{ url_for('juridico.detalle', id=consulta.id) }}">
             <input type="hidden" name="accion" value="resolver">
 
             <div class="mb-4">
-                <label class="block font-semibold mb-2 text-slate-300">Resolución *</label>
+                <label class="block font-semibold mb-2 text-grafito-700">Resolución *</label>
                 <textarea name="resolucion" required rows="6" class="modern-input"
                     placeholder="Describa la resolución legal de la consulta..."></textarea>
             </div>
 
             <div class="mb-4">
-                <label class="block font-semibold mb-2 text-slate-300">Recomendaciones</label>
+                <label class="block font-semibold mb-2 text-grafito-700">Recomendaciones</label>
                 <textarea name="recomendaciones" rows="4" class="modern-input"
                     placeholder="Recomendaciones adicionales..."></textarea>
             </div>
 
             <button type="submit"
-                class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/20">
-                ✅ Marcar como Resuelta
+                class="bg-verde text-white px-6 py-2 rounded-lg hover:bg-verde transition-colors">
+                 Marcar como Resuelta
             </button>
         </form>
     </div>
@@ -148,25 +148,25 @@
 
     <!-- Resolución (si ya está resuelta) -->
     {% if consulta.resolucion %}
-    <div class="glass-card p-6 mb-6 border-emerald-500/30 bg-emerald-900/10">
-        <h2 class="text-xl font-bold mb-4 text-emerald-400 flex items-center gap-2">
+    <div class="panel p-6 mb-6 border-verde bg-verde-suave">
+        <h2 class="text-xl font-bold mb-4 text-verde flex items-center gap-2">
             <i class="fa-solid fa-check-double"></i> Resolución
         </h2>
-        <div class="mb-4 flex gap-4 text-sm text-slate-400">
+        <div class="mb-4 flex gap-4 text-sm text-grafito-500">
             <p><i class="fa-solid fa-user-tie mr-1"></i> {{ consulta.abogado.nombre_completo if consulta.abogado else
                 'N/A' }}</p>
             <p><i class="fa-solid fa-calendar mr-1"></i> {{ consulta.fecha_resolucion.strftime('%d/%m/%Y %H:%M') if
                 consulta.fecha_resolucion else 'N/A' }}</p>
         </div>
-        <div class="p-4 rounded-lg bg-slate-900/50 border border-emerald-500/20">
-            <p class="text-slate-200 whitespace-pre-wrap">{{ consulta.resolucion }}</p>
+        <div class="p-4 rounded-lg bg-fondo border border-verde">
+            <p class="text-grafito-700 whitespace-pre-wrap">{{ consulta.resolucion }}</p>
         </div>
 
         {% if consulta.recomendaciones %}
         <div class="mt-6">
-            <h3 class="font-bold mb-2 text-emerald-300">💡 Recomendaciones</h3>
-            <div class="p-4 rounded-lg bg-slate-900/50 border border-emerald-500/20">
-                <p class="text-slate-300 whitespace-pre-wrap">{{ consulta.recomendaciones }}</p>
+            <h3 class="font-bold mb-2 text-verde"> Recomendaciones</h3>
+            <div class="p-4 rounded-lg bg-fondo border border-verde">
+                <p class="text-grafito-700 whitespace-pre-wrap">{{ consulta.recomendaciones }}</p>
             </div>
         </div>
         {% endif %}
@@ -174,30 +174,30 @@
     {% endif %}
 
     <!-- Documentos Legales -->
-    <div class="glass-card p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-folder-open text-amber-400"></i> Documentos Legales
+    <div class="panel p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-folder-open text-amarillo-texto"></i> Documentos Legales
         </h2>
 
         {% if documentos %}
         <div class="space-y-3 mb-6">
             {% for doc in documentos %}
             <div
-                class="flex justify-between items-center p-3 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-colors">
+                class="flex justify-between items-center p-3 rounded-lg bg-superficie border border-linea hover:border-linea transition-colors">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded bg-slate-700 flex items-center justify-center text-slate-400">
+                    <div class="w-10 h-10 rounded bg-fondo flex items-center justify-center text-grafito-500">
                         <i class="fa-solid fa-file-lines text-xl"></i>
                     </div>
                     <div>
-                        <p class="font-semibold text-white">{{ doc.nombre }}</p>
-                        <p class="text-xs text-slate-400">Tipo: {{ doc.tipo }} | Creado: {{
+                        <p class="font-semibold text-grafito-900">{{ doc.nombre }}</p>
+                        <p class="text-xs text-grafito-500">Tipo: {{ doc.tipo }} | Creado: {{
                             doc.fecha_creacion.strftime('%d/%m/%Y') }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     {% if doc.ruta_archivo %}
                     <a href="{{ url_for('juridico.descargar_documento', doc_id=doc.id) }}"
-                        class="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-500/10 rounded-lg transition-colors"
+                        class="text-azul hover:text-azul p-2 hover:bg-azul-suave rounded-lg transition-colors"
                         title="Descargar">
                         <i class="fa-solid fa-download"></i>
                     </a>
@@ -205,7 +205,7 @@
                     <form method="POST" action="{{ url_for('juridico.eliminar_documento', doc_id=doc.id) }}"
                         class="inline">
                         <button type="submit" onclick="return confirm('¿Eliminar documento?')"
-                            class="text-red-400 hover:text-red-300 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                            class="text-rojo hover:text-rojo p-2 hover:bg-rojo-suave rounded-lg transition-colors"
                             title="Eliminar">
                             <i class="fa-solid fa-trash"></i>
                         </button>
@@ -215,8 +215,8 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-8 text-slate-500 border-2 border-dashed border-slate-700 rounded-xl mb-4">
-            <i class="fa-solid fa-folder-open text-4xl opacity-20 mb-2"></i>
+        <div class="text-center py-8 text-grafito-500 border-2 border-dashed border-linea rounded-lg mb-4">
+            <i class="fa-solid fa-folder-open text-4xl mb-2"></i>
             <p>No hay documentos cargados en este expediente</p>
         </div>
         {% endif %}
@@ -224,43 +224,43 @@
         <!-- Cargar nuevo documento -->
         <details class="group">
             <summary
-                class="cursor-pointer font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-2 p-2 rounded hover:bg-blue-500/10 transition-colors w-fit">
+                class="cursor-pointer font-semibold text-azul hover:text-azul flex items-center gap-2 p-2 rounded hover:bg-azul-suave transition-colors w-fit">
                 <span class="group-open:rotate-90 transition-transform"><i class="fa-solid fa-chevron-right"></i></span>
                 Cargar Nuevo Documento
             </summary>
-            <div class="mt-4 pl-4 border-l-2 border-slate-700 ml-2">
+            <div class="mt-4 pl-4 border-l-2 border-linea ml-2">
                 <form method="POST" action="{{ url_for('juridico.cargar_documento', id=consulta.id) }}"
                     class="space-y-4" enctype="multipart/form-data">
                     <div>
-                        <label class="block font-semibold mb-2 text-slate-300">Nombre del documento *</label>
+                        <label class="block font-semibold mb-2 text-grafito-700">Nombre del documento *</label>
                         <input type="text" name="nombre" required class="modern-input">
                     </div>
                     <div>
-                        <label class="block font-semibold mb-2 text-slate-300">Tipo *</label>
+                        <label class="block font-semibold mb-2 text-grafito-700">Tipo *</label>
                         <select name="tipo" required class="modern-input">
-                            <option value="" class="bg-slate-800">Seleccionar tipo...</option>
-                            <option value="Concepto Jurídico" class="bg-slate-800">Concepto Jurídico</option>
-                            <option value="Dictamen" class="bg-slate-800">Dictamen</option>
-                            <option value="Constancia" class="bg-slate-800">Constancia</option>
-                            <option value="Acta" class="bg-slate-800">Acta</option>
-                            <option value="Sentencia" class="bg-slate-800">Sentencia</option>
-                            <option value="Resolución" class="bg-slate-800">Resolución</option>
-                            <option value="Otro" class="bg-slate-800">Otro</option>
+                            <option value="" class="bg-superficie">Seleccionar tipo...</option>
+                            <option value="Concepto Jurídico" class="bg-superficie">Concepto Jurídico</option>
+                            <option value="Dictamen" class="bg-superficie">Dictamen</option>
+                            <option value="Constancia" class="bg-superficie">Constancia</option>
+                            <option value="Acta" class="bg-superficie">Acta</option>
+                            <option value="Sentencia" class="bg-superficie">Sentencia</option>
+                            <option value="Resolución" class="bg-superficie">Resolución</option>
+                            <option value="Otro" class="bg-superficie">Otro</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold mb-2 text-slate-300">Archivo *</label>
+                        <label class="block font-semibold mb-2 text-grafito-700">Archivo *</label>
                         <input type="file" name="archivo" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                            class="modern-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer hover:file:bg-blue-700">
-                        <p class="text-xs text-slate-500 mt-1">Formatos permitidos: PDF, Word, Excel, Imágenes</p>
+                            class="modern-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-azul file:text-white file:cursor-pointer hover:file:bg-azul">
+                        <p class="text-xs text-grafito-500 mt-1">Formatos permitidos: PDF, Word, Excel, Imágenes</p>
                     </div>
                     <div>
-                        <label class="block font-semibold mb-2 text-slate-300">Notas adicionales</label>
+                        <label class="block font-semibold mb-2 text-grafito-700">Notas adicionales</label>
                         <textarea name="contenido" rows="3" class="modern-input"
                             placeholder="Opcional - Notas o descripción del documento"></textarea>
                     </div>
                     <button type="submit"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-900/20">
+                        class="bg-azul text-white px-6 py-2 rounded-lg hover:bg-azul transition-colors">
                         <i class="fa-solid fa-upload mr-2"></i> Cargar Documento
                     </button>
                 </form>
@@ -269,16 +269,16 @@
     </div>
 
     <!-- Acciones de Estado -->
-    <div class="glass-card p-6 border-slate-600">
-        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
-            <i class="fa-solid fa-gears text-slate-400"></i> Acciones
+    <div class="panel p-6 border-linea">
+        <h2 class="text-xl font-bold mb-4 text-grafito-900 flex items-center gap-2">
+            <i class="fa-solid fa-gears text-grafito-500"></i> Acciones
         </h2>
         <div class="flex gap-3 flex-wrap">
             {% if puede_cerrar and consulta.estado == 'Resuelta' %}
             <form method="POST" action="{{ url_for('juridico.detalle', id=consulta.id) }}" class="inline">
                 <input type="hidden" name="accion" value="cerrar">
                 <button type="submit" onclick="return confirm('¿Cerrar consulta?')"
-                    class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white transition-colors border border-slate-600">
+                    class="px-4 py-2 rounded-lg bg-fondo text-grafito-700 hover:bg-fondo hover:text-grafito-900 transition-colors border border-linea">
                     <i class="fa-solid fa-lock mr-2"></i> Cerrar Consulta
                 </button>
             </form>
@@ -288,7 +288,7 @@
             <form method="POST" action="{{ url_for('juridico.detalle', id=consulta.id) }}" class="inline">
                 <input type="hidden" name="accion" value="reabrir">
                 <button type="submit" onclick="return confirm('¿Reabrir consulta?')"
-                    class="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30 transition-colors">
+                    class="px-4 py-2 rounded-lg bg-azul-suave text-azul hover:bg-azul-suave border border-azul transition-colors">
                     <i class="fa-solid fa-lock-open mr-2"></i> Reabrir Consulta
                 </button>
             </form>

@@ -1,0 +1,7 @@
+{# Panel sobrio (borde 1 px, radio 8 px, sin sombra). Uso: {% call tarjeta('Título') %}...{% endcall %} #}
+{% macro tarjeta(titulo=None, clase='') %}
+<section class="panel {{ clase }}">
+    {% if titulo %}<h2 style="padding:16px 20px;border-bottom:1px solid var(--linea)">{{ titulo }}</h2>{% endif %}
+    <div style="padding:20px">{{ caller() }}</div>
+</section>
+{% endmacro %}

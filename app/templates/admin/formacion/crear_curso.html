@@ -2,19 +2,19 @@
 
 {% block page_title %}Crear Nuevo Curso{% endblock %}
 
-{% block content %}
-<div class="max-w-4xl mx-auto space-y-6 animate-fade-in">
+{% block admin_content %}
+<div class="max-w-4xl mx-auto space-y-6">
 
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-slate-400">
-        <a href="{{ url_for('admin.listar_cursos') }}" class="hover:text-white transition-colors">Cursos</a>
+    <div class="flex items-center gap-2 text-sm text-grafito-500">
+        <a href="{{ url_for('admin.listar_cursos') }}" class="hover:text-grafito-900 transition-colors">Cursos</a>
         <i class="fas fa-chevron-right text-xs"></i>
-        <span class="text-white">Nuevo</span>
+        <span class="text-grafito-900">Nuevo</span>
     </div>
 
-    <div class="glass-card p-8">
-        <h3 class="text-xl font-bold text-white mb-6 border-b border-white/10 pb-4">
-            <i class="fas fa-plus-circle text-blue-500 mr-2"></i> Información del Curso
+    <div class="panel p-8">
+        <h3 class="text-xl font-bold text-grafito-900 mb-6 border-b border-linea pb-4">
+            <i class="fas fa-plus-circle text-azul mr-2"></i> Información del Curso
         </h3>
 
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -22,61 +22,61 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Titulo -->
                 <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Título del Curso</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Título del Curso</label>
                     <input type="text" name="titulo" required
-                        class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors"
                         placeholder="Ej: Trabajo en Alturas - Nivel 1">
                 </div>
 
                 <!-- Categoria -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Categoría</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Categoría</label>
                     <select name="categoria"
-                        class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors">
-                        <option value="General" class="bg-slate-900 text-white">General</option>
-                        <option value="Seguridad Industrial" class="bg-slate-900 text-white">Seguridad Industrial
+                        class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors">
+                        <option value="General" class="bg-fondo text-grafito-900">General</option>
+                        <option value="Seguridad Industrial" class="bg-fondo text-grafito-900">Seguridad Industrial
                         </option>
-                        <option value="Salud Ocupacional" class="bg-slate-900 text-white">Salud Ocupacional</option>
-                        <option value="Medio Ambiente" class="bg-slate-900 text-white">Medio Ambiente</option>
-                        <option value="Emergencias" class="bg-slate-900 text-white">Emergencias</option>
-                        <option value="Legal" class="bg-slate-900 text-white">Legal</option>
+                        <option value="Salud Ocupacional" class="bg-fondo text-grafito-900">Salud Ocupacional</option>
+                        <option value="Medio Ambiente" class="bg-fondo text-grafito-900">Medio Ambiente</option>
+                        <option value="Emergencias" class="bg-fondo text-grafito-900">Emergencias</option>
+                        <option value="Legal" class="bg-fondo text-grafito-900">Legal</option>
                     </select>
                 </div>
 
                 <!-- Duracion -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Duración (Horas)</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Duración (Horas)</label>
                     <input type="number" name="duracion_horas" value="1" min="1" required
-                        class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors">
+                        class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors">
                 </div>
 
                 <!-- Tipo de Contenido -->
                 <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Tipo de Contenido</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Tipo de Contenido</label>
                     <div class="grid grid-cols-3 gap-4">
                         <label class="cursor-pointer">
                             <input type="radio" name="tipo_contenido" value="video" checked class="peer sr-only">
                             <div
-                                class="p-4 rounded-lg border border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-500/20 hover:bg-slate-800 transition-all text-center">
-                                <i class="fas fa-video text-2xl mb-2 text-slate-300 peer-checked:text-blue-400"></i>
-                                <div class="text-sm font-bold text-white">Video Curso</div>
+                                class="p-4 rounded-lg border border-linea peer-checked:border-azul peer-checked:bg-azul-suave hover:bg-superficie transition-all text-center">
+                                <i class="fas fa-video text-2xl mb-2 text-grafito-700 peer-checked:text-azul"></i>
+                                <div class="text-sm font-bold text-grafito-900">Video Curso</div>
                             </div>
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="tipo_contenido" value="pdf" class="peer sr-only">
                             <div
-                                class="p-4 rounded-lg border border-slate-700 peer-checked:border-red-500 peer-checked:bg-red-500/20 hover:bg-slate-800 transition-all text-center">
-                                <i class="fas fa-file-pdf text-2xl mb-2 text-slate-300 peer-checked:text-red-400"></i>
-                                <div class="text-sm font-bold text-white">Lectura / PDF</div>
+                                class="p-4 rounded-lg border border-linea peer-checked:border-rojo peer-checked:bg-rojo-suave hover:bg-superficie transition-all text-center">
+                                <i class="fas fa-file-pdf text-2xl mb-2 text-grafito-700 peer-checked:text-rojo"></i>
+                                <div class="text-sm font-bold text-grafito-900">Lectura / PDF</div>
                             </div>
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="tipo_contenido" value="mixto" class="peer sr-only">
                             <div
-                                class="p-4 rounded-lg border border-slate-700 peer-checked:border-purple-500 peer-checked:bg-purple-500/20 hover:bg-slate-800 transition-all text-center">
+                                class="p-4 rounded-lg border border-linea peer-checked:border-linea peer-checked:bg-azul-suave hover:bg-superficie transition-all text-center">
                                 <i
-                                    class="fas fa-layer-group text-2xl mb-2 text-slate-300 peer-checked:text-purple-400"></i>
-                                <div class="text-sm font-bold text-white">Mixto</div>
+                                    class="fas fa-layer-group text-2xl mb-2 text-grafito-700 peer-checked:text-azul"></i>
+                                <div class="text-sm font-bold text-grafito-900">Mixto</div>
                             </div>
                         </label>
                     </div>
@@ -84,63 +84,63 @@
 
                 <!-- Video Selection -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Video del Curso</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Video del Curso</label>
                     <div class="space-y-3">
-                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                            <span class="text-xs text-blue-400 block mb-1">Opción A: Subir Archivo MP4 (Max
+                        <div class="bg-fondo p-3 rounded-lg border border-linea">
+                            <span class="text-xs text-azul block mb-1">Opción A: Subir Archivo MP4 (Max
                                 500MB)</span>
                             <input type="file" name="video_file" accept=".mp4"
-                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition-all">
+                                class="block w-full text-sm text-grafito-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-azul file:text-white hover:file:bg-azul transition-all">
                         </div>
                         <div class="relative flex py-1 items-center">
-                            <div class="flex-grow border-t border-slate-700"></div>
-                            <span class="flex-shrink-0 mx-4 text-slate-500 text-xs">O USAR URL</span>
-                            <div class="flex-grow border-t border-slate-700"></div>
+                            <div class="flex-grow border-t border-linea"></div>
+                            <span class="flex-shrink-0 mx-4 text-grafito-500 text-xs">O USAR URL</span>
+                            <div class="flex-grow border-t border-linea"></div>
                         </div>
                         <input type="url" name="video_url"
-                            class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                            class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors"
                             placeholder="https://youtube.com/...">
                     </div>
                 </div>
 
                 <!-- PDF Selection -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Documento PDF</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Documento PDF</label>
                     <div class="space-y-3">
-                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                            <span class="text-xs text-red-400 block mb-1">Opción A: Subir Archivo PDF</span>
+                        <div class="bg-fondo p-3 rounded-lg border border-linea">
+                            <span class="text-xs text-rojo block mb-1">Opción A: Subir Archivo PDF</span>
                             <input type="file" name="pdf_file" accept=".pdf"
-                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-500 transition-all">
+                                class="block w-full text-sm text-grafito-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-rojo file:text-white hover:file:bg-rojo transition-all">
                         </div>
                         <div class="relative flex py-1 items-center">
-                            <div class="flex-grow border-t border-slate-700"></div>
-                            <span class="flex-shrink-0 mx-4 text-slate-500 text-xs">O USAR URL</span>
-                            <div class="flex-grow border-t border-slate-700"></div>
+                            <div class="flex-grow border-t border-linea"></div>
+                            <span class="flex-shrink-0 mx-4 text-grafito-500 text-xs">O USAR URL</span>
+                            <div class="flex-grow border-t border-linea"></div>
                         </div>
                         <input type="url" name="pdf_url"
-                            class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                            class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors"
                             placeholder="https://dominio.com/archivo.pdf">
                     </div>
                 </div>
 
                 <!-- Imagen Portada -->
                 <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Imagen de Portada</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Imagen de Portada</label>
                     <div
-                        class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/30 p-4 rounded-xl border border-slate-800">
+                        class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-fondo p-4 rounded-lg border border-linea">
                         <div>
-                            <span class="text-xs text-emerald-400 block mb-2 font-bold">Subir Imagen</span>
+                            <span class="text-xs text-verde block mb-2 font-bold">Subir Imagen</span>
                             <input type="file" name="imagen_file" accept="image/*"
-                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 transition-all">
+                                class="block w-full text-sm text-grafito-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-verde file:text-white hover:file:bg-verde transition-all">
                         </div>
                         <div class="relative">
                             <div
                                 class="absolute inset-y-0 left-[-1.5rem] flex items-center justify-center hidden md:flex">
-                                <span class="text-slate-600 font-bold text-xs">O</span>
+                                <span class="text-grafito-500 font-bold text-xs">O</span>
                             </div>
-                            <span class="text-xs text-slate-500 block mb-2 font-bold">Usar URL Externa</span>
+                            <span class="text-xs text-grafito-500 block mb-2 font-bold">Usar URL Externa</span>
                             <input type="url" name="imagen_portada"
-                                class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                                class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors"
                                 placeholder="https://images.unsplash.com/photo-...">
                         </div>
                     </div>
@@ -148,27 +148,27 @@
 
                 <!-- Descripcion -->
                 <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Descripción Corta</label>
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Descripción Corta</label>
                     <textarea name="descripcion" rows="3" required
-                        class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
+                        class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-azul focus:outline-none transition-colors"
                         placeholder="Breve resumen para la tarjeta del catálogo..."></textarea>
                 </div>
 
                 <!-- Contenido HTML -->
                 <div class="col-span-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Contenido Adicional
+                    <label class="block text-xs font-bold text-grafito-500 mb-2">Contenido Adicional
                         (HTML)</label>
                     <textarea name="contenido_html" rows="6"
-                        class="modern-input w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white font-mono text-sm focus:border-blue-500 focus:outline-none transition-colors"
+                        class="modern-input w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 font-mono text-sm focus:border-azul focus:outline-none transition-colors"
                         placeholder="Texto adicional, instrucciones o embeds..."></textarea>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-white/10 flex justify-end gap-4">
+            <div class="pt-6 border-t border-linea flex justify-end gap-4">
                 <a href="{{ url_for('admin.listar_cursos') }}"
-                    class="px-6 py-2 rounded-lg text-slate-400 hover:text-white transition-colors">Cancelar</a>
+                    class="px-6 py-2 rounded-lg text-grafito-500 hover:text-grafito-900 transition-colors">Cancelar</a>
                 <button type="submit"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg shadow-blue-500/20 font-medium transition-all transform active:scale-95">
+                    class="px-6 py-2 bg-azul hover:bg-azul text-white rounded-lg font-medium transition-all transform active:scale-95">
                     Crear Curso
                 </button>
             </div>

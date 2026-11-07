@@ -1,0 +1,17 @@
+{#
+  Chip de vencimiento: siempre texto + punto de color (nunca solo color).
+  dias < 0 → Vencida (rojo) · 0 → Hoy (rojo) · ≤30 → En N días (amarillo) · >30 → En N días (verde)
+#}
+{% macro chip_vencimiento(dias) %}
+{% if dias is none %}<span class="estado e-gris">Sin fecha</span>
+{% elif dias < 0 %}<span class="estado e-rojo">Vencida</span>
+{% elif dias == 0 %}<span class="estado e-rojo">Hoy</span>
+{% elif dias <= 30 %}<span class="estado e-amarillo">En {{ dias }} día{{ 's' if dias != 1 }}</span>
+{% else %}<span class="estado e-verde">En {{ dias }} días</span>
+{% endif %}
+{% endmacro %}
+
+{# Chip de nivel de la autoevaluación #}
+{% macro chip_nivel(nivel) %}
+{% if nivel %}<span class="estado e-{{ nivel.color }}">{{ nivel.texto }}</span>{% else %}<span class="estado e-gris">Sin puntaje</span>{% endif %}
+{% endmacro %}

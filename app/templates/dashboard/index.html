@@ -1,115 +1,92 @@
 {% extends "base.html" %}
-{% block title %}Dashboard · Justrabajo{% endblock %}
+{% from 'components/medidor.html' import medidor with context %}
+{% from 'components/kpi.html' import kpi with context %}
+{% from 'components/chip.html' import chip_vencimiento with context %}
+{% block title %}Cumplimiento · Justrabajo{% endblock %}
 {% block content %}
-<div class="max-w-6xl mx-auto">
 
-    <!-- Saludo + semáforo -->
-    <div class="flex flex-wrap items-end justify-between gap-6 mb-8">
-        <div>
-            <p class="text-slate-500 text-sm">Hola, {{ usuario.nombre_completo.split(' ')[0] }} 👋</p>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight mt-1">Tu SG-SST hoy</h1>
-        </div>
-        {% if ultima_autoeval and ultima_autoeval.puntaje_total is not none %}
-        <a href="{{ url_for('autoevaluacion.resultado', id=ultima_autoeval.id) if ultima_autoeval.estado == 'CERRADA' else url_for('autoevaluacion.diligenciar', id=ultima_autoeval.id) }}"
-           class="flex items-center gap-4 bg-slate-800/60 border rounded-2xl px-6 py-4 hover:bg-slate-800 transition-colors
-                  {% if ultima_autoeval.clasificacion == 'ACEPTABLE' %}border-emerald-500/40{% elif ultima_autoeval.clasificacion == 'MODERADO' %}border-amber-500/40{% else %}border-red-500/40{% endif %}">
-            <div class="text-right">
-                <p class="text-xs uppercase tracking-wide text-slate-500">Cumplimiento {{ ultima_autoeval.anio }}</p>
-                <p class="text-3xl font-black
-                   {% if ultima_autoeval.clasificacion == 'ACEPTABLE' %}text-emerald-400{% elif ultima_autoeval.clasificacion == 'MODERADO' %}text-amber-400{% else %}text-red-400{% endif %}">
-                    {{ '%.0f' % ultima_autoeval.puntaje_total }}<span class="text-base text-slate-500">/100</span>
-                </p>
-            </div>
-            <i class="fa-solid fa-chevron-right text-slate-600"></i>
-        </a>
-        {% elif 'autoevaluacion' in modulos_activos %}
-        <a href="{{ url_for('autoevaluacion.lista') }}"
-           class="bg-amber-500/10 border border-amber-500/30 rounded-2xl px-6 py-4 text-amber-200 text-sm hover:bg-amber-500/20 transition-colors">
-            <i class="fa-solid fa-clipboard-check mr-2"></i>Aún no tienes autoevaluación — <b>empieza aquí</b>
-        </a>
-        {% endif %}
+<h1>Así va tu SG-SST</h1>
+<p class="intro" style="color:var(--grafito-500);margin:6px 0 24px;max-width:68ch">
+    {% if regimen %}Tu puntaje sale de la autoevaluación de la Resolución 0312 de 2019 ({{ regimen }} estándares mínimos). Mejóralo cerrando las acciones pendientes.
+    {% else %}Tu puntaje sale de la autoevaluación de la Resolución 0312 de 2019. Completa los datos de la empresa para saber cuántos estándares te aplican.{% endif %}
+</p>
+
+{% if 'autoevaluacion' not in modulos_activos %}
+{# Estado: módulo no contratado #}
+<section class="panel" style="padding:28px 32px;display:flex;gap:16px;align-items:center">
+    <i class="fa-solid fa-lock" style="font-size:22px;color:var(--grafito-500)" aria-hidden="true"></i>
+    <div>
+        <h2>Activa el módulo de autoevaluación para ver tu puntaje</h2>
+        <p style="color:var(--grafito-700);margin:4px 0 12px">El medidor de cumplimiento se calcula con la autoevaluación de estándares mínimos.</p>
+        {% if current_user.tiene_rol('Admin') %}<a class="boton" href="{{ url_for('admin.suscripcion') }}">Gestionar el plan</a>{% endif %}
     </div>
+</section>
+{% else %}
+<div class="puntaje">
+    {{ medidor(puntaje, nivel, autoeval.anio if autoeval else None, provisional) }}
 
-    <!-- KPIs -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
-            <div class="flex items-center justify-between">
-                <p class="text-slate-400 text-sm">Reportes abiertos</p>
-                <i class="fa-solid fa-triangle-exclamation {{ 'text-red-400' if reportes_abiertos else 'text-slate-600' }}"></i>
-            </div>
-            <p class="text-3xl font-extrabold text-white mt-2">{{ reportes_abiertos }}</p>
-            <p class="text-xs text-slate-500">de {{ total_reportes }} totales</p>
-        </div>
-        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
-            <div class="flex items-center justify-between">
-                <p class="text-slate-400 text-sm">Acciones de mejora</p>
-                <i class="fa-solid fa-list-check {{ 'text-amber-400' if acciones_abiertas else 'text-slate-600' }}"></i>
-            </div>
-            <p class="text-3xl font-extrabold text-white mt-2">{{ acciones_abiertas }}</p>
-            <p class="text-xs text-slate-500">pendientes del plan</p>
-        </div>
-        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
-            <div class="flex items-center justify-between">
-                <p class="text-slate-400 text-sm">Consultas jurídicas</p>
-                <i class="fa-solid fa-gavel {{ 'text-blue-400' if consultas_abiertas else 'text-slate-600' }}"></i>
-            </div>
-            <p class="text-3xl font-extrabold text-white mt-2">{{ consultas_abiertas }}</p>
-            <p class="text-xs text-slate-500">abiertas</p>
-        </div>
-        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5">
-            <div class="flex items-center justify-between">
-                <p class="text-slate-400 text-sm">Controles activos</p>
-                <i class="fa-solid fa-shield-halved text-slate-600"></i>
-            </div>
-            <p class="text-3xl font-extrabold text-white mt-2">{{ controles_activos }}</p>
-            <p class="text-xs text-slate-500">{{ requisitos_legales }} requisitos legales</p>
-        </div>
-    </div>
-
-    <!-- Accesos por módulo contratado -->
-    <h2 class="text-lg font-bold text-white mb-4">Tus módulos</h2>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% set destinos = {
-            'sgsst': url_for('sgsst.panel'),
-            'epp': url_for('epp.kardex'),
-            'autoevaluacion': url_for('autoevaluacion.lista'),
-            'reportes': url_for('reportes.nuevo'),
-            'matriz_legal': url_for('matriz_legal.dashboard'),
-            'controles': url_for('controles.listar_controles'),
-            'formacion': url_for('formacion.catalogo'),
-            'juridico': url_for('juridico.listar'),
-        } %}
-        {% set acciones_mod = {
-            'sgsst': 'Política, plan anual e indicadores',
-            'epp': 'Registrar entregas de EPP y dotación',
-            'autoevaluacion': 'Diligenciar la vigencia actual',
-            'reportes': 'Reportar una condición insegura',
-            'matriz_legal': 'Revisar cumplimiento normativo',
-            'controles': 'Ver controles y seguimientos',
-            'formacion': 'Ir al catálogo de cursos',
-            'juridico': 'Crear o revisar consultas',
-        } %}
-        {% for codigo, m in CATALOGO_MODULOS.items() %}
-        {% if codigo in modulos_activos and codigo != 'ia' %}
-        <a href="{{ destinos.get(codigo, url_for('dashboard.index')) }}"
-           class="group bg-slate-800/60 border border-slate-700 hover:border-amber-400/40 rounded-2xl p-6 transition-all hover:-translate-y-0.5">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-blue-500/20 border border-white/10 flex items-center justify-center mb-4">
-                <i class="fa-solid {{ m.icono }} text-amber-400"></i>
-            </div>
-            <p class="text-white font-bold">{{ m.nombre }}</p>
-            <p class="text-slate-400 text-sm mt-1">{{ acciones_mod.get(codigo, '') }}</p>
-            <p class="text-amber-400/80 text-xs font-semibold mt-3 group-hover:text-amber-300">Abrir <i class="fa-solid fa-arrow-right ml-1"></i></p>
-        </a>
+    <div class="lectura">
+        {% if puntaje is none %}
+        <h2>Aún no tienes puntaje</h2>
+        <p>Haz la autoevaluación (15 a 30 minutos) para ver dónde estás frente a los estándares mínimos y qué te falta.</p>
+        <ul class="escala">
+            {% for n in niveles %}
+            <li><i style="background:var(--{{ n.color }})"></i><strong>{{ n.texto }}</strong><span>{{ n.rango }}. {{ n.implica }}</span></li>
+            {% endfor %}
+        </ul>
+        <a class="boton" href="{{ url_for('autoevaluacion.lista') }}">Empezar autoevaluación</a>
+        {% else %}
+        <h2>Qué significa este resultado</h2>
+        <p>
+            {{ nivel.implica }}
+            {% if faltan %} Con {{ faltan }} punto{{ 's' if faltan != 1 }} más pasa a nivel aceptable.{% else %} Mantén el nivel.{% endif %}
+        </p>
+        <ul class="escala">
+            {% for n in niveles %}
+            <li class="{{ 'tu t-' ~ n.color if n.codigo == nivel.codigo }}"><i style="background:var(--{{ n.color }})"></i><strong>{{ n.texto }}</strong><span>{{ n.rango }}. {{ n.implica }}</span></li>
+            {% endfor %}
+        </ul>
+        {% if provisional %}
+        <a class="boton" href="{{ url_for('autoevaluacion.diligenciar', id=autoeval.id) }}">Continuar autoevaluación</a>
+        <p class="nota">Puntaje provisional: la autoevaluación {{ autoeval.anio }} sigue en curso.</p>
+        {% elif acciones %}
+        <a class="boton" href="{{ url_for('autoevaluacion.resultado', id=autoeval.id) }}">Ver las {{ acciones|length }} acciones pendientes</a>
+        <p class="nota">Ordenadas por los puntos que suma cada una.</p>
+        {% else %}
+        <a class="boton" href="{{ url_for('autoevaluacion.resultado', id=autoeval.id) }}">Ver el resultado completo</a>
         {% endif %}
-        {% endfor %}
-        {% if current_user.tiene_rol('Admin') %}
-        <a href="{{ url_for('admin.suscripcion') }}"
-           class="bg-slate-900/60 border border-dashed border-slate-600 hover:border-amber-400/50 rounded-2xl p-6 transition-colors flex flex-col items-start justify-center">
-            <i class="fa-solid fa-cubes text-slate-500 text-xl mb-3"></i>
-            <p class="text-slate-300 font-semibold text-sm">Gestionar plan y módulos</p>
-            <p class="text-slate-500 text-xs mt-1">Activa módulos y consulta el valor mensual</p>
-        </a>
         {% endif %}
     </div>
 </div>
+{% endif %}
+
+{% if kpis %}
+<div class="cifras" style="--cols:{{ kpis|length }}">
+    {% for k in kpis %}
+    {{ kpi(k.texto, k.cifra, k.sub, url_for(k.endpoint[0], **k.endpoint[1]), k.alerta) }}
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="tabla">
+    <h2>Lo que vence pronto</h2>
+    {% if vencimientos %}
+    <table>
+        <thead><tr><th>Estado</th><th>Actividad</th><th class="mod">Módulo</th><th>Fecha</th></tr></thead>
+        <tbody>
+            {% for v in vencimientos %}
+            <tr>
+                <td>{{ chip_vencimiento(v.dias) }}</td>
+                <td><a href="{{ v.url }}" style="text-decoration:none">{{ v.titulo }}</a></td>
+                <td class="mod">{{ v.modulo }}</td>
+                <td class="fecha">{{ v.fecha | fecha_corta }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="vacio">No tienes vencimientos en los próximos 90 días.</p>
+    {% endif %}
+</div>
+
 {% endblock %}

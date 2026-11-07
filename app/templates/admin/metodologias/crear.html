@@ -3,39 +3,39 @@
 {% block title %}Nueva Metodología - Admin SST{% endblock %}
 {% block page_title %}Nueva Metodología de Investigación{% endblock %}
 
-{% block content %}
-<div class="max-w-2xl animate-fade-in">
-    <div class="glass-card p-8">
+{% block admin_content %}
+<div class="max-w-2xl">
+    <div class="panel p-8">
         <form method="POST" class="space-y-6">
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Nombre *</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Nombre *</label>
                 <input type="text" name="nombre" required
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-rojo focus:outline-none transition-colors"
                     placeholder="Ej: Espina de Pescado">
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-400 mb-2 uppercase">Descripción</label>
+                <label class="block text-sm font-bold text-grafito-500 mb-2">Descripción</label>
                 <textarea name="descripcion"
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none transition-colors"
+                    class="w-full bg-fondo border border-linea rounded-lg p-3 text-grafito-900 focus:border-rojo focus:outline-none transition-colors"
                     rows="3" placeholder="Describe esta metodología de investigación"></textarea>
             </div>
 
-            <div class="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4">
-                <p class="text-sm text-blue-300">
+            <div class="bg-azul-suave border border-azul rounded-lg p-4">
+                <p class="text-sm text-azul">
                     <i class="fas fa-info-circle mr-2"></i>
                     <strong>Metodologías comunes:</strong> Espina de Pescado, 5 Porqués, Árbol de Causas, Diagrama de
                     Ishikawa
                 </p>
             </div>
 
-            <div class="flex gap-4 pt-4 border-t border-white/10">
+            <div class="flex gap-4 pt-4 border-t border-linea">
                 <button type="submit"
-                    class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-500 shadow-lg shadow-red-500/20 font-medium transition-all transform active:scale-95 flex items-center">
+                    class="bg-rojo text-white px-6 py-2 rounded-lg hover:bg-rojo font-medium transition-all transform active:scale-95 flex items-center">
                     <i class="fas fa-save mr-2"></i> Crear Metodología
                 </button>
                 <a href="{{ url_for('admin.listar_metodologias') }}"
-                    class="px-6 py-2 rounded-lg text-slate-400 hover:text-white transition-colors">
+                    class="px-6 py-2 rounded-lg text-grafito-500 hover:text-grafito-900 transition-colors">
                     Cancelar
                 </a>
             </div>

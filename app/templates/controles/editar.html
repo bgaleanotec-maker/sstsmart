@@ -7,7 +7,7 @@
     <!-- Header -->
     <div style="margin-bottom: 30px;">
         <h1 style="margin: 0 0 10px 0; color: #333; font-size: 28px;">
-            ✏️ Editar Control
+             Editar Control
         </h1>
         <p style="margin: 0; color: #666; font-size: 13px;">
             {{ control.codigo }} - {{ control.nombre }}
@@ -121,11 +121,11 @@
                 <!-- Botones -->
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 14px; cursor: pointer;">
-                        💾 Guardar Cambios
+                         Guardar Cambios
                     </button>
                     <a href="{{ url_for('controles.listar_controles') }}" 
                        style="flex: 1; padding: 12px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; text-align: center;">
-                        ❌ Cancelar
+                         Cancelar
                     </a>
                 </div>
             </form>
@@ -135,7 +135,7 @@
         <div>
             <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
                 <h3 style="margin-top: 0; margin-bottom: 20px; color: #333; border-bottom: 2px solid #ffc107; padding-bottom: 10px;">
-                    ⚙️ Estado del Control
+                     Estado del Control
                 </h3>
 
                 <!-- Código -->
@@ -211,7 +211,7 @@
                     {% if control.estado == 'Asignado' or control.estado == 'En Proceso' or control.estado == 'Planificado' %}
                         <form method="POST" action="{{ url_for('controles.marcar_implementado', id=control.id) }}" style="margin-bottom: 10px;">
                             <button type="submit" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                                ✅ Marcar Implementado
+                                 Marcar Implementado
                             </button>
                         </form>
                     {% endif %}
@@ -224,7 +224,7 @@
                                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; box-sizing: border-box;">
                             </div>
                             <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                                📋 Verificar Control
+                                 Verificar Control
                             </button>
                         </form>
                     {% endif %}
@@ -232,7 +232,7 @@
                     <form method="POST" action="{{ url_for('controles.cerrar_control', id=control.id) }}" 
                           onsubmit="return confirm('¿Cerrar este control? Esta acción no se puede deshacer.');">
                         <button type="submit" style="width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                            🔒 Cerrar Control
+                             Cerrar Control
                         </button>
                     </form>
                 {% endif %}
@@ -240,7 +240,7 @@
 
             <!-- Info y Ayuda -->
             <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
-                <h4 style="margin-top: 0; color: #0056b3;">ℹ️ Información</h4>
+                <h4 style="margin-top: 0; color: #0056b3;">ℹ Información</h4>
                 <p style="margin: 10px 0; font-size: 13px; color: #333;">
                     <strong>Tipo de Control:</strong><br>
                     • Preventivo: Evita que ocurra el riesgo<br>

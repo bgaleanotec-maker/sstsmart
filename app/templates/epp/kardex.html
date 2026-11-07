@@ -2,18 +2,18 @@
 {% block title %}Kardex EPP · Justrabajo{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-white mb-1">Kardex de EPP y dotación</h1>
-    <p class="text-slate-400 text-sm mb-6">Cada entrega documentada con constancia y certificación es prueba de diligencia del empleador (art. 2.2.4.6.24 · jurisprudencia SL854-2023). Los cuatro deberes: suministrar, capacitar, verificar y reponer.</p>
+    <h1 class="text-2xl font-bold text-grafito-900 mb-1">Kardex de EPP y dotación</h1>
+    <p class="text-grafito-500 text-sm mb-6">Cada entrega documentada con constancia y certificación es prueba de diligencia del empleador (art. 2.2.4.6.24 · jurisprudencia SL854-2023). Los cuatro deberes: suministrar, capacitar, verificar y reponer.</p>
 
     {% if vencidas or sin_capacitacion %}
     <div class="grid md:grid-cols-2 gap-4 mb-6">
         {% if vencidas %}
-        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-200 text-sm">
+        <div class="bg-rojo-suave border border-rojo rounded-lg p-4 text-rojo text-sm">
             <i class="fa-solid fa-triangle-exclamation mr-1"></i><b>{{ vencidas|length }} elementos con reposición vencida.</b> Un EPP deteriorado o vencido al momento del accidente configura culpa patronal.
         </div>
         {% endif %}
         {% if sin_capacitacion %}
-        <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-200 text-sm">
+        <div class="bg-amarillo-suave border border-amarillo rounded-lg p-4 text-amarillo-texto text-sm">
             <i class="fa-solid fa-person-chalkboard mr-1"></i><b>{{ sin_capacitacion|length }} entregas sin capacitación en uso registrada.</b> La sola factura del EPP no prueba el deber de capacitar.
         </div>
         {% endif %}
@@ -21,51 +21,51 @@
     {% endif %}
 
     {% if current_user.tiene_rol('Admin', 'Responsable_SST') %}
-    <form method="POST" action="{{ url_for('epp.nueva') }}" class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 mb-8 grid md:grid-cols-4 gap-3 items-end">
+    <form method="POST" action="{{ url_for('epp.nueva') }}" class="bg-superficie border border-linea rounded-lg p-5 mb-8 grid md:grid-cols-4 gap-3 items-end">
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Trabajador</label>
-            <select name="trabajador_id" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Trabajador</label>
+            <select name="trabajador_id" required class="w-full bg-fondo border border-linea rounded-lg px-2 py-2 text-grafito-900 text-sm">
                 {% for u in usuarios %}<option value="{{ u.id }}">{{ u.nombre_completo }}</option>{% endfor %}
             </select>
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Elemento</label>
-            <select name="elemento" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Elemento</label>
+            <select name="elemento" class="w-full bg-fondo border border-linea rounded-lg px-2 py-2 text-grafito-900 text-sm">
                 {% for e in elementos %}<option>{{ e }}</option>{% endfor %}
             </select>
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Referencia / marca</label>
-            <input name="referencia" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Referencia / marca</label>
+            <input name="referencia" class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900 text-sm">
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Certificación (NTC/ANSI/EN)</label>
-            <input name="certificacion" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Certificación (NTC/ANSI/EN)</label>
+            <input name="certificacion" class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900 text-sm">
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Fecha entrega</label>
-            <input type="date" name="fecha_entrega" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Fecha entrega</label>
+            <input type="date" name="fecha_entrega" class="w-full bg-fondo border border-linea rounded-lg px-2 py-2 text-grafito-900 text-sm">
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Vida útil (meses)</label>
-            <input type="number" min="1" name="vida_util_meses" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Vida útil (meses)</label>
+            <input type="number" min="1" name="vida_util_meses" class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900 text-sm">
         </div>
         <div>
-            <label class="block text-xs text-slate-400 mb-1">Constancia / acta</label>
-            <input name="constancia" placeholder="No. de acta o soporte" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm">
+            <label class="block text-xs text-grafito-500 mb-1">Constancia / acta</label>
+            <input name="constancia" placeholder="No. de acta o soporte" class="w-full bg-fondo border border-linea rounded-lg px-3 py-2 text-grafito-900 text-sm">
         </div>
-        <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer pb-2">
-            <input type="checkbox" name="capacitado_en_uso" class="w-4 h-4 accent-emerald-500"> Capacitado en su uso
+        <label class="flex items-center gap-2 text-sm text-grafito-700 cursor-pointer pb-2">
+            <input type="checkbox" name="capacitado_en_uso" class="w-4 h-4 accent-verde"> Capacitado en su uso
         </label>
-        <button class="md:col-span-4 justify-self-end bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2 rounded-lg">
+        <button class="md:col-span-4 justify-self-end bg-azul hover:bg-azul text-white text-sm font-semibold px-5 py-2 rounded-lg">
             <i class="fa-solid fa-plus mr-1"></i>Registrar entrega
         </button>
     </form>
     {% endif %}
 
-    <div class="bg-slate-800/60 border border-slate-700 rounded-xl overflow-x-auto">
+    <div class="bg-superficie border border-linea rounded-lg overflow-x-auto">
         <table class="w-full text-sm min-w-[820px]">
-            <thead><tr class="text-left text-slate-400 border-b border-slate-700">
+            <thead><tr class="text-left text-grafito-500 border-b border-linea">
                 <th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Trabajador</th>
                 <th class="px-4 py-3">Elemento</th><th class="px-4 py-3">Certificación</th>
                 <th class="px-4 py-3">Capacitado</th><th class="px-4 py-3">Reposición</th>
@@ -73,19 +73,19 @@
             </tr></thead>
             <tbody>
             {% for e in entregas %}
-            <tr class="border-b border-slate-800 {{ 'bg-red-500/5' if e.reposicion_vencida }}">
-                <td class="px-4 py-3 text-slate-300">{{ e.fecha_entrega.strftime('%d/%m/%Y') }}</td>
-                <td class="px-4 py-3 text-white">{{ e.trabajador.nombre_completo if e.trabajador else '—' }}</td>
-                <td class="px-4 py-3 text-slate-200">{{ e.elemento }}{% if e.referencia %} <span class="text-slate-500 text-xs">({{ e.referencia }})</span>{% endif %}</td>
-                <td class="px-4 py-3 text-slate-300">{{ e.certificacion or '—' }}</td>
-                <td class="px-4 py-3">{% if e.capacitado_en_uso %}<span class="text-emerald-400"><i class="fa-solid fa-check"></i></span>{% else %}<span class="text-amber-400"><i class="fa-solid fa-xmark"></i></span>{% endif %}</td>
-                <td class="px-4 py-3 {{ 'text-red-400 font-semibold' if e.reposicion_vencida else 'text-slate-300' }}">
+            <tr class="border-b border-linea {{ 'bg-rojo-suave' if e.reposicion_vencida }}">
+                <td class="px-4 py-3 text-grafito-700">{{ e.fecha_entrega.strftime('%d/%m/%Y') }}</td>
+                <td class="px-4 py-3 text-grafito-900">{{ e.trabajador.nombre_completo if e.trabajador else '—' }}</td>
+                <td class="px-4 py-3 text-grafito-700">{{ e.elemento }}{% if e.referencia %} <span class="text-grafito-500 text-xs">({{ e.referencia }})</span>{% endif %}</td>
+                <td class="px-4 py-3 text-grafito-700">{{ e.certificacion or '—' }}</td>
+                <td class="px-4 py-3">{% if e.capacitado_en_uso %}<span class="text-verde"><i class="fa-solid fa-check"></i></span>{% else %}<span class="text-amarillo-texto"><i class="fa-solid fa-xmark"></i></span>{% endif %}</td>
+                <td class="px-4 py-3 {{ 'text-rojo font-semibold' if e.reposicion_vencida else 'text-grafito-700' }}">
                     {{ e.fecha_reposicion.strftime('%d/%m/%Y') if e.fecha_reposicion else '—' }}
                 </td>
-                <td class="px-4 py-3 text-slate-400 text-xs">{{ e.constancia or '—' }}</td>
+                <td class="px-4 py-3 text-grafito-500 text-xs">{{ e.constancia or '—' }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Sin entregas registradas todavía.</td></tr>
+            <tr><td colspan="7" class="px-4 py-8 text-center text-grafito-500">Sin entregas registradas todavía.</td></tr>
             {% endfor %}
             </tbody>
         </table>
