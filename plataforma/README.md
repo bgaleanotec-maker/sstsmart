@@ -31,6 +31,7 @@
 | ↳ [`06-verticales-candidatas.md`](02-verticales/06-verticales-candidatas.md) | Laboral, centrales de riesgo, insolvencia, propiedad horizontal, pensiones |
 | ↳ [`07-penal.md`](02-verticales/07-penal.md) | Víctimas en querellables, conciliación, reparación y penal-SST para empleadores |
 | ↳ [`08-firma-app.md`](02-verticales/08-firma-app.md) | Firma App como consola del abogado y producto para abogados |
+| ↳ [`09-cumplimiento.md`](02-verticales/09-cumplimiento.md) | SARLAFT transporte, PTEE, SAGRILAFT y datos personales como módulo habilitable (MVP 8-nov-2026); procesos afines por evaluar |
 | **Cerebro Legal + Radar de Oportunidades** | Servicio aparte en `empresa/Apis/cerebro_legal/` (jurisprudencia verificada, líneas, estrategias con Radar, oportunidades de cada fallo) |
 | [`03-priorizacion-y-secuencia.md`](03-priorizacion-y-secuencia.md) | Puntaje por vertical, secuencia, calendario de ventanas, la restricción de horas de abogado |
 | [`04-arquitectura-plataforma.md`](04-arquitectura-plataforma.md) | Núcleo común + verticales; cuentas personales; muro de datos; motor de plazos; IA; ADR |

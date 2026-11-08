@@ -145,6 +145,39 @@ def main():
 
         db.session.commit()
 
+        # Cumplimiento: SARLAFT simplificado y datos personales con contrapartes
+        from app.models.cumplimiento import ProgramaCumplimiento, Contraparte, RiesgoCumplimiento
+        from app.services import cumplimiento_service as csvc
+        if not ProgramaCumplimiento.query.first():
+            sarlaft = csvc.activar_programa('sarlaft_transporte', 'simplificado', admin.id)
+            csvc.activar_programa('datos_personales', 'documental', admin.id)
+            sarlaft.oficial_nombre, sarlaft.oficial_tipo = 'Marta Díaz', 'externo'
+            for r in sarlaft.requisitos:
+                if r.codigo in ('politica', 'oficial'):
+                    csvc.marcar_requisito(r, 'cumplido', evidencia='Acta 12 de junta de socios',
+                                          fecha=hoy - timedelta(days=30))
+                elif r.codigo == 'capacitacion':
+                    csvc.marcar_requisito(r, 'cumplido', evidencia='Curso UIAF, 18 asistentes',
+                                          fecha=hoy - timedelta(days=400))   # revisión vencida
+            db.session.add_all([
+                RiesgoCumplimiento(programa=sarlaft, factor='canal', probabilidad=4, impacto=4,
+                                   descripcion='Pagos de fletes en efectivo por terceros distintos del cliente',
+                                   controles='Solo transferencia desde cuenta del cliente', probabilidad_residual=2, impacto_residual=4),
+                RiesgoCumplimiento(programa=sarlaft, factor='contraparte', probabilidad=3, impacto=5,
+                                   descripcion='Propietarios de vehículos afiliados sin verificación en listas'),
+                Contraparte(nombre='Agroexportadora del Llano S.A.S.', tipo='cliente', documento='900222333',
+                            nivel_riesgo='medio', ultima_verificacion=hoy - timedelta(days=20),
+                            resultado_verificacion='sin_coincidencia', fuente_verificacion='ONU y OFAC (manual)',
+                            proxima_verificacion=hoy + timedelta(days=345), creado_por_id=admin.id),
+                Contraparte(nombre='Pedro Antonio Lara', tipo='propietario_vehiculo', tipo_documento='CC',
+                            documento='79456123', nivel_riesgo='bajo', creado_por_id=admin.id),
+                Contraparte(nombre='Combustibles La Y Ltda.', tipo='proveedor', documento='830111222',
+                            nivel_riesgo='alto', pep=False, ultima_verificacion=hoy - timedelta(days=200),
+                            resultado_verificacion='sin_coincidencia', fuente_verificacion='OFAC (manual)',
+                            proxima_verificacion=hoy - timedelta(days=18), creado_por_id=admin.id),
+            ])
+            db.session.commit()
+
         from scripts.seed_matriz_legal import seed
         seed()
         set_empresa(None)

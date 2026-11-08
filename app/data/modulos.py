@@ -77,6 +77,16 @@ MODULOS = {
         'icono': 'fa-wand-magic-sparkles',
         'descripcion': 'Análisis de fotos de condiciones inseguras y experto SST que cita la norma.',
     },
+    # Cumplimiento más allá de SST (plataforma/02-verticales/09-cumplimiento.md).
+    # Precio de lista PROPUESTO (D6 pendiente): referencia de mercado, kit
+    # SARLAFT autogestionable de Doctux a $499.000 + IVA por una vez.
+    'cumplimiento': {
+        'nombre': 'Cumplimiento: SARLAFT, PTEE y datos',
+        'precio': 180_000,
+        'blueprint': 'cumplimiento',
+        'icono': 'fa-building-shield',
+        'descripcion': 'SARLAFT del transporte, PTEE, SAGRILAFT y datos personales: requisitos con evidencia, oficial, matriz de riesgos, contrapartes verificadas y reportes con fecha.',
+    },
 }
 
 # blueprint -> codigo de módulo (para el gating por request)

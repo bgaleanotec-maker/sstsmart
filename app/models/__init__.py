@@ -34,6 +34,8 @@ from .autoevaluacion import Autoevaluacion, RespuestaAutoevaluacion, AccionMejor
 from .suscripcion import EmpresaModulo
 from .sgsst import PoliticaSST, PlanTrabajoActividad, EntregaEPP
 from .matriz_legal import RequisitoLegal, ValoracionJuridica, EvidenciaLegal, LogMatrizLegal
+from .cumplimiento import (ProgramaCumplimiento, RequisitoCumplimiento, Contraparte,
+                           RiesgoCumplimiento, ReporteCumplimiento)
 
 __all__ = [
     'Empresa', 'Usuario', 'Empleado', 'RiesgoMatriz',  # Sin Control aquí
@@ -49,5 +51,7 @@ __all__ = [
     'Notificacion',
     'RequisitoLegal', 'ValoracionJuridica', 'EvidenciaLegal', 'LogMatrizLegal',
     'Autoevaluacion', 'RespuestaAutoevaluacion', 'AccionMejora', 'EmpresaModulo',
-    'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP'
+    'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP',
+    'ProgramaCumplimiento', 'RequisitoCumplimiento', 'Contraparte',
+    'RiesgoCumplimiento', 'ReporteCumplimiento',
 ]

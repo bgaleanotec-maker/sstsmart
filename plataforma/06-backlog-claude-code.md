@@ -128,6 +128,12 @@ Ver `plataforma/02-verticales/08-firma-app.md`. Portar por módulos: clientes y 
 ### E14 — Penal (Fase 2)
 Ver `plataforma/02-verticales/07-penal.md` §4: triaje querellable/oficio, querella guiada, alertas (6 meses, conciliación, 30 días), seguimiento del NUNC y módulo "evento grave" en SST. **Por especificar en detalle antes de abr-2027.**
 
+### E15 — Cumplimiento más allá de SST (SARLAFT, PTEE, SAGRILAFT, datos personales) · **MVP hecho el 8-nov-2026**
+Ficha: `plataforma/02-verticales/09-cumplimiento.md`. Hecho: catálogo de 4 programas, 5 modelos tenant `cumpl_*`,
+servicio (activar, avance, diagnóstico, reportes), listas ONU, rutas `/cumplimiento`, módulo en el catálogo, KPI y
+vencimientos en el panel, 10 pruebas. Pendiente E15.1 a E15.7 (verificación de normas por Brian, generador de
+documentos, recordatorios, borrador de ROS, red de oficiales externos, lista OFAC, landing).
+
 ### Cerebro Legal (servicio aparte)
 Backlog propio en `empresa/Apis/cerebro_legal/06-backlog-claude-code.md` (C0-C5). C0 y C1 corren en paralelo con las Fases 0-1 de este repo.
 

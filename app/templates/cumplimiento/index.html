@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% from 'components/kpi.html' import kpi with context %}
+{% from 'components/chip.html' import chip_vencimiento with context %}
+{% block title %}Cumplimiento: SARLAFT, PTEE y datos · Justrabajo{% endblock %}
+{% block content %}
+
+<h1>Otras obligaciones de cumplimiento</h1>
+<p style="color:var(--grafito-500);margin:6px 0 24px;max-width:72ch">
+    Además del SG-SST, una pyme responde ante la Supertransporte, la Supersociedades y la SIC por sistemas que
+    también exigen política, responsable, matriz de riesgos, contrapartes verificadas y reportes con fecha.
+    Activa solo los que te apliquen; el diagnóstico de abajo te ayuda a saber cuáles.
+</p>
+
+{% if resumen.programas %}
+<div class="cifras" style="--cols:4;margin-bottom:24px">
+    {{ kpi('Programas activos', resumen.programas|length, 'de ' ~ catalogo|length ~ ' disponibles') }}
+    {{ kpi('Requisitos pendientes', resumen.requisitos_pendientes, resumen.requisitos_vencidos ~ ' con revisión vencida', alerta=resumen.requisitos_vencidos > 0) }}
+    {{ kpi('Reportes próximos', resumen.reportes|length, 'en los próximos 120 días', alerta=(resumen.reportes|selectattr('fecha_limite', 'lt', hoy)|list|length) > 0) }}
+    {{ kpi('Contrapartes', resumen.contrapartes, resumen.contrapartes_sin_verificar ~ ' sin verificar', url_for('cumplimiento.contrapartes'), alerta=resumen.contrapartes_sin_verificar > 0 or resumen.coincidencias_abiertas > 0) }}
+</div>
+{% endif %}
+
+<section class="grid gap-4 md:grid-cols-2" style="margin-bottom:28px">
+    {% for codigo, prog in catalogo.items() %}
+    {% set p = activos.get(codigo) %}
+    <article class="panel" style="padding:20px 22px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+            <i class="fa-solid {{ prog.icono }}" style="font-size:20px;color:var(--azul);margin-top:3px" aria-hidden="true"></i>
+            <div style="flex:1">
+                <h2 style="margin:0">{{ prog.nombre }}</h2>
+                <p style="margin:2px 0 0;color:var(--grafito-500);font-size:13px">{{ prog.autoridad }}</p>
+            </div>
+            {% if p %}
+            {% set a = avances[p.id] %}
+            <span class="estado e-{{ a.nivel }}">{{ a.porcentaje }}% ({{ a.cumplidos }}/{{ a.total }})</span>
+            {% else %}
+            <span class="estado e-gris">No activado</span>
+            {% endif %}
+        </div>
+        <p style="margin:0;color:var(--grafito-700);font-size:14px">{{ prog.resumen }}</p>
+        <details>
+            <summary style="cursor:pointer;color:var(--grafito-500);font-size:13px">A quién aplica y normas</summary>
+            <p style="margin:8px 0 6px;font-size:13px;color:var(--grafito-700)">{{ prog.a_quien_aplica }}</p>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--grafito-700)">
+                {% for cita, ok in prog.normas %}<li>{{ cita }}{% if not ok %} <span class="estado e-amarillo" style="font-size:11px">[VERIFICAR]</span>{% endif %}</li>{% endfor %}
+            </ul>
+        </details>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:auto">
+            {% if p %}
+            <a class="boton" href="{{ url_for('cumplimiento.programa', id=p.id) }}">Abrir programa</a>
+            <span style="font-size:13px;color:var(--grafito-500)">{{ p.nombre_regimen }} · desde {{ p.fecha_activacion | fecha_corta }}</span>
+            {% elif puede_gestionar %}
+            <form method="POST" action="{{ url_for('cumplimiento.activar', codigo=codigo) }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <select name="regimen" class="campo" style="padding:7px 10px;font-size:13px" aria-label="Régimen de {{ prog.nombre }}">
+                    {% for rc, rn in prog.regimenes.items() %}<option value="{{ rc }}">{{ rn }}</option>{% endfor %}
+                </select>
+                <button class="boton-secundario" type="submit">Activar</button>
+            </form>
+            {% else %}
+            <span style="font-size:13px;color:var(--grafito-500)">Pide a la gerencia o al oficial de cumplimiento que lo active.</span>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+{% if resumen.reportes %}
+<div class="tabla" style="margin-bottom:28px">
+    <h2>Reportes con fecha en los próximos 120 días</h2>
+    <table>
+        <thead><tr><th>Estado</th><th>Reporte</th><th>Programa</th><th>Fecha límite</th></tr></thead>
+        <tbody>
+        {% for r in resumen.reportes %}
+        <tr>
+            <td>{{ chip_vencimiento(r.dias_restantes(hoy)) }}</td>
+            <td><a href="{{ url_for('cumplimiento.programa', id=r.programa_id) }}#reportes" style="text-decoration:none">{{ r.nombre }}</a>{% if not r.verificado %} <span class="estado e-amarillo" style="font-size:11px">[VERIFICAR fecha]</span>{% endif %}</td>
+            <td>{{ r.programa.nombre }}</td>
+            <td class="fecha">{{ r.fecha_limite | fecha_corta }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<section class="panel" id="diagnostico" style="padding:22px 24px">
+    <h2 style="margin:0 0 4px">¿Qué me aplica?</h2>
+    <p style="margin:0 0 14px;color:var(--grafito-500);font-size:14px">Orientación con los umbrales vigentes del catálogo; no reemplaza el concepto del abogado ni la lectura de la norma.</p>
+    <form method="GET" action="{{ url_for('cumplimiento.index') }}#diagnostico" class="grid gap-3 md:grid-cols-4" style="align-items:end">
+        <input type="hidden" name="diag" value="1">
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--grafito-700)">
+            <input type="checkbox" name="supertransporte" {% if datos.vigilada_supertransporte %}checked{% endif %} class="w-4 h-4 accent-azul"> Vigilada por la Supertransporte
+        </label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--grafito-700)">
+            <input type="checkbox" name="supersociedades" {% if datos.supervisada_supersociedades %}checked{% endif %} class="w-4 h-4 accent-azul"> Supervisada por la Supersociedades
+        </label>
+        <div>
+            <label for="ingresos" style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Ingresos del año anterior (COP)</label>
+            <input id="ingresos" name="ingresos" type="number" min="0" step="1000000" value="{{ datos.ingresos or '' }}" class="campo" style="width:100%">
+        </div>
+        <div>
+            <label for="activos" style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Activos totales (COP)</label>
+            <input id="activos" name="activos" type="number" min="0" step="1000000" value="{{ datos.activos or '' }}" class="campo" style="width:100%">
+        </div>
+        <button class="boton md:col-span-4 justify-self-start" type="submit">Calcular</button>
+    </form>
+
+    {% if diag is not none %}
+    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:18px">
+        <thead><tr style="color:var(--grafito-500);text-align:left"><th style="padding:8px 0">Programa</th><th>Resultado</th><th>Por qué</th></tr></thead>
+        <tbody>
+        {% for d in diag %}
+        <tr style="border-top:1px solid var(--linea)">
+            <td style="padding:10px 0;font-weight:600">{{ d.nombre }}{% if d.nombre_regimen %}<br><span style="font-weight:400;color:var(--grafito-500);font-size:13px">{{ d.nombre_regimen }}</span>{% endif %}</td>
+            <td><span class="estado {{ 'e-rojo' if d.aplica == 'obligatorio' else ('e-amarillo' if d.aplica in ('probable','recomendado') else 'e-gris') }}">{{ d.aplica|capitalize }}</span></td>
+            <td style="color:var(--grafito-700)">{{ d.razon }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <details style="margin-top:12px">
+        <summary style="cursor:pointer;color:var(--grafito-500);font-size:13px">Umbrales usados y su fuente</summary>
+        <ul style="margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--grafito-700)">
+            {% for par in parametros %}
+            <li><b>{{ par.nombre }}</b>: {{ '{:,}'.format(par.valor).replace(',', '.') }} (vigencia {{ par.vigencia }}) — {{ par.fuente }}{% if not par.verificado %} <span class="estado e-amarillo" style="font-size:11px">[VERIFICAR]</span>{% endif %}</li>
+            {% endfor %}
+        </ul>
+    </details>
+    {% endif %}
+</section>
+
+{% endblock %}
