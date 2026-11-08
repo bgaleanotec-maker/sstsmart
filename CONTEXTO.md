@@ -6,8 +6,8 @@ estado: construyendo
 prioridad: P1
 entidad: Cumplia/Justrabajo S.A.S.
 puntaje:
-siguiente_paso: Brian revisa y fusiona el PR de la rama ui/rediseno-panel (UI-0 a UI-2 hechos; fusionar despliega el tema claro en producción); luego Code hace UI-3 consola del consultor y E0 cobro con Wompi
-actualizado: 2026-11-07
+siguiente_paso: Brian revisa los PR de ui/rediseno-panel (tema claro) y feat/E15-cumplimiento (SARLAFT/PTEE/datos), verifica las normas del catálogo de cumplimiento (E15.1) y decide D-C1 precio; luego Code hace UI-3 consola del consultor y E0 cobro con Wompi
+actualizado: 2026-11-08
 ---
 
 # CONTEXTO — sst-project-v2 (Justrabajo / SST Smart / Cumplia)
@@ -78,6 +78,8 @@ CI en `.github/workflows/ci.yml`.
 | `formacion` | Cursos, exámenes, certificados, ranking | $100.000 |
 | `juridico` | Consultas con abogado, SLA, conceptos PDF | $200.000 |
 | `ia` | Análisis de fotos + experto SST (Gemini) | $80.000 |
+| `cumplimiento` | SARLAFT transporte, PTEE, SAGRILAFT y datos personales (8-nov-2026) | $180.000 (propuesta, D-C1) |
+| `crm_legal` | CRM Legal con vigilancia (vertical `/legal`) | $49.900 |
 
 Descuento por volumen: 3-4 módulos −10% · 5-7 −15% · 8+ −20%.
 Contratación por empresa en `EmpresaModulo` (precio pactado opcional); gating por blueprint en `app/modulos.py`.
@@ -92,6 +94,7 @@ Landing pública con **simulador de multas** (D.1072 cap. 2.2.4.11 + art. 216 CS
 - **Autoevaluación 0312:** 60 ítems con pesos (suman 100) en `app/data/estandares_0312.py`; régimen automático con `Empresa.calcular_regimen()`; **art. 3 num. 8**: unidad agropecuaria ≤10 trab. riesgo I-III → 21 estándares (`Empresa.unidad_agropecuaria`).
 - **Matriz legal 2026** actualizada (`scripts/seed_matriz_legal.py`, idempotente) — fuente de verdad normativa del repo.
 - **Rediseño visual v2 (7-nov-2026, rama `ui/rediseno-panel`, UI-0 a UI-2):** tema claro con colores de seguridad NTC 1461 y Barlow; layout con barra lateral y drawer móvil (`base.html`); panel "Así va tu SG-SST" con medidor de la autoevaluación, escala de niveles, franja de cifras y "Lo que vence pronto" (`app/services/panel.py`, `app/services/vencimientos.py`, `app/data/hitos_normativos.py`); 75 plantillas migradas; `admin/base.html` unificado con pestañas. QA: `rediseno-ui/qa_rutas.py` (86 rutas GET, 0 fallos), capturas en `rediseno-ui/capturas-qa/`, `tests/test_panel.py`. Detalle en `rediseno-ui/README.md` (bloque "Estado de ejecución").
+- **Módulo de cumplimiento (8-nov-2026, rama `feat/E15-cumplimiento`):** SARLAFT transporte (completo o RMS), PTEE, SAGRILAFT y datos personales/RNBD como programas habilitables por empresa dentro del módulo `cumplimiento`: requisitos por etapa con evidencia y revisión periódica, oficial de cumplimiento con SIREL, matriz de riesgos (inherente/residual), contrapartes con debida diligencia (lista ONU automática opcional, consulta manual registrada, bloqueo ante coincidencia), reportes con fecha límite y diagnóstico "¿me aplica?" con umbrales parametrizados. Todas las normas y fechas nacen `[VERIFICAR]`. Ficha en `plataforma/02-verticales/09-cumplimiento.md`.
 
 ### Reglas duras (no romper)
 1. Roles: **siempre** `current_user.tiene_rol(...)` + constantes de `app/constants.py`.
@@ -198,6 +201,7 @@ Ruta completa: `empresa/00-GUIA-PASO-A-PASO.md`.
 
 0. **Rediseño visual:** UI-0 a UI-2 **hechos** el 7-nov-2026 en la rama `ui/rediseno-panel` (PR abierto; fusionarlo despliega el tema claro en producción). Falta **UI-3** (consola del consultor multiempresa, §6 de `rediseno-ui/README.md`) y las decisiones D-UI1, D-UI4 y D-UI5 de §11 (nombre en pantalla, textos de cada nivel frente al art. 28, enlace de Ayuda). Propuestas de Claude pendientes de confirmar: Tailwind por CDN con tokens (en vez del binario standalone) y QA de rutas con el cliente de Flask (en vez de Playwright).
 
+0bis. **Cumplimiento (E15):** MVP hecho el 8-nov-2026 (PR de `feat/E15-cumplimiento`, apilado sobre `ui/rediseno-panel`). Brian: verificar normas y fechas del catálogo (E15.1: Res. 2328/2025, 4607/2026, Circular 20265330000054/2026, Res. 14673/2025 y 7038/2026, RNBD), decidir D-C1 precio ($180.000/mes propuesto), D-C3 red de oficiales externos y D-C4 cobro de cartera (vertical propia o dentro del CRM Legal). Ver `plataforma/02-verticales/09-cumplimiento.md` §4-6.
 1. **Elegir nombre definitivo** (Justrabajo vs. Cumplia) → verificar RUES y dominio → constituir la SAS.
 2. **Elegir pricing público** (por módulos del código vs. planes del dossier).
 3. Implementar **cobro** (Wompi + factura DIAN) — sin esto no hay MRR.
@@ -231,6 +235,8 @@ Hallazgos que cambian el plan:
 - Para trabajo de plataforma (verticales nuevas, núcleo, derivación): `plataforma/06-backlog-claude-code.md`.
 
 ## 10. Bitácora
+- 2026-11-08: módulo **cumplimiento** (SARLAFT transporte, PTEE, SAGRILAFT, datos personales) construido en `feat/E15-cumplimiento` a partir de la pauta de Doctux que vio Brian: catálogo con 43 requisitos y umbrales parametrizados, 5 tablas tenant `cumpl_*`, listas ONU, diagnóstico "¿me aplica?", KPI y vencimientos en el panel, 10 pruebas (128 en total), QA 90 rutas. Precio $180.000/mes es propuesta. Ideas afines (cobro de cartera, canal de denuncias, red de oficiales, reforma laboral) anotadas en `ideas/BANDEJA.md`. Fuentes y pendientes en `plataforma/02-verticales/09-cumplimiento.md`.
+- 2026-11-07: vertical **CRM Legal** montada en `/legal` (`app/verticales/crm_legal/`, `app/nucleo/plazos/`, 3 tablas tenant nuevas, módulo `crm_legal` en el catálogo, `Empresa.tipo_cuenta`). Nueva config `testing` (SQLite en memoria) porque las pruebas borraban `instance/sst.db`. 114 pruebas en verde. Detalle en `../crm_legal/CONTEXTO.md`.
 - 2026-11-07: rediseño visual UI-0 a UI-2 ejecutado (rama `ui/rediseno-panel`): tokens v2, componentes, panel con medidor, 75 plantillas migradas, `admin/base.html` unificado, QA de 86 rutas y `tests/test_panel.py`. Se corrigieron de paso dos plantillas que nunca existieron (`configuracion/ia.html`, `juridico/normativa.html`) y un filtro inválido en `matriz_legal/detalle.html`. Nota: una sesión paralela (CRM Legal) escribe en este mismo árbol (`app/verticales/`, `app/nucleo/`); el commit del rediseño incluye solo sus propios archivos.
 - 2026-10-23: decisión de dos cajas (S.A.S. de tecnología sin servicios jurídicos + práctica legal de Brian). Nuevos `empresa/07-estructura-y-contratos/` y estatutos para dos accionistas (`empresa/01-constitucion/01b-...`).
 - 2026-10-23: rediseño v2 (paleta de colores de seguridad NTC 1461, Barlow, sin tarjetas repetidas ni degradados), pedido por Brian para que se vea más profesional.

@@ -137,6 +137,17 @@ def datos_panel(empresa, modulos_activos, hoy=None):
             'sub': f'{del_mes} actualizado{"s" if del_mes != 1 else ""} este mes', 'alerta': False,
             'endpoint': ('matriz_legal.dashboard', {}),
         })
+    if 'cumplimiento' in modulos_activos:
+        from app.services.cumplimiento_service import resumen_empresa
+        rc = resumen_empresa(hoy)
+        if rc['programas']:
+            kpis.append({
+                'texto': 'Otras obligaciones pendientes', 'cifra': rc['requisitos_pendientes'],
+                'sub': f'{len(rc["programas"])} programa{"s" if len(rc["programas"]) != 1 else ""}, '
+                       f'{rc["contrapartes_sin_verificar"]} contraparte{"s" if rc["contrapartes_sin_verificar"] != 1 else ""} sin verificar',
+                'alerta': rc['requisitos_vencidos'] > 0 or rc['coincidencias_abiertas'] > 0,
+                'endpoint': ('cumplimiento.index', {}),
+            })
     if empresa:
         kpis.append({
             'texto': 'Trabajadores', 'cifra': empresa.num_trabajadores or 0,

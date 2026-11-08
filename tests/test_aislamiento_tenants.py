@@ -45,6 +45,12 @@ def _fabricas():
                             ConsultaJuridica, Curso, GestionReporte,
                             Autoevaluacion, AccionMejora, EmpresaModulo,
                             PoliticaSST, PlanTrabajoActividad, EntregaEPP)
+    from app.models.cumplimiento import (ProgramaCumplimiento, RequisitoCumplimiento, Contraparte,
+                                         RiesgoCumplimiento, ReporteCumplimiento)
+    from datetime import date
+
+    def programa(i):
+        return ProgramaCumplimiento(codigo='datos_personales', regimen='documental')
 
     def usuario(i):
         u = Usuario(email=f'u{i}@t.local', nombre_completo=f'U{i}', rol='Empleado')
@@ -90,13 +96,22 @@ def _fabricas():
         'PoliticaSST': lambda i: PoliticaSST(anio=2020 + int(str(i)[-1] or 0), contenido='p'),
         'PlanTrabajoActividad': lambda i: PlanTrabajoActividad(anio=2026, objetivo='o', actividad='a'),
         'EntregaEPP': lambda i: EntregaEPP(trabajador=usuario(f'epp{i}'), elemento='Casco'),
+        # Cumplimiento
+        'ProgramaCumplimiento': programa,
+        'RequisitoCumplimiento': lambda i: RequisitoCumplimiento(programa=programa(i), codigo='politica'),
+        'Contraparte': lambda i: Contraparte(nombre=f'Tercero {i}'),
+        'RiesgoCumplimiento': lambda i: RiesgoCumplimiento(programa=programa(i), descripcion='r'),
+        'ReporteCumplimiento': lambda i: ReporteCumplimiento(programa=programa(i), codigo='x', nombre='x',
+                                                             fecha_limite=date(2027, 3, 31)),
     }
 
 
 MODELOS = ['Usuario', 'Empleado', 'CondicionInsegura', 'Evento', 'RiesgoMatriz',
            'Control', 'RequisitoLegal', 'ConsultaJuridica', 'Curso',
            'GestionReporte', 'Autoevaluacion', 'AccionMejora', 'EmpresaModulo',
-           'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP']
+           'PoliticaSST', 'PlanTrabajoActividad', 'EntregaEPP',
+           'ProgramaCumplimiento', 'RequisitoCumplimiento', 'Contraparte',
+           'RiesgoCumplimiento', 'ReporteCumplimiento']
 
 
 @pytest.mark.parametrize('nombre', MODELOS)

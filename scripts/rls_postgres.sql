@@ -18,7 +18,9 @@ BEGIN
     'riesgo_matriz', 'controles', 'requisitos_legales',
     'consultas_juridicas', 'cursos', 'gestion_reportes',
     'autoevaluaciones', 'acciones_mejora', 'empresa_modulos',
-    'politicas_sst', 'plan_trabajo_actividades', 'entregas_epp'
+    'politicas_sst', 'plan_trabajo_actividades', 'entregas_epp',
+    'cumpl_programas', 'cumpl_requisitos', 'cumpl_contrapartes',
+    'cumpl_riesgos', 'cumpl_reportes'
   ] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Matriz de riesgos · {{ p.nombre }} · Justrabajo{% endblock %}
+{% block content %}
+
+<p style="margin:0 0 6px;font-size:13px"><a href="{{ url_for('cumplimiento.index') }}" style="color:var(--grafito-500);text-decoration:none">Cumplimiento</a> <span style="color:var(--grafito-500)">/</span> <a href="{{ url_for('cumplimiento.programa', id=p.id) }}" style="color:var(--grafito-500);text-decoration:none">{{ p.nombre }}</a> <span style="color:var(--grafito-500)">/</span> Matriz de riesgos</p>
+<h1 style="margin:0 0 6px">Matriz de riesgos — {{ p.nombre }}</h1>
+<p style="color:var(--grafito-500);margin:0 0 20px;max-width:72ch">Riesgo inherente = probabilidad × impacto (1 a 5 cada uno). Con los controles se estima el residual. Niveles (propuesta): bajo hasta 6, medio hasta 12, alto desde 13. Los de nivel alto deben tener control y responsable.</p>
+
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-size:14px">
+    <span class="estado e-rojo">{{ conteo.alto }} alto{{ 's' if conteo.alto != 1 }}</span>
+    <span class="estado e-amarillo">{{ conteo.medio }} medio{{ 's' if conteo.medio != 1 }}</span>
+    <span class="estado e-verde">{{ conteo.bajo }} bajo{{ 's' if conteo.bajo != 1 }}</span>
+</div>
+
+{% if puede_gestionar %}
+<form method="POST" class="panel grid gap-3 md:grid-cols-6" style="padding:18px 20px;margin-bottom:24px;align-items:end">
+    <div class="md:col-span-2"><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Riesgo</label><input name="descripcion" required class="campo" style="width:100%" placeholder="P. ej. pagos en efectivo de clientes nuevos sin soporte"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Factor</label>
+        <select name="factor" class="campo" style="width:100%">{% for f in factores %}<option value="{{ f }}">{{ f|replace('_', ' ')|capitalize }}</option>{% endfor %}</select></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Probabilidad (1-5)</label><input name="probabilidad" type="number" min="1" max="5" value="3" class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Impacto (1-5)</label><input name="impacto" type="number" min="1" max="5" value="3" class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Responsable</label>
+        <select name="responsable_id" class="campo" style="width:100%"><option value="">—</option>{% for u in usuarios %}<option value="{{ u.id }}">{{ u.nombre_completo }}</option>{% endfor %}</select></div>
+    <div class="md:col-span-3"><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Controles</label><input name="controles" class="campo" style="width:100%" placeholder="Qué se hace para mitigarlo"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Prob. residual</label><input name="probabilidad_residual" type="number" min="1" max="5" class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Impacto residual</label><input name="impacto_residual" type="number" min="1" max="5" class="campo" style="width:100%"></div>
+    <button class="boton" type="submit">Agregar riesgo</button>
+</form>
+{% endif %}
+
+<div class="tabla">
+    <h2>Riesgos identificados</h2>
+    {% if riesgos %}
+    <table>
+        <thead><tr><th>Nivel</th><th>Riesgo</th><th>Factor</th><th>Inherente</th><th>Controles</th><th>Residual</th><th>Responsable</th>{% if puede_gestionar %}<th></th>{% endif %}</tr></thead>
+        <tbody>
+        {% for r in riesgos %}
+        <tr>
+            <td><span class="estado e-{{ {'alto':'rojo','medio':'amarillo','bajo':'verde'}[r.nivel] }}">{{ r.nivel|capitalize }}</span></td>
+            <td>{{ r.descripcion }}</td>
+            <td style="color:var(--grafito-700)">{{ r.factor|replace('_', ' ')|capitalize }}</td>
+            <td class="tabular">{{ r.probabilidad }} × {{ r.impacto }} = <b>{{ r.inherente }}</b></td>
+            <td style="font-size:13px;color:var(--grafito-700)">{{ r.controles or '—' }}</td>
+            <td class="tabular"><b>{{ r.residual }}</b></td>
+            <td style="font-size:13px;color:var(--grafito-700)">{{ r.responsable.nombre_completo if r.responsable else '—' }}</td>
+            {% if puede_gestionar %}
+            <td><form method="POST" action="{{ url_for('cumplimiento.riesgo_eliminar', rid=r.id) }}" onsubmit="return confirm('¿Eliminar este riesgo de la matriz?')"><button class="boton-secundario" type="submit">Eliminar</button></form></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="vacio">La matriz está vacía. Empieza por los factores que la norma pide: contrapartes, productos o servicios, canales y jurisdicciones.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

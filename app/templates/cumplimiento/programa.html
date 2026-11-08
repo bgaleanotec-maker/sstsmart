@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% from 'components/kpi.html' import kpi with context %}
+{% from 'components/chip.html' import chip_vencimiento with context %}
+{% block title %}{{ p.nombre }} · Justrabajo{% endblock %}
+{% block content %}
+
+<p style="margin:0 0 6px;font-size:13px"><a href="{{ url_for('cumplimiento.index') }}" style="color:var(--grafito-500);text-decoration:none">Cumplimiento</a> <span style="color:var(--grafito-500)">/</span> {{ p.nombre }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <h1 style="margin:0">{{ p.info.nombre_largo }}</h1>
+    <span class="estado e-{{ avance.nivel }}">{{ avance.porcentaje }}% implementado</span>
+</div>
+<p style="color:var(--grafito-500);margin:0 0 20px;max-width:72ch">{{ p.info.autoridad }} · {{ p.nombre_regimen }} · activado el {{ p.fecha_activacion | fecha_larga }}.
+    {% for cita, ok in p.info.normas %}{{ cita }}{% if not ok %} <span class="estado e-amarillo" style="font-size:11px">[VERIFICAR]</span>{% endif %}{{ '; ' if not loop.last }}{% endfor %}.</p>
+
+<div class="cifras" style="--cols:4;margin-bottom:24px">
+    {{ kpi('Requisitos cumplidos', avance.cumplidos ~ ' de ' ~ avance.total, avance.vencidos ~ ' con revisión vencida', alerta=avance.vencidos > 0) }}
+    {{ kpi('Pendientes', avance.pendientes, 'por documentar', alerta=False) }}
+    {{ kpi('Riesgos en la matriz', n_riesgos, riesgos_altos ~ ' en nivel alto', url_for('cumplimiento.riesgos', id=p.id), alerta=riesgos_altos > 0) }}
+    {{ kpi('Reportes pendientes', reportes|selectattr('estado', 'equalto', 'pendiente')|list|length, 'con fecha límite', alerta=(reportes|selectattr('estado', 'equalto', 'pendiente')|selectattr('fecha_limite', 'lt', hoy)|list|length) > 0) }}
+</div>
+
+<nav style="display:flex;gap:16px;margin-bottom:20px;font-size:14px;border-bottom:1px solid var(--linea)">
+    <a href="#oficial" style="padding:8px 0;text-decoration:none">Oficial</a>
+    <a href="#requisitos" style="padding:8px 0;text-decoration:none">Requisitos</a>
+    <a href="{{ url_for('cumplimiento.riesgos', id=p.id) }}" style="padding:8px 0;text-decoration:none">Matriz de riesgos</a>
+    <a href="{{ url_for('cumplimiento.contrapartes') }}" style="padding:8px 0;text-decoration:none">Contrapartes</a>
+    <a href="#reportes" style="padding:8px 0;text-decoration:none">Reportes</a>
+</nav>
+
+{# ---------- Oficial ---------- #}
+<section class="panel" id="oficial" style="padding:20px 22px;margin-bottom:24px">
+    <h2 style="margin:0 0 4px">Oficial o responsable de cumplimiento</h2>
+    <p style="margin:0 0 14px;color:var(--grafito-500);font-size:14px">
+        {% if p.oficial_nombre %}{{ p.oficial_nombre }}{% if p.oficial_tipo %} ({{ p.oficial_tipo }}){% endif %}{% if p.registro_sirel %} · registrado en SIREL{% else %} · <span class="estado e-amarillo">sin registro SIREL</span>{% endif %}
+        {% else %}Sin designar. Sin oficial no hay quien firme los reportes ni quien responda ante la autoridad.{% endif %}
+    </p>
+    {% if puede_gestionar %}
+    <form method="POST" action="{{ url_for('cumplimiento.oficial', id=p.id) }}" class="grid gap-3 md:grid-cols-4">
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Nombre</label><input name="oficial_nombre" value="{{ p.oficial_nombre or '' }}" class="campo" style="width:100%"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Documento</label><input name="oficial_documento" value="{{ p.oficial_documento or '' }}" class="campo" style="width:100%"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Correo</label><input name="oficial_correo" type="email" value="{{ p.oficial_correo or '' }}" class="campo" style="width:100%"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Vínculo</label>
+            <select name="oficial_tipo" class="campo" style="width:100%">
+                <option value="" {% if not p.oficial_tipo %}selected{% endif %}>—</option>
+                <option value="interno" {% if p.oficial_tipo == 'interno' %}selected{% endif %}>Interno (empleado)</option>
+                <option value="externo" {% if p.oficial_tipo == 'externo' %}selected{% endif %}>Externo (contratado)</option>
+            </select></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Suplente</label><input name="suplente_nombre" value="{{ p.suplente_nombre or '' }}" class="campo" style="width:100%"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Acta de designación</label><input name="acta_designacion" value="{{ p.acta_designacion or '' }}" class="campo" style="width:100%" placeholder="No. y órgano"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Fecha de designación</label><input name="fecha_designacion" type="date" value="{{ p.fecha_designacion.isoformat() if p.fecha_designacion else '' }}" class="campo" style="width:100%"></div>
+        <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Política aprobada el</label><input name="fecha_aprobacion_politica" type="date" value="{{ p.fecha_aprobacion_politica.isoformat() if p.fecha_aprobacion_politica else '' }}" class="campo" style="width:100%"></div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--grafito-700)"><input type="checkbox" name="registro_sirel" {% if p.registro_sirel %}checked{% endif %} class="w-4 h-4 accent-azul"> Registrado en SIREL (UIAF)</label>
+        <div class="md:col-span-3"><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Notas</label><input name="notas" value="{{ p.notas or '' }}" class="campo" style="width:100%"></div>
+        <div class="md:col-span-4" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <button class="boton" type="submit">Guardar oficial</button>
+        </div>
+    </form>
+    <form method="POST" action="{{ url_for('cumplimiento.cambiar_regimen', id=p.id) }}" style="display:flex;gap:8px;align-items:center;margin-top:14px;font-size:13px;color:var(--grafito-500)">
+        Régimen:
+        <select name="regimen" class="campo" style="padding:6px 10px;font-size:13px">
+            {% for rc, rn in p.info.regimenes.items() %}<option value="{{ rc }}" {% if rc == p.regimen %}selected{% endif %}>{{ rn }}</option>{% endfor %}
+        </select>
+        <button class="boton-secundario" type="submit">Cambiar</button>
+    </form>
+    {% endif %}
+</section>
+
+{# ---------- Requisitos ---------- #}
+<div class="tabla" id="requisitos" style="margin-bottom:24px">
+    <h2>Requisitos y evidencias</h2>
+    <table>
+        <thead><tr><th>Estado</th><th>Requisito</th><th>Evidencia</th><th>Revisión</th>{% if puede_gestionar %}<th></th>{% endif %}</tr></thead>
+        <tbody>
+        {% for etapa, filas in por_etapa %}
+        <tr><td colspan="{{ 5 if puede_gestionar else 4 }}" style="background:var(--fondo);font-weight:600;color:var(--grafito-700);padding:8px 20px">{{ etapa }}</td></tr>
+        {% for r in filas %}
+        <tr id="req-{{ r.id }}">
+            <td>
+                {% if r.vencido(hoy) %}<span class="estado e-rojo">Revisión vencida</span>
+                {% elif r.estado == 'cumplido' %}<span class="estado e-verde">Cumplido</span>
+                {% elif r.estado == 'en_curso' %}<span class="estado e-amarillo">En curso</span>
+                {% else %}<span class="estado e-gris">Pendiente</span>{% endif %}
+            </td>
+            <td><b>{{ r.nombre }}</b><br><span style="color:var(--grafito-500);font-size:13px">{{ r.info.descripcion }}</span>
+                {% if r.info.periodicidad_meses %}<br><span style="color:var(--grafito-500);font-size:12px">Se revisa cada {{ r.info.periodicidad_meses }} meses.</span>{% endif %}</td>
+            <td style="font-size:13px;color:var(--grafito-700)">{{ r.evidencia or '—' }}{% if r.responsable %}<br><span style="color:var(--grafito-500)">{{ r.responsable.nombre_completo }}</span>{% endif %}</td>
+            <td class="fecha" style="font-size:13px">{% if r.proxima_revision %}{{ r.proxima_revision | fecha_corta }}{% elif r.fecha_cumplimiento %}{{ r.fecha_cumplimiento | fecha_corta }}{% else %}—{% endif %}</td>
+            {% if puede_gestionar %}
+            <td style="min-width:260px">
+                <form method="POST" action="{{ url_for('cumplimiento.requisito', id=p.id, rid=r.id) }}" style="display:grid;gap:6px">
+                    <select name="estado" class="campo" style="padding:6px 8px;font-size:13px" aria-label="Estado de {{ r.nombre }}">
+                        {% for e in estados %}<option value="{{ e }}" {% if e == r.estado %}selected{% endif %}>{{ {'pendiente':'Pendiente','en_curso':'En curso','cumplido':'Cumplido','no_aplica':'No aplica'}[e] }}</option>{% endfor %}
+                    </select>
+                    <input name="evidencia" value="{{ r.evidencia or '' }}" placeholder="Evidencia: acta, enlace, archivo" class="campo" style="padding:6px 8px;font-size:13px">
+                    <div style="display:flex;gap:6px">
+                        <input name="fecha_cumplimiento" type="date" value="{{ r.fecha_cumplimiento.isoformat() if r.fecha_cumplimiento else '' }}" class="campo" style="padding:6px 8px;font-size:13px;flex:1" aria-label="Fecha de cumplimiento">
+                        <select name="responsable_id" class="campo" style="padding:6px 8px;font-size:13px;flex:1" aria-label="Responsable">
+                            <option value="">Responsable</option>
+                            {% for u in usuarios %}<option value="{{ u.id }}" {% if r.responsable_id == u.id %}selected{% endif %}>{{ u.nombre_completo }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button class="boton-secundario" type="submit" style="justify-self:start">Guardar</button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if no_aplican %}
+    <p style="padding:12px 20px;margin:0;font-size:13px;color:var(--grafito-500)">No aplican en este régimen: {% for r in no_aplican %}{{ r.nombre }}{{ '; ' if not loop.last }}{% endfor %}.</p>
+    {% endif %}
+</div>
+
+{# ---------- Reportes ---------- #}
+<div class="tabla" id="reportes" style="margin-bottom:24px">
+    <h2>Reportes con fecha límite</h2>
+    {% if reportes %}
+    <table>
+        <thead><tr><th>Estado</th><th>Reporte</th><th>Fecha límite</th><th>Presentado</th>{% if puede_gestionar %}<th></th>{% endif %}</tr></thead>
+        <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{% if r.estado == 'presentado' %}<span class="estado e-verde">Presentado</span>{% elif r.estado == 'no_aplica' %}<span class="estado e-gris">No aplica</span>{% else %}{{ chip_vencimiento(r.dias_restantes(hoy)) }}{% endif %}</td>
+            <td><b>{{ r.nombre }}</b>{% if not r.verificado %} <span class="estado e-amarillo" style="font-size:11px">[VERIFICAR fecha]</span>{% endif %}{% if r.notas %}<br><span style="color:var(--grafito-500);font-size:12px">{{ r.notas }}</span>{% endif %}</td>
+            <td class="fecha">{{ r.fecha_limite | fecha_corta }}</td>
+            <td class="fecha" style="font-size:13px">{% if r.fecha_presentacion %}{{ r.fecha_presentacion | fecha_corta }}{% if r.radicado %}<br><span style="color:var(--grafito-500)">Rad. {{ r.radicado }}</span>{% endif %}{% else %}—{% endif %}</td>
+            {% if puede_gestionar %}
+            <td>
+                {% if r.estado == 'pendiente' %}
+                <form method="POST" action="{{ url_for('cumplimiento.reporte', id=p.id, rid=r.id) }}" style="display:flex;gap:6px;flex-wrap:wrap">
+                    <input type="hidden" name="estado" value="presentado">
+                    <input name="radicado" placeholder="Radicado" class="campo" style="padding:6px 8px;font-size:13px;width:120px">
+                    <input name="fecha_presentacion" type="date" class="campo" style="padding:6px 8px;font-size:13px" aria-label="Fecha de presentación">
+                    <button class="boton-secundario" type="submit">Marcar presentado</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('cumplimiento.reporte', id=p.id, rid=r.id) }}"><input type="hidden" name="estado" value="pendiente"><button class="boton-secundario" type="submit">Reabrir</button></form>
+                {% endif %}
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="vacio">Este programa no tiene reportes periódicos en el catálogo. Agrega los que te exija la autoridad.</p>
+    {% endif %}
+    {% if puede_gestionar %}
+    <form method="POST" action="{{ url_for('cumplimiento.reporte_nuevo', id=p.id) }}" style="display:flex;gap:8px;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--linea)">
+        <input name="nombre" placeholder="Reporte adicional (p. ej. informe del oficial a la junta)" class="campo" style="flex:2;min-width:220px;padding:7px 10px;font-size:13px" required>
+        <input name="fecha_limite" type="date" class="campo" style="padding:7px 10px;font-size:13px" required aria-label="Fecha límite">
+        <button class="boton-secundario" type="submit">Agregar</button>
+    </form>
+    {% endif %}
+</div>
+
+{% endblock %}

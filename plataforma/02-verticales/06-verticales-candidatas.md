@@ -32,7 +32,7 @@ Orden por valor del nicho. **La secuencia de construcción la fija `../03-priori
 3. **Insolvencia** — destino natural de quien llega por centrales de riesgo; récord de solicitudes en 2026.
 4. **Propiedad horizontal (B2B)** — ingreso predecible para equilibrar lo B2C; usa Radar Judicial.
 
-En observación: pensiones (reevaluar en Q1-2027). Descartados por ahora: consumidor, SAGRILAFT como producto propio.
+En observación: pensiones (reevaluar en Q1-2027). Descartados por ahora: consumidor. **SAGRILAFT dejó de estar descartado** el 8-nov-2026: no como producto propio sino como módulo `cumplimiento` de la misma plataforma (SARLAFT transporte, PTEE, SAGRILAFT, datos personales) → `09-cumplimiento.md`.
 
 Cada una, al activarse, se registra en el cerebro con la skill `capturar-idea` y se evalúa con la rúbrica de `empresa/ideas/CONTEXTO.md`.
 

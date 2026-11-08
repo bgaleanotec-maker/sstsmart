@@ -67,6 +67,26 @@ def proximos_vencimientos(modulos_activos, limite=6, dias=90, hoy=None):
                 items.append(_item(f, f'Seguimiento del control {c.codigo}: {c.nombre}',
                                    'controles', url_for('controles.listar_controles'), hoy))
 
+    if 'cumplimiento' in modulos_activos:
+        from app.models.cumplimiento import ReporteCumplimiento, RequisitoCumplimiento, Contraparte
+        for r in (ReporteCumplimiento.query
+                  .filter(ReporteCumplimiento.estado == 'pendiente',
+                          ReporteCumplimiento.fecha_limite <= horizonte).all()):
+            items.append(_item(r.fecha_limite, r.nombre, 'cumplimiento',
+                               url_for('cumplimiento.programa', id=r.programa_id) + '#reportes', hoy))
+        for q in (RequisitoCumplimiento.query
+                  .filter(RequisitoCumplimiento.estado != 'no_aplica',
+                          RequisitoCumplimiento.proxima_revision.isnot(None),
+                          RequisitoCumplimiento.proxima_revision <= horizonte).all()):
+            items.append(_item(q.proxima_revision, f'Revisión: {q.nombre}', 'cumplimiento',
+                               url_for('cumplimiento.programa', id=q.programa_id) + f'#req-{q.id}', hoy))
+        for c in (Contraparte.query
+                  .filter(Contraparte.estado == 'activa',
+                          Contraparte.proxima_verificacion.isnot(None),
+                          Contraparte.proxima_verificacion <= horizonte).all()):
+            items.append(_item(c.proxima_verificacion, f'Reverificar contraparte {c.nombre}', 'cumplimiento',
+                               url_for('cumplimiento.contrapartes') + f'#c-{c.id}', hoy))
+
     for h in hitos_aplicables(modulos_activos, hoy):
         if h['fecha'] <= horizonte:
             items.append(_item(h['fecha'], h['titulo'], h['modulo'],

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Contrapartes · Justrabajo{% endblock %}
+{% block content %}
+
+<p style="margin:0 0 6px;font-size:13px"><a href="{{ url_for('cumplimiento.index') }}" style="color:var(--grafito-500);text-decoration:none">Cumplimiento</a> <span style="color:var(--grafito-500)">/</span> Contrapartes</p>
+<h1 style="margin:0 0 6px">Contrapartes y debida diligencia</h1>
+<p style="color:var(--grafito-500);margin:0 0 20px;max-width:72ch">Clientes, proveedores, empleados, socios, conductores y propietarios de vehículos vinculados. Cada uno se identifica, se consulta en listas vinculantes y se vuelve a verificar según su riesgo (alto: cada 6 meses; medio y bajo: cada 12). Una coincidencia de nombre no prueba nada: la revisa el oficial antes de decidir.</p>
+
+{% if sin_verificar or coincidencias %}
+<div class="grid gap-4 md:grid-cols-2" style="margin-bottom:20px">
+    {% if coincidencias %}
+    <div class="aviso-alerta" style="border:1px solid;border-radius:8px;padding:12px 16px;font-size:14px"><b>{{ coincidencias|length }} posible{{ 's' if coincidencias|length != 1 }} coincidencia{{ 's' if coincidencias|length != 1 }} sin resolver.</b> Revísalas y decide: bloquear o descartar la coincidencia dejando la razón.</div>
+    {% endif %}
+    {% if sin_verificar %}
+    <div class="aviso-info" style="border:1px solid;border-radius:8px;padding:12px 16px;font-size:14px"><b>{{ sin_verificar|length }} contraparte{{ 's' if sin_verificar|length != 1 }} sin verificación vigente.</b> La debida diligencia se prueba con la fecha y la fuente de cada consulta.</div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if puede_gestionar %}
+<form method="POST" action="{{ url_for('cumplimiento.contraparte_nueva') }}" class="panel grid gap-3 md:grid-cols-6" style="padding:18px 20px;margin-bottom:20px;align-items:end">
+    <div class="md:col-span-2"><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Nombre o razón social</label><input name="nombre" required class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Tipo</label>
+        <select name="tipo" class="campo" style="width:100%">{% for t in tipos %}<option value="{{ t }}">{{ t|replace('_', ' ')|capitalize }}</option>{% endfor %}</select></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Documento</label>
+        <div style="display:flex;gap:4px"><select name="tipo_documento" class="campo" style="padding:8px 6px"><option>NIT</option><option>CC</option><option>CE</option><option>PA</option></select><input name="documento" class="campo" style="width:100%"></div></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">País</label><input name="pais" value="Colombia" class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Riesgo inicial</label>
+        <select name="nivel_riesgo" class="campo" style="width:100%"><option value="bajo">Bajo</option><option value="medio">Medio</option><option value="alto">Alto</option></select></div>
+    <div class="md:col-span-2"><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Actividad económica</label><input name="actividad" class="campo" style="width:100%"></div>
+    <div><label style="display:block;font-size:12px;color:var(--grafito-500);margin-bottom:4px">Vinculación</label><input name="fecha_vinculacion" type="date" class="campo" style="width:100%"></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--grafito-700);padding-bottom:8px"><input type="checkbox" name="pep" class="w-4 h-4 accent-azul"> Persona expuesta políticamente</label>
+    <button class="boton md:col-span-2 justify-self-end" type="submit">Registrar contraparte</button>
+</form>
+{% endif %}
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:13px">
+    <a href="{{ url_for('cumplimiento.contrapartes') }}" class="estado {{ 'e-verde' if not filtro_tipo else 'e-gris' }}" style="text-decoration:none">Todas</a>
+    {% for t in tipos %}<a href="{{ url_for('cumplimiento.contrapartes', tipo=t) }}" class="estado {{ 'e-verde' if filtro_tipo == t else 'e-gris' }}" style="text-decoration:none">{{ t|replace('_', ' ')|capitalize }}</a>{% endfor %}
+</div>
+
+<div class="tabla">
+    <h2>{{ contrapartes|length }} contraparte{{ 's' if contrapartes|length != 1 }}</h2>
+    {% if contrapartes %}
+    <table>
+        <thead><tr><th>Verificación</th><th>Contraparte</th><th>Riesgo</th><th>Última consulta</th><th>Próxima</th>{% if puede_gestionar %}<th>Verificar</th>{% endif %}</tr></thead>
+        <tbody>
+        {% for c in contrapartes %}
+        <tr id="c-{{ c.id }}" {% if c.estado == 'bloqueada' %}style="background:var(--rojo-suave)"{% endif %}>
+            <td>
+                {% if c.estado == 'bloqueada' %}<span class="estado e-rojo">Bloqueada</span>
+                {% elif c.resultado_verificacion == 'coincidencia' %}<span class="estado e-rojo">Coincidencia</span>
+                {% elif c.verificacion_vencida(hoy) %}<span class="estado e-amarillo">{{ 'Sin verificar' if c.resultado_verificacion == 'por_revisar' else 'Vencida' }}</span>
+                {% else %}<span class="estado e-verde">Verificada</span>{% endif %}
+            </td>
+            <td><b>{{ c.nombre }}</b>{% if c.pep %} <span class="estado e-amarillo" style="font-size:11px">PEP</span>{% endif %}<br>
+                <span style="color:var(--grafito-500);font-size:13px">{{ c.tipo|replace('_', ' ')|capitalize }}{% if c.documento %} · {{ c.tipo_documento }} {{ c.documento }}{% endif %}{% if c.pais and c.pais != 'Colombia' %} · {{ c.pais }}{% endif %}</span>
+                {% if c.detalle_verificacion and c.resultado_verificacion == 'coincidencia' %}<br><span style="font-size:12px;color:var(--rojo)">{{ c.detalle_verificacion }}</span>{% endif %}</td>
+            <td><span class="estado e-{{ {'alto':'rojo','medio':'amarillo','bajo':'verde'}[c.nivel_riesgo or 'bajo'] }}">{{ (c.nivel_riesgo or 'bajo')|capitalize }}</span></td>
+            <td class="fecha" style="font-size:13px">{% if c.ultima_verificacion %}{{ c.ultima_verificacion | fecha_corta }}<br><span style="color:var(--grafito-500)">{{ c.fuente_verificacion }}</span>{% else %}—{% endif %}</td>
+            <td class="fecha" style="font-size:13px">{{ c.proxima_verificacion | fecha_corta if c.proxima_verificacion else '—' }}</td>
+            {% if puede_gestionar %}
+            <td style="min-width:240px">
+                <div style="display:grid;gap:6px">
+                    {% if lista_onu_configurada %}
+                    <form method="POST" action="{{ url_for('cumplimiento.contraparte_verificar', cid=c.id) }}"><input type="hidden" name="modo" value="automatico"><button class="boton-secundario" type="submit" style="width:100%">Consultar lista ONU</button></form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('cumplimiento.contraparte_verificar', cid=c.id) }}" style="display:grid;gap:4px">
+                        <input type="hidden" name="modo" value="manual">
+                        <select name="resultado" class="campo" style="padding:6px 8px;font-size:13px" aria-label="Resultado de la consulta manual">
+                            <option value="sin_coincidencia">Consulta manual: sin coincidencia</option>
+                            <option value="coincidencia">Consulta manual: posible coincidencia</option>
+                        </select>
+                        <input name="fuente" placeholder="Fuente (ONU, OFAC, UE)" class="campo" style="padding:6px 8px;font-size:13px">
+                        <button class="boton-secundario" type="submit">Registrar</button>
+                    </form>
+                    {% if c.estado == 'bloqueada' %}
+                    <form method="POST" action="{{ url_for('cumplimiento.contraparte_estado', cid=c.id) }}" style="display:grid;gap:4px">
+                        <input type="hidden" name="estado" value="activa">
+                        <input name="notas" placeholder="Razón para descartar la coincidencia" class="campo" style="padding:6px 8px;font-size:13px" required>
+                        <button class="boton-secundario" type="submit">Descartar coincidencia y activar</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="vacio">Todavía no hay contrapartes registradas. Empieza por los clientes y proveedores con los que más facturas.</p>
+    {% endif %}
+</div>
+
+<p style="margin:16px 0 0;font-size:13px;color:var(--grafito-500)">Consulta manual en las fuentes oficiales:
+    {% for nombre, url in enlaces %}<a href="{{ url }}" target="_blank" rel="noopener">{{ nombre }}</a>{{ ' · ' if not loop.last }}{% endfor %}.
+    {% if not lista_onu_configurada %}La consulta automática a la lista ONU se activa con la variable <code>LISTA_ONU_URL</code>.{% endif %}</p>
+
+{% endblock %}

@@ -13,7 +13,7 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 `venv/Scripts/python.exe` (Windows).
 
 ## Módulos SaaS (catálogo con precios)
-- Catálogo en `app/data/modulos.py` (9 módulos); contratación por empresa en
+- Catálogo en `app/data/modulos.py` (11 módulos: 9 de SST, `cumplimiento` y `crm_legal`); contratación por empresa en
   `EmpresaModulo` (precio pactado opcional); gating por blueprint en
   `app/modulos.py`. Un blueprint comercial nuevo → entrada en el catálogo.
 - Guía estratégica de referencia (30 módulos, jurisprudencia culpa patronal,
@@ -24,6 +24,18 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
   (ALTER TABLE) porque create_all no altera tablas existentes: columna nueva
   en tabla existente → añadirla ahí hasta formalizar Alembic.
 
+## Módulo de cumplimiento (MVP 8-nov-2026 — SARLAFT, PTEE, SAGRILAFT, datos personales)
+- Ficha y backlog E15: `plataforma/02-verticales/09-cumplimiento.md`. Catálogo de programas, requisitos,
+  reportes con fecha y `PARAMETROS` (UVB, UVT, SMMLV, umbrales) en `app/data/programas_cumplimiento.py`:
+  todo nace `verificado=False` y la interfaz lo marca `[VERIFICAR]` hasta que Brian confirme la fuente.
+- Código: `app/models/cumplimiento.py` (tablas `cumpl_*`, 5 modelos tenant ya registrados en aislamiento,
+  backfill y RLS), `app/services/cumplimiento_service.py`, `app/services/listas_restrictivas.py` (lista ONU por
+  `LISTA_ONU_URL`; sin URL, consulta manual), `app/routes/cumplimiento.py` (`/cumplimiento`), plantillas en
+  `app/templates/cumplimiento/`. Rol `ROL_OFICIAL_CUMPLIMIENTO`; escriben `ROLES_CUMPLIMIENTO_GESTION`.
+- La `Contraparte` es de la empresa, no del programa (un tercero se verifica una vez para SARLAFT, PTEE y
+  SAGRILAFT). Una coincidencia en listas bloquea la contraparte hasta que una persona la revise; la app nunca
+  decide sola ni envía ROS.
+
 ## Interfaz (rediseño 23-oct-2026 — leer antes de tocar plantillas)
 - Especificación completa en `rediseno-ui/README.md`; la maqueta `rediseno-ui/mockup-panel.html` es la fuente de verdad visual.
 - Tema claro v2: colores de seguridad NTC 1461 (azul obligación = marca; rojo, amarillo y verde solo como estado) + grafito; Barlow / Barlow Semi Condensed. Tokens en `rediseno-ui/README.md` §2. Nada de colores sueltos en plantillas. El CRM Legal tiene tema propio (verde botella + latón).
@@ -32,9 +44,14 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 - Estado: UI-0 a UI-2 hechos el 7-nov-2026 (rama `ui/rediseno-panel`); UI-3 pendiente. Plantillas de `admin/` definen `block admin_content` (no `content`). Tema por CDN de Tailwind con tokens inline (deuda: compilar con binario standalone).
 - QA de interfaz: `SCHEDULER_ENABLED=0 venv/Scripts/python.exe rediseno-ui/qa_rutas.py` (recorre todas las rutas GET como admin; falla ante 500 o restos del tema oscuro) y `scripts/seed_demo.py` para datos de demostración (solo desarrollo).
 
-## Vertical CRM Legal (23-oct-2026)
-- Especificación y backlog en `../crm_legal/README.md` y `../crm_legal/BACKLOG.md` (épicas C0-C7). Va en `app/verticales/crm_legal/`; el motor de plazos en `app/nucleo/plazos/` (portado de `Apis/radar_judicial`).
-- Prerrequisito: UI-0 y UI-1 de `rediseno-ui/README.md`.
+## Vertical CRM Legal (MVP 7-nov-2026)
+- Especificación y backlog en `../crm_legal/README.md` y `../crm_legal/BACKLOG.md`; estado en `../crm_legal/CONTEXTO.md` §3.
+- Código: `app/verticales/crm_legal/` (`models.py`, `routes.py` → blueprint `crm_legal` en `/legal`, `services/lector.py`, `services/terminos.py`, `services/avisos.py`), plantillas en `app/templates/crm_legal/` con `base.html` y `app/static/css/tema-legal.css` propios (NO usa el `base.html` de SST). Registro de verticales en `app/verticales/__init__.py`.
+- Motor de plazos en `app/nucleo/plazos/` (puro Python, 41 pruebas en `tests/plazos/`). **Ni la IA ni el lector calculan fechas**: solo el motor (ADR-P4).
+- Cuentas: `Empresa.tipo_cuenta='practica_juridica'` → `/` y `/dashboard` redirigen a `/legal`. Roles `ROL_ABOGADO_TITULAR` y `ROL_DEPENDIENTE` (el dependiente no confirma términos: `ROLES_CONFIRMAR_TERMINOS`).
+- Modelos tenant nuevos: `Proceso`, `NotificacionJudicial`, `Termino` (tablas `legal_*`), ya registrados en aislamiento, backfill y RLS.
+- Recordatorios: job `avisos_terminos_task` (6:30 a. m.) en `app/tasks/scheduler.py`; solo términos confirmados; canal `avisos.enviar_correo` (reemplazable en pruebas; WhatsApp va ahí).
+- Demo: `SCHEDULER_ENABLED=0 venv/Scripts/python.exe scripts/crear_cuenta_legal_demo.py`.
 
 ## Reglas duras
 - Roles: usar SIEMPRE `current_user.tiene_rol(...)` + constantes de
@@ -52,7 +69,7 @@ Marca: **Justrabajo** (justrabajo.onrender.com). Python del proyecto:
 
 ## Verificación
 - Boot: `SCHEDULER_ENABLED=0 venv/Scripts/python.exe -c "from app import create_app; create_app('development')"`
-- Tests: `venv/Scripts/python.exe -m pytest tests/ -q` (aislamiento, autoevaluación, jurídico, seguridad, sgsst/epp, panel)
+- Tests: `venv/Scripts/python.exe -m pytest tests/ -q` (128: aislamiento, autoevaluación, jurídico, seguridad, sgsst/epp, panel, crm_legal, plazos, cumplimiento). Las pruebas usan `create_app('testing')` (SQLite en memoria). OJO: Flask-SQLAlchemy 3 crea el engine en `init_app`, así que cambiar `SQLALCHEMY_DATABASE_URI` después de `create_app` no sirve (antes las pruebas borraban `instance/sst.db`).
 - Seed matriz legal: `venv/Scripts/python.exe scripts/seed_matriz_legal.py` (idempotente)
 
 ## Normatividad (estado ago-2026)

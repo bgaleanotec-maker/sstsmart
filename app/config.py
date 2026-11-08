@@ -34,6 +34,10 @@ class BaseConfig:
     # Número de WhatsApp para el CTA de la landing (formato 573001234567)
     CONTACT_WHATSAPP = os.getenv('CONTACT_WHATSAPP', '')
 
+    # Cumplimiento: URL del XML público de la lista consolidada de la ONU para la
+    # verificación automática de contrapartes. Vacía = solo consulta manual.
+    LISTA_ONU_URL = os.getenv('LISTA_ONU_URL', '')
+
     # Scheduler de escalamiento (apagar en workers múltiples / migraciones)
     SCHEDULER_ENABLED = os.getenv('SCHEDULER_ENABLED', '1') == '1'
 

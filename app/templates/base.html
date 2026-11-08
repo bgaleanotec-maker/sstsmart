@@ -99,6 +99,11 @@
             {{ nav_item('controles.listar_controles', 'Controles y riesgos', 'controles', por_blueprint=True) }}
             {{ nav_item('juridico.listar', 'Jurídico', 'juridico', por_blueprint=True) }}
             {{ nav_item('formacion.catalogo', 'Formación', 'formacion', por_blueprint=True) }}
+            {% if 'cumplimiento' in modulos_activos %}
+            <h3>Otras obligaciones</h3>
+            {{ nav_item('cumplimiento.index', 'SARLAFT, PTEE y datos', 'cumplimiento') }}
+            {{ nav_item('cumplimiento.contrapartes', 'Contrapartes', 'cumplimiento') }}
+            {% endif %}
             {% if current_user.tiene_rol('Admin') %}
             <h3>Administración</h3>
             {{ nav_item('admin.dashboard', 'Usuarios y catálogos') }}

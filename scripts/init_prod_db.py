@@ -68,6 +68,9 @@ def main():
             'consultas_juridicas', 'cursos', 'gestion_reportes',
             'autoevaluaciones', 'acciones_mejora', 'empresa_modulos',
             'politicas_sst', 'plan_trabajo_actividades', 'entregas_epp',
+            # Cumplimiento (SARLAFT, PTEE, SAGRILAFT, datos personales)
+            'cumpl_programas', 'cumpl_requisitos', 'cumpl_contrapartes',
+            'cumpl_riesgos', 'cumpl_reportes',
         ]
         for tabla in tablas_tenant:
             try:
